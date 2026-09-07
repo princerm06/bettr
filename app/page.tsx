@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Flame,
   Cloud,
+  Pencil,
   LogOut,
   Image as ImageIcon,
   Plus,
@@ -47,6 +48,7 @@ type Priority = 'critical' | 'high' | 'normal' | 'maintenance';
 type Log = {
   id: string;
   category: CategoryKey;
+  categories?: CategoryKey[];
   activity: string;
   details?: string;
   date: string;
@@ -140,23 +142,109 @@ function categoryFor(key: CategoryKey) {
   return categories.find((category) => category.key === key)!;
 }
 
-function prototypeInsight(category: CategoryKey, activity: string, details: string, hasImage: boolean) {
-  const c = categoryFor(category);
-  const detail = details.trim();
-  const imageLine = hasImage ? ' The photo gives useful context for a future multimodal check.' : '';
-  const prompts: Record<CategoryKey, string> = {
-    appearance: 'Consistency matters more than adding more products. Track what changed and how your skin/hair responds over time.',
-    fashion: 'A useful next step is noting what worked about the fit—silhouette, color balance, accessories, or confidence.',
-    academics: 'Turn the effort into evidence: record the topic covered and one thing you can now recall without notes.',
-    career: 'Favor concrete outputs. Applications sent, revisions made, contacts reached, or interview weaknesses addressed all compound.',
-    finance: 'Connect this entry to a number when possible—amount spent, saved, invested, earned, or avoided.',
-    nutrition: 'A strong nutrition log captures repeatability: what you ate, how easy it was to make, and whether it supports your current goals.',
-    social: 'Initiation is a meaningful win. Note whether you started the interaction, deepened it, or created a clear next touchpoint.',
-    physical: 'Record a performance marker when possible—weight, reps, distance, pace, rounds, or perceived effort—so progress is measurable.',
-    mind: 'Capture one takeaway or skill cue. That makes the log evidence of learning rather than just time spent.',
-    spirituality: 'Focus on sincerity and consistency rather than scoring the experience. A short reflection can preserve what was meaningful.',
-  };
-  return `${c.short}: “${activity}” is a solid entry.${detail ? ` Your note adds ${Math.min(3, Math.max(1, Math.ceil(detail.length / 80)))} layer${detail.length > 80 ? 's' : ''} of context.` : ''}${imageLine} ${prompts[category]}`;
+function categoriesForLog(log: Pick<Log, 'category' | 'categories'>) {
+  const keys = log.categories?.length ? log.categories : [log.category];
+  return Array.from(new Set(keys));
+}
+
+type QualityResult = {
+  status: 'valid' | 'questionable' | 'invalid';
+  message: string;
+  suggestedCategory?: CategoryKey;
+  suggestionMode?: 'switch' | 'add';
+};
+
+const categorySignals: Record<CategoryKey, RegExp> = {
+  appearance: /\b(skin|skincare|hair|groom|shav|hygiene|dental|teeth|face|acne|moistur|cleanser|sunscreen|trim|barber)\w*\b/,
+  fashion: /\b(outfit|fit|wardrobe|shirt|pants|shoe|jacket|style|accessor|watch|jewel|fragrance|cologne|dress)\w*\b/,
+  academics: /\b(stud|class|lecture|homework|assignment|quiz|exam|test|problem|leetcode|course|grade|review|learn|notes?|flashcards?)\w*\b/,
+  career: /\b(job|career|intern|resume|résumé|application|apply|interview|network|recruit|portfolio|project|research|linkedin|meeting|professional)\w*\b/,
+  finance: /\b(budget|spend|spent|save|saved|saving|invest|money|dollar|income|expense|grocer|trade|stock|deposit|cash|debt|bill)\w*\b/,
+  nutrition: /\b(cook|meal|food|protein|calor|nutrition|grocery|water|hydr|breakfast|lunch|dinner|vegetable|fruit|prep)\w*\b/,
+  social: /\b(friend|social|talk|conversation|meet|met|hang|party|event|date|call|text|introduc|connect|plan|roommate)\w*\b/,
+  physical: /\b(gym|lift|run|ran|walk|squat|bench|deadlift|workout|train|mile|km|5k|10k|rep|set|sport|basketball|soccer|mobility|stretch|cardio|pr)\w*\b/,
+  mind: /\b(read|book|journal|meditat|write|wrote|guitar|piano|instrument|language|chess|philosoph|practice|speech|debate|craft|draw|paint|creat)\w*\b/,
+  spirituality: /\b(pray|prayer|church|mosque|temple|scripture|bible|quran|faith|worship|relig|gratitude|spiritual|service|reflection)\w*\b/,
+};
+
+const progressSignals = /\b(stud(?:y|ied|ying)|learn(?:ed|ing)?|read|wrote|write|practic(?:e|ed|ing)|train(?:ed|ing)?|work(?:ed|ing)?|lift(?:ed|ing)?|ran|run(?:ning)?|walk(?:ed|ing)?|cook(?:ed|ing)?|prep(?:ped|ping)?|apply|applied|built|build(?:ing)?|finish(?:ed|ing)?|complete(?:d|ing)?|review(?:ed|ing)?|save(?:d|ing)?|invest(?:ed|ing)?|budget(?:ed|ing)?|plan(?:ned|ning)?|meet|met|talk(?:ed|ing)?|prayed|pray(?:ing)?|journal(?:ed|ing)?|meditat(?:ed|ing)|clean(?:ed|ing)?|organ(?:ize|ized|izing)|improv(?:e|ed|ing)|practice|session|workout|interview|application|assignment|project|meal|routine|class|lecture|exam|quiz|miles?|pages?|reps?|sets?|minutes?|hours?)\b/;
+
+function looksLikeGibberish(compact: string) {
+  const tokens = compact.split(' ').filter(Boolean).filter((token) => token.length > 2);
+  if (!tokens.length) return true;
+  const suspicious = tokens.filter((token) => {
+    const letters = token.replace(/[^a-z]/g, '');
+    if (letters.length < 5) return false;
+    const vowels = (letters.match(/[aeiouy]/g) || []).length;
+    return /[^aeiouy]{5,}/.test(letters) || vowels / letters.length < 0.16 || /(.)\1\1/.test(letters);
+  }).length;
+  const recognizable = progressSignals.test(compact) || Object.values(categorySignals).some((pattern) => pattern.test(compact));
+  return !recognizable && (tokens.length <= 2 || suspicious >= Math.ceil(tokens.length / 2));
+}
+
+function validateLogQuality(categoryKeys: CategoryKey[], activity: string, details: string): QualityResult {
+  const text = `${activity} ${details}`.trim().toLowerCase();
+  const compact = text.replace(/[^a-z0-9$\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  const noCredit = [
+    /\bjerk\w*\s*off\b/, /\bmasturbat\w*\b/, /\bdid nothing\b/, /\bdoom ?scroll\w*\b/,
+    /\bscroll(?:ed|ing)? (?:tiktok|instagram|reels|shorts)\b/, /\bwatched (?:random )?(?:tiktok|reels|shorts)\b/,
+  ];
+  if (noCredit.some((pattern) => pattern.test(compact))) {
+    return { status: 'invalid', message: 'This activity doesn’t appear to represent progress in the selected area, so it won’t affect your score. You can still save it to your private history.' };
+  }
+  if (compact.length < 4 || /^(test|asdf|lol|idk|nothing|stuff|thing|things|random|whatever)$/.test(compact) || looksLikeGibberish(compact)) {
+    return { status: 'questionable', message: 'This entry isn’t clear enough to score confidently. Add a plain-language description of what you did, and it can count once the progress is understandable.' };
+  }
+  const generic = /^(walked|read|studied|worked|workout|gym|ran|cooked|prayed|journaled|talked|socialized)$/i.test(activity.trim());
+  if (generic && !details.trim()) {
+    return { status: 'questionable', message: 'This may be real progress, but it needs a little context before earning points—try adding time, distance, pages, reps, topic, or what changed.' };
+  }
+  const detectedCategories = categories
+    .map((item) => item.key)
+    .filter((key) => categorySignals[key].test(compact));
+
+  if (categoryKeys.length > 1) {
+    const matched = categoryKeys.filter((key) => detectedCategories.includes(key));
+    const requiredMatches = Math.min(categoryKeys.length, Math.max(1, Math.ceil(categoryKeys.length / 2)));
+    if (matched.length < requiredMatches) {
+      const outsideMatch = detectedCategories.find((key) => !categoryKeys.includes(key));
+      if (outsideMatch) {
+        return {
+          status: 'questionable',
+          message: `This activity appears more related to ${categoryFor(outsideMatch).label} than enough of the selected areas. Add the relevant area or clarify how the others were involved.`,
+          suggestedCategory: outsideMatch,
+          suggestionMode: 'add',
+        };
+      }
+      return { status: 'questionable', message: 'You selected several areas, but the entry doesn’t yet explain how it contributed to enough of them. Add a little context or remove categories that weren’t meaningfully involved.' };
+    }
+  } else {
+    const selected = categoryKeys[0];
+    const selectedMatches = detectedCategories.includes(selected);
+    const alternative = detectedCategories.find((key) => key !== selected);
+
+    if (!selectedMatches && alternative) {
+      return {
+        status: 'invalid',
+        message: `This activity looks more related to ${categoryFor(alternative).label} than ${categoryFor(selected).label}. Switch the category to earn progress points, or keep this entry as-is for 0 points.`,
+        suggestedCategory: alternative,
+        suggestionMode: 'switch',
+      };
+    }
+
+    if (!selectedMatches && !progressSignals.test(compact)) {
+      return { status: 'questionable', message: 'This entry doesn’t clearly describe progress in the selected area yet. Add what you actually did or what improved so Himothy can score it fairly.' };
+    }
+  }
+  return { status: 'valid', message: categoryKeys.length > 1 ? 'This looks clear enough to count across the selected areas.' : 'This looks clear enough to count toward the selected area.' };
+}
+
+function prototypeInsight(categoryKeys: CategoryKey[], activity: string, details: string, hasImage: boolean) {
+  const quality = validateLogQuality(categoryKeys, activity, details);
+  if (quality.status !== 'valid') return quality.message;
+  const labels = categoryKeys.map((key) => categoryFor(key).short).join(' + ');
+  const evidence = details.trim() || hasImage ? ' The extra context will also make this entry more useful when you look back later.' : '';
+  return `${labels}: ${quality.message}${evidence}`;
 }
 
 async function compressImage(file: File): Promise<string> {
@@ -188,6 +276,7 @@ type CloudLogRow = {
   id: string;
   user_id: string;
   category: CategoryKey;
+  categories?: CategoryKey[];
   activity: string;
   details: string | null;
   log_date: string;
@@ -217,6 +306,7 @@ async function rowToLog(row: CloudLogRow): Promise<Log> {
   return {
     id: row.id,
     category: row.category,
+    categories: row.categories?.length ? row.categories : [row.category],
     activity: row.activity,
     details: row.details || '',
     date: row.log_date,
@@ -252,6 +342,7 @@ export default function Home() {
   const [quickCategory, setQuickCategory] = useState<Category | null>(null);
   const [composerCategory, setComposerCategory] = useState<CategoryKey>('academics');
   const [showComposer, setShowComposer] = useState(false);
+  const [editingLog, setEditingLog] = useState<Log | null>(null);
   const [showPriority, setShowPriority] = useState(false);
   const [recentLogId, setRecentLogId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -352,6 +443,7 @@ export default function Home() {
                 id: local.id,
                 user_id: user.id,
                 category: local.category,
+                categories: categoriesForLog(local),
                 activity: local.activity,
                 details: local.details || null,
                 log_date: local.date,
@@ -420,7 +512,7 @@ export default function Home() {
   const categoryScores = useMemo(() => {
     const result = {} as Record<CategoryKey, number>;
     categories.forEach((c, i) => {
-      const earned = logs.filter((log) => log.category === c.key).reduce((sum, log) => sum + log.points, 0);
+      const earned = logs.filter((log) => categoriesForLog(log).includes(c.key)).reduce((sum, log) => sum + log.points, 0);
       result[c.key] = Math.min(99, 34 + i * 2 + earned);
     });
     return result;
@@ -433,7 +525,7 @@ export default function Home() {
     const recent = logs.filter((log) => new Date(`${log.date}T12:00:00`) >= week);
     const totalWeight = categories.reduce((sum, category) => sum + priorityWeights[priorities[category.key]], 0);
     const earned = categories.reduce((sum, category) => {
-      const count = recent.filter((log) => log.category === category.key).length;
+      const count = recent.filter((log) => categoriesForLog(log).includes(category.key)).length;
       const priority = priorities[category.key];
       return sum + Math.min(1, count / priorityTargets[priority]) * priorityWeights[priority];
     }, 0);
@@ -458,6 +550,7 @@ export default function Home() {
         id: finalLog.id,
         user_id: user.id,
         category: finalLog.category,
+        categories: categoriesForLog(finalLog),
         activity: finalLog.activity,
         details: finalLog.details || null,
         log_date: finalLog.date,
@@ -500,6 +593,30 @@ export default function Home() {
     setToast(`${categoryFor(log.category).emoji} Custom entry added`);
     window.setTimeout(() => setRecentLogId(null), 1200);
     await persistCloudLog(newLog);
+  }
+
+  async function updateLog(id: string, patch: Omit<Log, 'id' | 'timestamp'>) {
+    const current = logs.find((item) => item.id === id);
+    if (!current) return;
+    let updated: Log = { ...current, ...patch, id, timestamp: current.timestamp };
+    if (supabase && user) {
+      try {
+        if (patch.image?.startsWith('data:')) {
+          const uploaded = await uploadImageForLog(user.id, id, patch.image);
+          updated = { ...updated, imagePath: uploaded.imagePath, image: uploaded.imageUrl || patch.image };
+        }
+        const { error } = await supabase.from('logs').update({
+          category: updated.category, categories: categoriesForLog(updated), activity: updated.activity, details: updated.details || null,
+          log_date: updated.date, points: updated.points, image_path: updated.imagePath || null, ai_insight: updated.aiInsight || null, custom: Boolean(updated.custom),
+        }).eq('id', id);
+        if (error) throw error;
+      } catch (error) {
+        setToast(`Edit saved locally; cloud sync failed: ${error instanceof Error ? error.message : 'unknown error'}`);
+      }
+    }
+    setLogs((prev) => prev.map((item) => item.id === id ? updated : item));
+    setEditingLog(null);
+    setToast('Entry updated');
   }
 
   async function deleteLog(id: string) {
@@ -595,12 +712,12 @@ export default function Home() {
 
           <div className="statsGrid">
             {categories.map((category) => {
-              const hasRecent = logs.some((log) => log.category === category.key && log.id === recentLogId);
+              const hasRecent = logs.some((log) => categoriesForLog(log).includes(category.key) && log.id === recentLogId);
               return (
                 <article className={`stat card ${hasRecent ? 'pulseStat' : ''}`} key={category.key}>
                   <div className="statTop"><span>{category.emoji}</span><div><strong>{category.short}</strong><small>{priorities[category.key]}</small></div><b>{categoryScores[category.key]}</b></div>
                   <div className="bar"><i style={{ width: `${categoryScores[category.key]}%` }}/></div>
-                  <div className="statMeta"><span>{logs.filter((log) => log.category === category.key && log.date >= dayISO(-6)).length} logs this week</span><span>→</span></div>
+                  <div className="statMeta"><span>{logs.filter((log) => categoriesForLog(log).includes(category.key) && log.date >= dayISO(-6)).length} logs this week</span><span>→</span></div>
                 </article>
               );
             })}
@@ -615,11 +732,11 @@ export default function Home() {
             </div>
           </section>
 
-          <RecentMemories logs={logs.slice(0, 4)} onDelete={deleteLog}/>
+          <RecentMemories logs={logs.slice(0, 4)} onDelete={deleteLog} onEdit={setEditingLog}/>
         </>
       )}
 
-      {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog}/>}
+      {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog} onEdit={setEditingLog}/>}
       {tab === 'analytics' && <AnalyticsView logs={logs}/>}
       {tab === 'friends' && <FriendsView/>}
 
@@ -653,6 +770,10 @@ export default function Home() {
 
       {showComposer && (
         <CustomComposer initialCategory={composerCategory} onClose={() => setShowComposer(false)} onSave={saveCustomLog}/>
+      )}
+
+      {editingLog && (
+        <CustomComposer key={`edit-${editingLog.id}`} initialCategory={editingLog.category} existing={editingLog} onClose={() => setEditingLog(null)} onSave={(patch) => updateLog(editingLog.id, patch)}/>
       )}
 
       {showPriority && (
@@ -766,42 +887,43 @@ function AuthScreen() {
   );
 }
 
-function CustomComposer({ initialCategory, onClose, onSave }: {
+function CustomComposer({ initialCategory, existing, onClose, onSave }: {
   initialCategory: CategoryKey;
+  existing?: Log;
   onClose: () => void;
   onSave: (log: Omit<Log, 'id' | 'timestamp'>) => void;
 }) {
-  const [category, setCategory] = useState<CategoryKey>(initialCategory);
-  const [activity, setActivity] = useState('');
-  const [details, setDetails] = useState('');
-  const [image, setImage] = useState<string | undefined>();
+  const [selectedCategories, setSelectedCategories] = useState<CategoryKey[]>(existing ? categoriesForLog(existing) : [initialCategory]);
+  const [activity, setActivity] = useState(existing?.activity || '');
+  const [details, setDetails] = useState(existing?.details || '');
+  const [date, setDate] = useState(existing?.date || todayISO());
+  const [image, setImage] = useState<string | undefined>(existing?.image);
   const [analyze, setAnalyze] = useState(true);
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const quality = activity.trim() ? validateLogQuality(selectedCategories, activity, details) : null;
+
+  function toggleCategory(key: CategoryKey) {
+    setSelectedCategories((current) => current.includes(key) ? (current.length === 1 ? current : current.filter((item) => item !== key)) : [...current, key]);
+  }
 
   async function handleImage(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
     setBusy(true);
-    try {
-      setImage(await compressImage(file));
-    } finally {
-      setBusy(false);
-    }
+    try { setImage(await compressImage(file)); } finally { setBusy(false); }
   }
 
   function submit() {
     const cleanActivity = activity.trim();
-    if (!cleanActivity) return;
+    if (!cleanActivity || !selectedCategories.length) return;
+    const check = validateLogQuality(selectedCategories, cleanActivity, details);
+    const points = check.status === 'valid' ? (details.trim() || image ? 7 : 5) : 0;
     onSave({
-      category,
-      activity: cleanActivity,
-      details: details.trim(),
-      image,
-      aiInsight: analyze ? prototypeInsight(category, cleanActivity, details, Boolean(image)) : undefined,
-      date: todayISO(),
-      points: details.trim() || image ? 7 : 5,
-      custom: true,
+      category: selectedCategories[0], categories: selectedCategories, activity: cleanActivity, details: details.trim(), image,
+      imagePath: existing?.imagePath,
+      aiInsight: analyze ? prototypeInsight(selectedCategories, cleanActivity, details, Boolean(image)) : undefined,
+      date, points, custom: true,
     });
   }
 
@@ -809,68 +931,91 @@ function CustomComposer({ initialCategory, onClose, onSave }: {
     <div className="overlay" onClick={onClose}>
       <div className="modal composer" onClick={(event) => event.stopPropagation()}>
         <button className="close" onClick={onClose}><X/></button>
-        <p className="eyebrow">CUSTOM LOG</p>
-        <h2>What did you do?</h2>
-        <p>Write as much or as little as you want. Photos are optional.</p>
+        <p className="eyebrow">{existing ? 'EDIT LOG' : 'CUSTOM LOG'}</p>
+        <h2>{existing ? 'Update this entry.' : 'What did you do?'}</h2>
+        <p>Select every area this activity meaningfully contributed to. The first selected area is the primary category.</p>
 
-        <label className="fieldLabel">Category</label>
-        <div className="categoryPicker">
-          {categories.map((item) => <button key={item.key} className={category === item.key ? 'selected' : ''} onClick={() => setCategory(item.key)} title={item.label}>{item.emoji}<span>{item.short}</span></button>)}
+        <label className="fieldLabel">Categories <span>select multiple</span></label>
+        <div className="categoryPicker multiCategoryPicker">
+          {categories.map((item) => <button key={item.key} className={selectedCategories.includes(item.key) ? 'selected' : ''} onClick={() => toggleCategory(item.key)} title={item.label}>{item.emoji}<span>{item.short}</span></button>)}
         </div>
+        <div className="selectedCategorySummary">{selectedCategories.map((key) => <span key={key}>{categoryFor(key).emoji} {categoryFor(key).short}</span>)}</div>
 
         <label className="fieldLabel" htmlFor="activity">Entry</label>
         <input id="activity" className="textInput" autoFocus value={activity} onChange={(event) => setActivity(event.target.value)} placeholder="e.g. Hit a new squat PR, cooked salmon bowls, talked to someone new…"/>
 
+        <div className="composerSplit">
+          <div>
+            <label className="fieldLabel" htmlFor="logDate">When did this happen?</label>
+            <div className="dateField">
+              <input id="logDate" className="textInput" type="date" max={todayISO()} value={date} onChange={(event) => setDate(event.target.value)} title="Choose activity date" />
+            </div>
+            {existing && date !== existing.date && <small className="dateEditHint">Date will update from {new Date(`${existing.date}T12:00:00`).toLocaleDateString()} to {new Date(`${date}T12:00:00`).toLocaleDateString()}.</small>}
+          </div>
+        </div>
+
         <label className="fieldLabel" htmlFor="details">Details <span>optional</span></label>
         <textarea id="details" className="textArea" value={details} onChange={(event) => setDetails(event.target.value)} placeholder="Numbers, context, what went well, what you learned, what you want to improve…"/>
 
+        {quality && <div className={`qualityCheck ${quality.status}`}>
+          <strong>{quality.status === 'valid' ? '✓ Looks good' : quality.status === 'questionable' ? 'Category / context check' : 'No progress points'}</strong>
+          <span>{quality.message}</span>
+          {quality.suggestedCategory && (
+            <div className="qualityActions">
+              <button type="button" onClick={() => {
+                const suggestion = quality.suggestedCategory!;
+                if (quality.suggestionMode === 'add') {
+                  setSelectedCategories((current) => current.includes(suggestion) ? current : [...current, suggestion]);
+                } else {
+                  setSelectedCategories([suggestion]);
+                }
+              }}>
+                {quality.suggestionMode === 'add' ? 'Add' : 'Switch to'} {categoryFor(quality.suggestedCategory).emoji} {categoryFor(quality.suggestedCategory).short}
+              </button>
+              <small>If you keep the current category selection, this entry can still be saved but will earn 0 points.</small>
+            </div>
+          )}
+        </div>}
+
         <input ref={fileRef} className="hiddenInput" type="file" accept="image/*" onChange={handleImage}/>
-        {!image ? (
-          <button className="photoDrop" onClick={() => fileRef.current?.click()} disabled={busy}><ImageIcon size={22}/><div><strong>{busy ? 'Preparing photo…' : 'Add a photo'}</strong><small>Fit check, meal, gym PR, project screenshot, book, anything.</small></div></button>
-        ) : (
-          <div className="photoPreview"><img src={image} alt="Custom log preview"/><button onClick={() => setImage(undefined)}><Trash2 size={16}/> Remove</button></div>
-        )}
+        {!image ? <button className="photoDrop" onClick={() => fileRef.current?.click()} disabled={busy}><ImageIcon size={22}/><div><strong>{busy ? 'Preparing photo…' : 'Add a photo'}</strong><small>Fit check, meal, gym PR, project screenshot, book, anything.</small></div></button> : <div className="photoPreview"><img src={image} alt="Custom log preview"/><button onClick={() => setImage(undefined)}><Trash2 size={16}/> Remove</button></div>}
 
-        <label className="aiToggle">
-          <input type="checkbox" checked={analyze} onChange={(event) => setAnalyze(event.target.checked)}/>
-          <span className="toggleTrack"><i/></span>
-          <div><strong><Sparkles size={15}/> AI insight</strong><small>Prototype analysis for now. Real multimodal AI comes with the backend.</small></div>
-        </label>
-
-        <button className="primaryButton submitLog" onClick={submit} disabled={!activity.trim() || busy}><Send size={17}/> Claim this progress</button>
+        <label className="aiToggle"><input type="checkbox" checked={analyze} onChange={(event) => setAnalyze(event.target.checked)}/><span className="toggleTrack"><i/></span><div><strong><Sparkles size={15}/> Smart feedback</strong><small>Supportive prototype check. It evaluates the entry, never the person.</small></div></label>
+        <button className="primaryButton submitLog" onClick={submit} disabled={!activity.trim() || busy}><Send size={17}/> {existing ? 'Save changes' : quality && quality.status !== 'valid' ? 'Save without points' : 'Claim this progress'}</button>
       </div>
     </div>
   );
 }
 
-function RecentMemories({ logs, onDelete }: { logs: Log[]; onDelete: (id: string) => void }) {
+function RecentMemories({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: string) => void; onEdit: (log: Log) => void }) {
   return (
     <section className="memoriesSection">
       <div className="sectionHead"><div><p className="eyebrow">RECENT</p><h2>What you actually did.</h2><p>Entries become a private timeline of your progress.</p></div></div>
       <div className="memoryGrid">
-        {logs.map((log) => <LogCard key={log.id} log={log} onDelete={onDelete}/>) }
+        {logs.map((log) => <LogCard key={log.id} log={log} onDelete={onDelete} onEdit={onEdit}/>) }
       </div>
     </section>
   );
 }
 
-function LogCard({ log, onDelete }: { log: Log; onDelete: (id: string) => void }) {
+function LogCard({ log, onDelete, onEdit }: { log: Log; onDelete: (id: string) => void; onEdit: (log: Log) => void }) {
   const category = categoryFor(log.category);
+  const logAreas = categoriesForLog(log);
   return (
     <article className={`memory card ${log.image ? 'withImage' : ''}`}>
       {log.image && <img className="memoryPhoto" src={log.image} alt="Log attachment"/>}
       <div className="memoryBody">
-        <div className="memoryTop"><span className="memoryCategory">{category.emoji} {category.short}</span><button className="iconButton" title="Delete entry" onClick={() => onDelete(log.id)}><Trash2 size={14}/></button></div>
+        <div className="memoryTop"><span className="memoryCategory">{logAreas.map((key) => `${categoryFor(key).emoji} ${categoryFor(key).short}`).join(" · ")}</span><span><button className="iconButton" title="Edit entry" onClick={() => onEdit(log)}><Pencil size={14}/></button><button className="iconButton" title="Delete entry" onClick={() => onDelete(log.id)}><Trash2 size={14}/></button></span></div>
         <h3>{log.activity}</h3>
         {log.details && <p>{log.details}</p>}
-        {log.aiInsight && <div className="aiInsight"><span><Sparkles size={14}/> AI INSIGHT · PROTOTYPE</span><p>{log.aiInsight}</p></div>}
+        {log.aiInsight && <div className="aiInsight"><span><Sparkles size={14}/> SMART FEEDBACK · PROTOTYPE</span><p>{log.aiInsight}</p></div>}
         <footer><span>{new Date(`${log.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span><b>+{log.points}</b></footer>
       </div>
     </article>
   );
 }
 
-function HistoryView({ logs, onDelete }: { logs: Log[]; onDelete: (id: string) => void }) {
+function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: string) => void; onEdit: (log: Log) => void }) {
   type CalendarMode = 'month' | 'week' | 'year';
   const [mode, setMode] = useState<CalendarMode>('month');
   const [cursor, setCursor] = useState(() => {
@@ -890,7 +1035,7 @@ function HistoryView({ logs, onDelete }: { logs: Log[]; onDelete: (id: string) =
   const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
   const monthPrefix = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
   const monthLogs = logs.filter((log) => log.date.startsWith(monthPrefix));
-  const activeCategories = new Set(monthLogs.map((log) => log.category)).size;
+  const activeCategories = new Set(monthLogs.flatMap((log) => categoriesForLog(log))).size;
   const activeDates = new Set(monthLogs.map((log) => log.date)).size;
 
   const currentStreak = (() => {
@@ -918,7 +1063,7 @@ function HistoryView({ logs, onDelete }: { logs: Log[]; onDelete: (id: string) =
   }, [cursor]);
 
   const categoryTotals = categories
-    .map((category) => ({ category, count: monthLogs.filter((log) => log.category === category.key).length }))
+    .map((category) => ({ category, count: monthLogs.filter((log) => categoriesForLog(log).includes(category.key)).length }))
     .filter((item) => item.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
@@ -964,7 +1109,7 @@ function HistoryView({ logs, onDelete }: { logs: Log[]; onDelete: (id: string) =
             const selected = iso === selectedDate;
             const intensity = dayLogs.length ? Math.max(.18, Math.min(1, dayLogs.length / maxDayCount)) : 0;
             const photo = dayLogs.find((log) => log.image)?.image;
-            const icons = Array.from(new Set(dayLogs.map((log) => categoryFor(log.category).emoji))).slice(0, 4);
+            const icons = Array.from(new Set(dayLogs.flatMap((log) => categoriesForLog(log).map((key) => categoryFor(key).emoji)))).slice(0, 4);
             return (
               <button
                 key={iso}
@@ -1082,6 +1227,7 @@ function HistoryView({ logs, onDelete }: { logs: Log[]; onDelete: (id: string) =
               <div className="selectedDayLogs">
                 {selectedLogs.map((log) => {
                   const category = categoryFor(log.category);
+  const logAreas = categoriesForLog(log);
                   return (
                     <div className="selectedLog" key={log.id}>
                       {log.image ? <img src={log.image} alt=""/> : <span>{category.emoji}</span>}
@@ -1154,8 +1300,8 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
   const delta = previousPoints ? Math.round(((points - previousPoints) / previousPoints) * 100) : 0;
   const totals = categories.map((category) => ({
     category,
-    count: recent.filter((log) => log.category === category.key).length,
-    points: recent.filter((log) => log.category === category.key).reduce((sum, log) => sum + log.points, 0),
+    count: recent.filter((log) => categoriesForLog(log).includes(category.key)).length,
+    points: recent.filter((log) => categoriesForLog(log).includes(category.key)).reduce((sum, log) => sum + log.points, 0),
   })).sort((a, b) => b.points - a.points);
   const maxPoints = Math.max(1, ...totals.map((item) => item.points));
   const activeAreas = totals.filter((item) => item.count > 0).length;

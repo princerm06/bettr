@@ -13,6 +13,7 @@ create table if not exists public.logs (
   id uuid primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
   category text not null check (category in ('appearance','fashion','academics','career','finance','nutrition','social','physical','mind','spirituality')),
+  categories text[] not null check (categories <@ array['appearance','fashion','academics','career','finance','nutrition','social','physical','mind','spirituality']::text[] and cardinality(categories) between 1 and 10),
   activity text not null,
   details text,
   log_date date not null default current_date,
