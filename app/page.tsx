@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Camera,
   Check,
+  ChevronLeft,
   ChevronRight,
   Flame,
   Image as ImageIcon,
@@ -89,6 +90,25 @@ const demoFriend = [
   { id: 'f3', name: 'Jordan', category: 'nutrition' as CategoryKey, activity: 'Cooked dinner instead of ordering', detail: 'Chicken, rice, vegetables', time: 'Yesterday' },
 ];
 
+const dailyQuotes = [
+  { text: 'Waste no more time arguing what a good man should be. Be one.', author: 'Marcus Aurelius', source: 'Meditations' },
+  { text: 'The chief task in life is simply this: to identify and separate matters.', author: 'Epictetus', source: 'Discourses' },
+  { text: 'It is not that we have a short time to live, but that we waste much of it.', author: 'Seneca', source: 'On the Shortness of Life' },
+  { text: 'The unexamined life is not worth living.', author: 'Socrates', source: 'Plato, Apology' },
+  { text: 'He who has a why to live can bear almost any how.', author: 'Friedrich Nietzsche', source: 'Twilight of the Idols' },
+  { text: 'The impediment to action advances action. What stands in the way becomes the way.', author: 'Marcus Aurelius', source: 'Meditations' },
+  { text: 'First say to yourself what you would be; and then do what you have to do.', author: 'Epictetus', source: 'Discourses' },
+  { text: 'While we are postponing, life speeds by.', author: 'Seneca', source: 'Letters to Lucilius' },
+  { text: 'No great thing is created suddenly.', author: 'Epictetus', source: 'Discourses' },
+  { text: 'Difficulties strengthen the mind, as labor does the body.', author: 'Seneca', source: 'On Providence' },
+];
+
+function quoteForDate(date = new Date()) {
+  const start = new Date(date.getFullYear(), 0, 0);
+  const day = Math.floor((date.getTime() - start.getTime()) / 86_400_000);
+  return dailyQuotes[day % dailyQuotes.length];
+}
+
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 function dayISO(offset = 0) {
@@ -164,7 +184,7 @@ export default function Home() {
     appearance: 'normal', fashion: 'maintenance', academics: 'critical', career: 'high', finance: 'normal',
     nutrition: 'high', social: 'maintenance', physical: 'high', mind: 'normal', spirituality: 'normal',
   });
-  const [tab, setTab] = useState<'dashboard' | 'history' | 'friends'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'history' | 'analytics' | 'friends'>('dashboard');
   const [quickCategory, setQuickCategory] = useState<Category | null>(null);
   const [composerCategory, setComposerCategory] = useState<CategoryKey>('academics');
   const [showComposer, setShowComposer] = useState(false);
@@ -283,6 +303,7 @@ export default function Home() {
       <nav className="tabs desktopTabs">
         <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}><BarChart3 size={17}/> Dashboard</button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}><CalendarDays size={17}/> History</button>
+        <button className={tab === 'analytics' ? 'active' : ''} onClick={() => setTab('analytics')}><Sparkles size={17}/> Analytics</button>
         <button className={tab === 'friends' ? 'active' : ''} onClick={() => setTab('friends')}><Users size={17}/> Friends</button>
       </nav>
 
@@ -358,7 +379,8 @@ export default function Home() {
         </>
       )}
 
-      {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog}/>}      
+      {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog}/>}
+      {tab === 'analytics' && <AnalyticsView logs={logs}/>}
       {tab === 'friends' && <FriendsView/>}
 
       <button className="floating" onClick={() => openComposer()}><Plus size={25}/> Log</button>
@@ -368,7 +390,7 @@ export default function Home() {
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}><CalendarDays size={19}/><span>History</span></button>
         <button className="mobilePlus" onClick={() => openComposer()}><Plus size={23}/></button>
         <button className={tab === 'friends' ? 'active' : ''} onClick={() => setTab('friends')}><Users size={19}/><span>Friends</span></button>
-        <button onClick={() => setShowPriority(true)}><Flame size={19}/><span>Priority</span></button>
+        <button className={tab === 'analytics' ? 'active' : ''} onClick={() => setTab('analytics')}><Sparkles size={19}/><span>Stats</span></button>
       </nav>
 
       {quickCategory && (
@@ -528,47 +550,354 @@ function LogCard({ log, onDelete }: { log: Log; onDelete: (id: string) => void }
 }
 
 function HistoryView({ logs, onDelete }: { logs: Log[]; onDelete: (id: string) => void }) {
-  const grouped = logs.reduce((acc, log) => { (acc[log.date] ||= []).push(log); return acc; }, {} as Record<string, Log[]>);
-  const dates = Object.keys(grouped).sort().reverse();
-  const heatDays = Array.from({ length: 35 }, (_, i) => dayISO(i - 34));
-  const maxCount = Math.max(1, ...heatDays.map((date) => grouped[date]?.length || 0));
+  type CalendarMode = 'month' | 'week' | 'year';
+  const [mode, setMode] = useState<CalendarMode>('month');
+  const [cursor, setCursor] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+  const [selectedDate, setSelectedDate] = useState(todayISO());
 
-  return (
-    <section className="pageSection">
-      <p className="eyebrow">YOUR TIMELINE</p>
-      <h2>Proof you were here.</h2>
-      <p className="subtitle">Not a punishment calendar. A record of the person you’re becoming.</p>
+  const grouped = useMemo(() => {
+    return logs.reduce((acc, log) => {
+      (acc[log.date] ||= []).push(log);
+      return acc;
+    }, {} as Record<string, Log[]>);
+  }, [logs]);
 
-      <div className="heatCard card">
-        <div><strong>Last 5 weeks</strong><small>Activity density</small></div>
-        <div className="heatmap">
-          {heatDays.map((date) => {
-            const count = grouped[date]?.length || 0;
-            const strength = count ? Math.max(.22, count / maxCount) : 0;
-            return <div key={date} title={`${date}: ${count} logs`} style={{ '--heat': strength } as React.CSSProperties} className={count ? 'heat activeHeat' : 'heat'}/>;
+  const monthStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+  const monthPrefix = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
+  const monthLogs = logs.filter((log) => log.date.startsWith(monthPrefix));
+  const activeCategories = new Set(monthLogs.map((log) => log.category)).size;
+  const activeDates = new Set(monthLogs.map((log) => log.date)).size;
+
+  const currentStreak = (() => {
+    let streak = 0;
+    const day = new Date();
+    day.setHours(12, 0, 0, 0);
+    while (true) {
+      const iso = day.toISOString().slice(0, 10);
+      if (!grouped[iso]?.length) break;
+      streak += 1;
+      day.setDate(day.getDate() - 1);
+    }
+    return streak;
+  })();
+
+  const monthCells = useMemo(() => {
+    const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    const gridStart = new Date(first);
+    gridStart.setDate(1 - first.getDay());
+    return Array.from({ length: 42 }, (_, index) => {
+      const date = new Date(gridStart);
+      date.setDate(gridStart.getDate() + index);
+      return date;
+    });
+  }, [cursor]);
+
+  const categoryTotals = categories
+    .map((category) => ({ category, count: monthLogs.filter((log) => log.category === category.key).length }))
+    .filter((item) => item.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const recentHighlights = monthLogs
+    .filter((log) => log.image || log.custom || log.points >= 7)
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(0, 4);
+
+  const selectedLogs = grouped[selectedDate] || [];
+  const maxDayCount = Math.max(1, ...monthCells.map((date) => grouped[date.toISOString().slice(0, 10)]?.length || 0));
+
+  function shiftPeriod(direction: number) {
+    if (mode === 'year') {
+      setCursor((prev) => new Date(prev.getFullYear() + direction, prev.getMonth(), 1));
+    } else if (mode === 'week') {
+      setCursor((prev) => {
+        const next = new Date(prev);
+        next.setDate(next.getDate() + direction * 7);
+        return next;
+      });
+    } else {
+      setCursor((prev) => new Date(prev.getFullYear(), prev.getMonth() + direction, 1));
+    }
+  }
+
+  function jumpToday() {
+    const now = new Date();
+    setCursor(new Date(now.getFullYear(), now.getMonth(), 1));
+    setSelectedDate(todayISO());
+  }
+
+  function renderMonth() {
+    return (
+      <div className="calendarPanel card">
+        <div className="weekdayRow">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day) => <span key={day}>{day}</span>)}</div>
+        <div className="monthGrid">
+          {monthCells.map((date) => {
+            const iso = date.toISOString().slice(0, 10);
+            const dayLogs = grouped[iso] || [];
+            const inMonth = date.getMonth() === cursor.getMonth();
+            const isToday = iso === todayISO();
+            const selected = iso === selectedDate;
+            const intensity = dayLogs.length ? Math.max(.18, Math.min(1, dayLogs.length / maxDayCount)) : 0;
+            const photo = dayLogs.find((log) => log.image)?.image;
+            const icons = Array.from(new Set(dayLogs.map((log) => categoryFor(log.category).emoji))).slice(0, 4);
+            return (
+              <button
+                key={iso}
+                className={`calendarDay ${!inMonth ? 'outsideMonth' : ''} ${dayLogs.length ? 'hasActivity' : ''} ${selected ? 'selectedDay' : ''} ${isToday ? 'todayDay' : ''}`}
+                style={dayLogs.length ? { '--dayHeat': intensity } as React.CSSProperties : undefined}
+                onClick={() => setSelectedDate(iso)}
+              >
+                <span className="dayNumber">{date.getDate()}</span>
+                {photo && <img className="dayThumb" src={photo} alt=""/>}
+                {dayLogs.length > 0 && (
+                  <div className="dayBottom">
+                    <div className="dayDots">{icons.map((icon, index) => <span key={`${icon}-${index}`}>{icon}</span>)}</div>
+                    <b>{dayLogs.length}</b>
+                  </div>
+                )}
+              </button>
+            );
           })}
         </div>
       </div>
+    );
+  }
 
-      <div className="timeline">
-        {dates.map((date) => (
-          <article className="card day" key={date}>
-            <div className="dayDate"><strong>{new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</strong><small>{new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long' })}</small></div>
-            <div className="dayLogs">
-              {grouped[date].map((log) => {
-                const category = categoryFor(log.category);
-                return (
-                  <div className="historyLog" key={log.id}>
-                    {log.image ? <img src={log.image} alt="Log"/> : <span className="historyEmoji">{category.emoji}</span>}
-                    <div><strong>{log.activity}</strong><small>{category.short}{log.details ? ` · ${log.details}` : ''}</small></div>
-                    <button className="iconButton" onClick={() => onDelete(log.id)}><Trash2 size={14}/></button>
-                  </div>
-                );
-              })}
+  function renderWeek() {
+    const anchor = new Date(cursor);
+    const start = new Date(anchor);
+    start.setDate(anchor.getDate() - anchor.getDay());
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(start);
+      date.setDate(start.getDate() + index);
+      return date;
+    });
+    return (
+      <div className="weekCalendar card">
+        {days.map((date) => {
+          const iso = date.toISOString().slice(0, 10);
+          const items = grouped[iso] || [];
+          return (
+            <button key={iso} className={`weekDay ${iso === selectedDate ? 'selectedDay' : ''}`} onClick={() => setSelectedDate(iso)}>
+              <span>{date.toLocaleDateString(undefined, { weekday: 'short' })}</span>
+              <strong>{date.getDate()}</strong>
+              <small>{items.length} {items.length === 1 ? 'entry' : 'entries'}</small>
+              <div className="weekIcons">{items.slice(0, 5).map((log) => <i key={log.id}>{categoryFor(log.category).emoji}</i>)}</div>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function renderYear() {
+    const year = cursor.getFullYear();
+    return (
+      <div className="yearGrid">
+        {Array.from({ length: 12 }, (_, month) => {
+          const prefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+          const count = logs.filter((log) => log.date.startsWith(prefix)).length;
+          const active = new Set(logs.filter((log) => log.date.startsWith(prefix)).map((log) => log.date)).size;
+          return (
+            <button key={month} className="yearMonth card" onClick={() => { setCursor(new Date(year, month, 1)); setMode('month'); }}>
+              <span>{new Date(year, month, 1).toLocaleDateString(undefined, { month: 'short' })}</span>
+              <strong>{count}</strong>
+              <small>{active} active days</small>
+              <div className="yearBar"><i style={{ width: `${Math.min(100, count * 5)}%` }}/></div>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  const periodLabel = mode === 'year'
+    ? String(cursor.getFullYear())
+    : mode === 'week'
+      ? `Week of ${new Date(cursor).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+      : cursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
+  return (
+    <section className="pageSection calendarPage">
+      <div className="calendarTitleRow">
+        <div>
+          <p className="eyebrow">ACTIVITY CALENDAR</p>
+          <h2>Your progress, at a glance.</h2>
+          <p className="subtitle">A visual record of what you actually did—not a guilt grid.</p>
+        </div>
+        <div className="calendarControls">
+          <button className="calendarArrow" onClick={() => shiftPeriod(-1)}><ChevronLeft size={18}/></button>
+          <strong>{periodLabel}</strong>
+          <button className="calendarArrow" onClick={() => shiftPeriod(1)}><ChevronRight size={18}/></button>
+          <button className="todayButton" onClick={jumpToday}>Today</button>
+          <div className="viewSwitch">
+            {(['month','week','year'] as CalendarMode[]).map((item) => <button key={item} className={mode === item ? 'active' : ''} onClick={() => setMode(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}
+          </div>
+        </div>
+      </div>
+
+      <div className="calendarSummary">
+        <article className="calendarMetric card"><span className="metricIcon">🔥</span><div><strong>{currentStreak}</strong><small>Day streak</small></div></article>
+        <article className="calendarMetric card"><span className="metricIcon">📊</span><div><strong>{monthLogs.length}</strong><small>Entries this month</small></div></article>
+        <article className="calendarMetric card"><span className="metricIcon">🏆</span><div><strong>{activeCategories}/10</strong><small>Areas active</small></div></article>
+        <article className="calendarMetric card"><span className="metricIcon">⭐</span><div><strong>{activeDates}</strong><small>Active days</small></div></article>
+        <article className="intensityLegend card"><span>Activity intensity</span><div>{[0,.25,.45,.7,1].map((strength, i) => <i key={i} style={{ '--legendHeat': strength } as React.CSSProperties}/>)}</div><small><span>None</span><span>High</span></small></article>
+      </div>
+
+      <div className="calendarBody">
+        <div className="calendarMain">
+          {mode === 'month' ? renderMonth() : mode === 'week' ? renderWeek() : renderYear()}
+
+          <article className="selectedDayCard card">
+            <div className="selectedDayHead">
+              <div><p className="eyebrow">SELECTED DAY</p><h3>{new Date(`${selectedDate}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</h3></div>
+              <span>{selectedLogs.length} {selectedLogs.length === 1 ? 'entry' : 'entries'}</span>
+            </div>
+            {selectedLogs.length ? (
+              <div className="selectedDayLogs">
+                {selectedLogs.map((log) => {
+                  const category = categoryFor(log.category);
+                  return (
+                    <div className="selectedLog" key={log.id}>
+                      {log.image ? <img src={log.image} alt=""/> : <span>{category.emoji}</span>}
+                      <div><strong>{log.activity}</strong><small>{category.short}{log.details ? ` · ${log.details}` : ''}</small></div>
+                      <b>+{log.points}</b>
+                      <button className="iconButton" onClick={() => onDelete(log.id)}><Trash2 size={14}/></button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : <div className="emptyDay">Nothing logged here. Rest days and focused days both belong in the story.</div>}
+          </article>
+        </div>
+
+        <aside className="calendarSidebar">
+          <article className="sideCard card">
+            <div className="sideHead"><strong>Most active areas</strong><span>{cursor.toLocaleDateString(undefined, { month: 'short' })}</span></div>
+            <div className="activeAreas">
+              {categoryTotals.length ? categoryTotals.map(({ category, count }) => (
+                <div key={category.key}><span>{category.emoji}</span><strong>{category.short}</strong><b>{count}</b></div>
+              )) : <p className="sideEmpty">Your category breakdown will appear here.</p>}
             </div>
           </article>
-        ))}
+
+          <article className="sideCard card">
+            <div className="sideHead"><strong>Recent highlights</strong><Sparkles size={15}/></div>
+            <div className="highlightsList">
+              {recentHighlights.length ? recentHighlights.map((log) => (
+                <button key={log.id} onClick={() => setSelectedDate(log.date)}>
+                  {log.image ? <img src={log.image} alt=""/> : <span>{categoryFor(log.category).emoji}</span>}
+                  <div><strong>{log.activity}</strong><small>{categoryFor(log.category).short} · {new Date(`${log.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</small></div>
+                </button>
+              )) : <p className="sideEmpty">Photo logs, custom entries, and bigger wins will surface here.</p>}
+            </div>
+          </article>
+
+          <DailyQuoteCard />
+        </aside>
       </div>
+    </section>
+  );
+}
+
+
+function DailyQuoteCard() {
+  const quote = quoteForDate();
+  return (
+    <article className="calendarQuote card">
+      <span>“</span>
+      <p>{quote.text}</p>
+      <small>— {quote.author} · {quote.source}</small>
+    </article>
+  );
+}
+
+function AnalyticsView({ logs }: { logs: Log[] }) {
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  cutoff.setDate(cutoff.getDate() - 29);
+  const recent = logs.filter((log) => new Date(`${log.date}T12:00:00`) >= cutoff);
+  const priorCutoff = new Date(cutoff);
+  priorCutoff.setDate(priorCutoff.getDate() - 30);
+  const previous = logs.filter((log) => {
+    const date = new Date(`${log.date}T12:00:00`);
+    return date >= priorCutoff && date < cutoff;
+  });
+  const activeDays = new Set(recent.map((log) => log.date)).size;
+  const points = recent.reduce((sum, log) => sum + log.points, 0);
+  const previousPoints = previous.reduce((sum, log) => sum + log.points, 0);
+  const delta = previousPoints ? Math.round(((points - previousPoints) / previousPoints) * 100) : 0;
+  const totals = categories.map((category) => ({
+    category,
+    count: recent.filter((log) => log.category === category.key).length,
+    points: recent.filter((log) => log.category === category.key).reduce((sum, log) => sum + log.points, 0),
+  })).sort((a, b) => b.points - a.points);
+  const maxPoints = Math.max(1, ...totals.map((item) => item.points));
+  const activeAreas = totals.filter((item) => item.count > 0).length;
+  const balance = activeAreas ? Math.round((activeAreas / categories.length) * 100) : 0;
+  const top = totals[0];
+  const days = Array.from({ length: 30 }, (_, index) => {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() - (29 - index));
+    const iso = date.toISOString().slice(0, 10);
+    const dayLogs = recent.filter((log) => log.date === iso);
+    return { iso, date, count: dayLogs.length, points: dayLogs.reduce((sum, log) => sum + log.points, 0) };
+  });
+  const maxDayPoints = Math.max(1, ...days.map((day) => day.points));
+  const quote = quoteForDate();
+
+  return (
+    <section className="pageSection analyticsPage">
+      <div className="analyticsTitle">
+        <div>
+          <p className="eyebrow">ANALYTICS</p>
+          <h2>See what your effort is becoming.</h2>
+          <p className="subtitle">Thirty-day patterns, category balance, and where your attention is actually going.</p>
+        </div>
+        <div className="quoteChip"><span>“</span><p>{quote.text}</p><small>— {quote.author}</small></div>
+      </div>
+
+      <div className="analyticsMetrics">
+        <article className="analyticsMetric card"><small>30-DAY POINTS</small><strong>{points}</strong><span className={delta >= 0 ? 'up' : 'down'}>{delta >= 0 ? '↑' : '↓'} {Math.abs(delta)}% vs prior 30d</span></article>
+        <article className="analyticsMetric card"><small>ACTIVE DAYS</small><strong>{activeDays}<i>/30</i></strong><span>{Math.round((activeDays / 30) * 100)}% consistency</span></article>
+        <article className="analyticsMetric card"><small>AREAS ACTIVE</small><strong>{activeAreas}<i>/10</i></strong><span>{balance}% life coverage</span></article>
+        <article className="analyticsMetric card"><small>TOP FOCUS</small><strong className="focusStat">{top.category.emoji} {top.category.short}</strong><span>{top.points} points · {top.count} logs</span></article>
+      </div>
+
+      <div className="analyticsGrid">
+        <article className="card trendCard">
+          <div className="analyticsCardHead"><div><p className="eyebrow">MOMENTUM</p><h3>Last 30 days</h3></div><span>{recent.length} entries</span></div>
+          <div className="trendBars">
+            {days.map((day) => <i key={day.iso} title={`${day.iso}: ${day.count} logs`} style={{ height: `${Math.max(5, (day.points / maxDayPoints) * 100)}%` }} className={day.count ? 'active' : ''}/>) }
+          </div>
+          <div className="trendAxis"><span>{days[0].date.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><span>Today</span></div>
+        </article>
+
+        <article className="card balanceCard">
+          <div className="analyticsCardHead"><div><p className="eyebrow">BALANCE</p><h3>Life coverage</h3></div><span>{balance}%</span></div>
+          <div className="balanceRing" style={{ '--balance': `${balance * 3.6}deg` } as React.CSSProperties}><div><strong>{balance}</strong><small>BALANCE</small></div></div>
+          <p>Balance is coverage, not a demand to split your time equally. Priorities can still dominate when they should.</p>
+        </article>
+      </div>
+
+      <article className="card categoryAnalytics">
+        <div className="analyticsCardHead"><div><p className="eyebrow">CATEGORY BREAKDOWN</p><h3>Where the work went</h3></div><span>30 days</span></div>
+        <div className="categoryAnalyticsList">
+          {totals.map(({ category, count, points: categoryPoints }) => (
+            <div className="categoryAnalyticsRow" key={category.key}>
+              <span className="analyticsEmoji">{category.emoji}</span>
+              <div className="analyticsLabel"><strong>{category.short}</strong><small>{count} {count === 1 ? 'log' : 'logs'}</small></div>
+              <div className="analyticsBar"><i style={{ width: `${(categoryPoints / maxPoints) * 100}%` }}/></div>
+              <b>{categoryPoints}</b>
+            </div>
+          ))}
+        </div>
+      </article>
     </section>
   );
 }
