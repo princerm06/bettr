@@ -1,6 +1,8 @@
 'use client';
 
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import type { User } from '@supabase/supabase-js';
+import { supabase, supabaseConfigured } from '../lib/supabase';
 import {
   BarChart3,
   CalendarDays,
@@ -9,6 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
+  Cloud,
+  LogOut,
   Image as ImageIcon,
   Plus,
   Send,
@@ -49,6 +53,7 @@ type Log = {
   timestamp: number;
   points: number;
   image?: string;
+  imagePath?: string;
   aiInsight?: string;
   custom?: boolean;
 };
@@ -178,6 +183,65 @@ async function compressImage(file: File): Promise<string> {
   });
 }
 
+
+type CloudLogRow = {
+  id: string;
+  user_id: string;
+  category: CategoryKey;
+  activity: string;
+  details: string | null;
+  log_date: string;
+  created_at: string;
+  points: number;
+  image_path: string | null;
+  ai_insight: string | null;
+  custom: boolean;
+};
+
+function dataUrlToBlob(dataUrl: string) {
+  const [meta, encoded] = dataUrl.split(',');
+  const mime = meta.match(/data:(.*?);base64/)?.[1] || 'image/jpeg';
+  const binary = atob(encoded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+async function signedImageUrl(path?: string | null) {
+  if (!supabase || !path) return undefined;
+  const { data } = await supabase.storage.from('log-images').createSignedUrl(path, 60 * 60 * 12);
+  return data?.signedUrl;
+}
+
+async function rowToLog(row: CloudLogRow): Promise<Log> {
+  return {
+    id: row.id,
+    category: row.category,
+    activity: row.activity,
+    details: row.details || '',
+    date: row.log_date,
+    timestamp: new Date(row.created_at).getTime(),
+    points: row.points,
+    imagePath: row.image_path || undefined,
+    image: await signedImageUrl(row.image_path),
+    aiInsight: row.ai_insight || undefined,
+    custom: row.custom,
+  };
+}
+
+async function uploadImageForLog(userId: string, logId: string, image?: string) {
+  if (!supabase || !image?.startsWith('data:')) return { imagePath: undefined, imageUrl: image };
+  const blob = dataUrlToBlob(image);
+  const extension = blob.type.includes('png') ? 'png' : 'jpg';
+  const imagePath = `${userId}/${logId}.${extension}`;
+  const { error } = await supabase.storage.from('log-images').upload(imagePath, blob, {
+    contentType: blob.type,
+    upsert: true,
+  });
+  if (error) throw error;
+  return { imagePath, imageUrl: await signedImageUrl(imagePath) };
+}
+
 export default function Home() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [priorities, setPriorities] = useState<Record<CategoryKey, Priority>>({
@@ -191,8 +255,18 @@ export default function Home() {
   const [showPriority, setShowPriority] = useState(false);
   const [recentLogId, setRecentLogId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(!supabaseConfigured);
+  const [cloudReady, setCloudReady] = useState(!supabaseConfigured);
+  const [profileName, setProfileName] = useState('Prince');
+  const [accountOpen, setAccountOpen] = useState(false);
 
   useEffect(() => {
+    // Local prototype data is only hydrated directly when cloud mode is off.
+    // In cloud mode, legacy local data is offered to exactly one signed-in account
+    // during the migration step below so another account on the same browser can
+    // never accidentally inherit somebody else's logs.
+    if (supabaseConfigured) return;
     const savedLogs = localStorage.getItem('himothy.logs.v2');
     const oldLogs = localStorage.getItem('himothy.logs');
     const savedPriorities = localStorage.getItem('himothy.priorities');
@@ -216,19 +290,130 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (logs.length) {
-      try {
-        localStorage.setItem('himothy.logs.v2', JSON.stringify(logs));
-      } catch {
-        setToast('Photo storage is full. Future builds will use cloud storage.');
+    if (!supabase) return;
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      setUser(data.session?.user ?? null);
+      setAuthReady(true);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthReady(true);
+    });
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!supabase || !user) return;
+    let cancelled = false;
+    async function hydrateCloud() {
+      setCloudReady(false);
+      const [{ data: remoteLogs, error: logsError }, { data: priorityRow }, { data: profileRow }] = await Promise.all([
+        supabase.from('logs').select('*').order('created_at', { ascending: false }),
+        supabase.from('user_priorities').select('priorities').maybeSingle(),
+        supabase.from('profiles').select('display_name').maybeSingle(),
+      ]);
+      if (cancelled) return;
+      if (logsError) {
+        setToast(`Cloud sync needs setup: ${logsError.message}`);
+        setCloudReady(true);
+        return;
       }
+
+      if (profileRow?.display_name) setProfileName(profileRow.display_name);
+      else setProfileName(user.user_metadata?.display_name || user.email?.split('@')[0] || 'Himothy');
+      if (priorityRow?.priorities) setPriorities(priorityRow.priorities as Record<CategoryKey, Priority>);
+
+      if (remoteLogs?.length) {
+        const hydrated = await Promise.all((remoteLogs as CloudLogRow[]).map(rowToLog));
+        if (!cancelled) setLogs(hydrated);
+      } else {
+        const migrationOwner = localStorage.getItem('himothy.legacyMigrationClaimed');
+        const canClaimLegacy = !migrationOwner || migrationOwner === user.id;
+        const localRaw = canClaimLegacy ? localStorage.getItem('himothy.logs.v2') : null;
+        const localLogs = localRaw ? (JSON.parse(localRaw) as Log[]) : [];
+        if (localLogs.length) {
+          const migrated: Log[] = [];
+          let migrationFailed = false;
+          for (const local of localLogs) {
+            let imagePath = local.imagePath;
+            let imageUrl = local.image;
+            try {
+              if (local.image?.startsWith('data:')) {
+                const uploaded = await uploadImageForLog(user.id, local.id, local.image);
+                imagePath = uploaded.imagePath;
+                imageUrl = uploaded.imageUrl;
+              }
+              const { error } = await supabase.from('logs').insert({
+                id: local.id,
+                user_id: user.id,
+                category: local.category,
+                activity: local.activity,
+                details: local.details || null,
+                log_date: local.date,
+                created_at: new Date(local.timestamp).toISOString(),
+                points: local.points,
+                image_path: imagePath || null,
+                ai_insight: local.aiInsight || null,
+                custom: Boolean(local.custom),
+              });
+              if (error) throw error;
+              migrated.push({ ...local, imagePath, image: imageUrl });
+            } catch {
+              migrationFailed = true;
+            }
+          }
+          if (!migrationFailed) {
+            localStorage.setItem('himothy.legacyMigrationClaimed', user.id);
+            localStorage.removeItem('himothy.logs.v2');
+            localStorage.removeItem('himothy.logs');
+            if (!cancelled) setToast(`Imported ${migrated.length} local ${migrated.length === 1 ? 'log' : 'logs'} into your account.`);
+          } else if (!cancelled) {
+            setToast('Some local logs could not migrate. Your local copy was left untouched.');
+          }
+          if (!cancelled) setLogs(migrated);
+        } else if (!cancelled) {
+          setLogs([]);
+        }
+      }
+      if (!cancelled) setCloudReady(true);
     }
-  }, [logs]);
-  useEffect(() => { localStorage.setItem('himothy.priorities', JSON.stringify(priorities)); }, [priorities]);
+    hydrateCloud();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  useEffect(() => {
+    if (!logs.length) return;
+    try {
+      const key = supabaseConfigured && user ? `himothy.logs.v2.${user.id}` : 'himothy.logs.v2';
+      localStorage.setItem(key, JSON.stringify(logs));
+    } catch {
+      setToast('Local cache is full. Cloud photos remain safe when Supabase is connected.');
+    }
+  }, [logs, user]);
+
+  useEffect(() => {
+    const priorityKey = supabaseConfigured && user ? `himothy.priorities.${user.id}` : 'himothy.priorities';
+    localStorage.setItem(priorityKey, JSON.stringify(priorities));
+    if (!supabase || !user || !cloudReady) return;
+    const timer = window.setTimeout(async () => {
+      const { error } = await supabase.from('user_priorities').upsert({
+        user_id: user.id,
+        priorities,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) setToast(`Could not sync priorities: ${error.message}`);
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [priorities, user, cloudReady]);
 
   useEffect(() => {
     if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 2600);
+    const timer = window.setTimeout(() => setToast(null), 3000);
     return () => window.clearTimeout(timer);
   }, [toast]);
 
@@ -260,13 +445,44 @@ export default function Home() {
   const level = Math.max(1, Math.floor(logs.reduce((sum, log) => sum + log.points, 0) / 28) + 14);
   const primaryPriority = categories.find((category) => priorities[category.key] === 'critical') || categories[0];
 
-  function claimLog(category: CategoryKey, activity: string) {
+  async function persistCloudLog(log: Log) {
+    if (!supabase || !user) return log;
+    let finalLog = log;
+    try {
+      if (log.image?.startsWith('data:')) {
+        const uploaded = await uploadImageForLog(user.id, log.id, log.image);
+        finalLog = { ...log, imagePath: uploaded.imagePath, image: uploaded.imageUrl || log.image };
+        setLogs((prev) => prev.map((item) => item.id === log.id ? finalLog : item));
+      }
+      const { error } = await supabase.from('logs').insert({
+        id: finalLog.id,
+        user_id: user.id,
+        category: finalLog.category,
+        activity: finalLog.activity,
+        details: finalLog.details || null,
+        log_date: finalLog.date,
+        created_at: new Date(finalLog.timestamp).toISOString(),
+        points: finalLog.points,
+        image_path: finalLog.imagePath || null,
+        ai_insight: finalLog.aiInsight || null,
+        custom: Boolean(finalLog.custom),
+      });
+      if (error) throw error;
+    } catch (error) {
+      setToast(`Saved locally; cloud sync failed: ${error instanceof Error ? error.message : 'unknown error'}`);
+    }
+    return finalLog;
+  }
+
+  async function claimLog(category: CategoryKey, activity: string) {
     const id = crypto.randomUUID();
-    setLogs((prev) => [{ id, category, activity, date: todayISO(), timestamp: Date.now(), points: 5 }, ...prev]);
+    const log: Log = { id, category, activity, date: todayISO(), timestamp: Date.now(), points: 5 };
+    setLogs((prev) => [log, ...prev]);
     setQuickCategory(null);
     setRecentLogId(id);
     setToast(`+5 ${categoryFor(category).short} · claimed`);
     window.setTimeout(() => setRecentLogId(null), 1200);
+    await persistCloudLog(log);
   }
 
   function openComposer(category?: CategoryKey) {
@@ -275,19 +491,29 @@ export default function Home() {
     setShowComposer(true);
   }
 
-  function saveCustomLog(log: Omit<Log, 'id' | 'timestamp'>) {
+  async function saveCustomLog(log: Omit<Log, 'id' | 'timestamp'>) {
     const id = crypto.randomUUID();
-    setLogs((prev) => [{ ...log, id, timestamp: Date.now(), custom: true }, ...prev]);
+    const newLog: Log = { ...log, id, timestamp: Date.now(), custom: true };
+    setLogs((prev) => [newLog, ...prev]);
     setShowComposer(false);
     setRecentLogId(id);
     setToast(`${categoryFor(log.category).emoji} Custom entry added`);
     window.setTimeout(() => setRecentLogId(null), 1200);
+    await persistCloudLog(newLog);
   }
 
-  function deleteLog(id: string) {
+  async function deleteLog(id: string) {
+    const target = logs.find((log) => log.id === id);
     setLogs((prev) => prev.filter((log) => log.id !== id));
     setToast('Entry removed');
+    if (!supabase || !user) return;
+    const { error } = await supabase.from('logs').delete().eq('id', id);
+    if (error) setToast(`Removed locally; cloud delete failed: ${error.message}`);
+    if (target?.imagePath) await supabase.storage.from('log-images').remove([target.imagePath]);
   }
+
+  if (supabaseConfigured && !authReady) return <CloudBoot/>;
+  if (supabaseConfigured && authReady && !user) return <AuthScreen/>;
 
   return (
     <main className="shell">
@@ -297,7 +523,21 @@ export default function Home() {
           <h1>HIMOTHY</h1>
           <p className="subtitle">Become more capable. Together.</p>
         </div>
-        <button className="avatar" aria-label="Profile">P</button>
+        <div className="accountCluster">
+          {supabaseConfigured && <span className={`cloudBadge ${cloudReady ? 'ready' : ''}`}><Cloud size={13}/> {cloudReady ? 'Cloud' : 'Syncing'}</span>}
+          <button className="avatar" aria-label="Profile" onClick={() => setAccountOpen((value) => !value)}>{profileName.slice(0, 1).toUpperCase()}</button>
+          {accountOpen && (
+            <div className="accountMenu card">
+              <strong>{profileName}</strong>
+              <small>{user?.email || 'Local prototype mode'}</small>
+              {supabaseConfigured ? (
+                <button onClick={async () => { setAccountOpen(false); await supabase?.auth.signOut(); }}><LogOut size={15}/> Sign out</button>
+              ) : (
+                <p>Add Supabase keys to turn on accounts and cloud sync.</p>
+              )}
+            </div>
+          )}
+        </div>
       </header>
 
       <nav className="tabs desktopTabs">
@@ -441,6 +681,87 @@ export default function Home() {
       )}
 
       {toast && <div className="toast">{toast}</div>}
+    </main>
+  );
+}
+
+
+function CloudBoot() {
+  return (
+    <main className="authShell">
+      <div className="authCard card cloudBoot">
+        <div className="authMark">H</div>
+        <p className="eyebrow">HIMOTHY CLOUD</p>
+        <h1>Getting your account ready.</h1>
+        <p>Checking your session and syncing your progress.</p>
+        <div className="syncPulse"><i/><i/><i/></div>
+      </div>
+    </main>
+  );
+}
+
+function AuthScreen() {
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!supabase || !email.trim() || password.length < 6) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      if (mode === 'signin') {
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { data: { display_name: displayName.trim() || email.split('@')[0] } },
+        });
+        if (error) throw error;
+        if (!data.session) setMessage('Account created. Check your email to confirm it, then sign in.');
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not authenticate.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <main className="authShell">
+      <section className="authBrand">
+        <p className="eyebrow">PRIVATE BETA</p>
+        <h1>HIMOTHY</h1>
+        <h2>Become more capable.<br/><span>Together.</span></h2>
+        <p>Your progress, priorities, photos, and history now follow you across devices.</p>
+        <div className="authPromises">
+          <span><Check size={15}/> Private account</span>
+          <span><Cloud size={15}/> Cloud-synced progress</span>
+          <span><ImageIcon size={15}/> Private photo storage</span>
+        </div>
+      </section>
+      <form className="authCard card" onSubmit={submit}>
+        <div className="authMark">H</div>
+        <p className="eyebrow">{mode === 'signin' ? 'WELCOME BACK' : 'JOIN HIMOTHY'}</p>
+        <h2>{mode === 'signin' ? 'Lock back in.' : 'Create your profile.'}</h2>
+        <p>{mode === 'signin' ? 'Your dashboard is waiting.' : 'Start building a private record of your progress.'}</p>
+        {mode === 'signup' && (
+          <label className="authField">Name<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Prince" autoComplete="name"/></label>
+        )}
+        <label className="authField">Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" required/></label>
+        <label className="authField">Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" minLength={6} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required/></label>
+        {message && <div className="authMessage">{message}</div>}
+        <button className="primaryButton authSubmit" disabled={busy}>{busy ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Create account'}</button>
+        <button type="button" className="authSwitch" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setMessage(null); }}>
+          {mode === 'signin' ? 'New here? Create an account' : 'Already have an account? Sign in'}
+        </button>
+      </form>
     </main>
   );
 }

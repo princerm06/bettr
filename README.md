@@ -2,18 +2,17 @@
 
 Private self-improvement dashboard for close friends.
 
-## Current prototype
+## Current build
 
 - 10 life categories
 - Two-tap quick logging
 - Custom entries with notes and optional photos
-- Local prototype "AI insight" on custom entries
+- Daily philosopher quotes
 - Priority-aware Discipline score
-- Progress bars and recent-memory cards
-- 5-week activity heatmap + detailed history
-- Friend accountability feed with reactions
+- Redesigned calendar and analytics
+- Friend accountability prototype
 - Responsive/mobile navigation
-- Browser localStorage persistence
+- Optional Supabase cloud mode
 
 ## Run locally
 
@@ -24,8 +23,22 @@ npm run dev
 
 Open http://localhost:3000.
 
-## Important prototype limitation
+## Himothy Cloud (Supabase)
 
-Photos are currently compressed and stored in browser localStorage. This is intentionally only for the local MVP and will hit browser storage limits if you add many images. The production pass should move users, logs, images, priorities, friendships, reactions, and analysis results to a database/object-storage backend.
+The app still runs in local prototype mode when Supabase environment variables are absent. To enable real accounts, cloud logs, priority sync, and private photo storage:
 
-The current AI insight is explicitly a local prototype heuristic. A real multimodal model can later analyze the text + uploaded image through a protected server endpoint once authentication/backend storage is added. Never put an AI provider secret key directly in browser code.
+1. Create a Supabase project.
+2. Open the Supabase SQL Editor and run `supabase/schema.sql` once.
+3. Copy `.env.local.example` to `.env.local` and fill in your project URL and publishable key.
+4. Run `npm install` to install the Supabase JavaScript client.
+5. Restart `npm run dev`.
+
+When cloud mode is enabled, Himothy presents sign-up/sign-in before the dashboard. Existing browser-local Himothy logs can migrate into the first signed-in account. That legacy migration is claimed by one account only so another user on the same browser cannot inherit those logs.
+
+Cloud photos are stored in a private `log-images` bucket and loaded through expiring signed URLs. Row-level-security policies restrict the current cloud data to the signed-in owner. Friendships are scaffolded in the schema, but friend log visibility is intentionally not opened yet.
+
+Do not commit `.env.local`; it is ignored by Git.
+
+## AI status
+
+The current "AI insight" remains a local prototype heuristic. A real multimodal model should be added through a protected server endpoint after authentication is live. Never put an AI provider secret key directly in browser code.
