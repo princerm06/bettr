@@ -58,6 +58,7 @@ type Log = {
   imagePath?: string;
   aiInsight?: string;
   custom?: boolean;
+  visibility?: 'friends' | 'private';
 };
 
 type ReactionMap = Record<string, number>;
@@ -285,6 +286,7 @@ type CloudLogRow = {
   image_path: string | null;
   ai_insight: string | null;
   custom: boolean;
+  visibility?: 'friends' | 'private';
 };
 
 function dataUrlToBlob(dataUrl: string) {
@@ -316,6 +318,7 @@ async function rowToLog(row: CloudLogRow): Promise<Log> {
     image: await signedImageUrl(row.image_path),
     aiInsight: row.ai_insight || undefined,
     custom: row.custom,
+    visibility: row.visibility || 'friends',
   };
 }
 
@@ -452,6 +455,7 @@ export default function Home() {
                 image_path: imagePath || null,
                 ai_insight: local.aiInsight || null,
                 custom: Boolean(local.custom),
+                visibility: local.visibility || 'friends',
               });
               if (error) throw error;
               migrated.push({ ...local, imagePath, image: imageUrl });
@@ -607,7 +611,7 @@ export default function Home() {
         }
         const { error } = await supabase.from('logs').update({
           category: updated.category, categories: categoriesForLog(updated), activity: updated.activity, details: updated.details || null,
-          log_date: updated.date, points: updated.points, image_path: updated.imagePath || null, ai_insight: updated.aiInsight || null, custom: Boolean(updated.custom),
+          log_date: updated.date, points: updated.points, image_path: updated.imagePath || null, ai_insight: updated.aiInsight || null, custom: Boolean(updated.custom), visibility: updated.visibility || 'friends',
         }).eq('id', id);
         if (error) throw error;
       } catch (error) {
@@ -738,7 +742,7 @@ export default function Home() {
 
       {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog} onEdit={setEditingLog}/>}
       {tab === 'analytics' && <AnalyticsView logs={logs}/>}
-      {tab === 'friends' && <FriendsView/>}
+      {tab === 'friends' && user && <FriendsView user={user} profileName={profileName} onProfileName={setProfileName}/>}
 
       <button className="floating" onClick={() => openComposer()}><Plus size={25}/> Log</button>
 
@@ -824,14 +828,42 @@ function CloudBoot() {
 function AuthScreen() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'error'>('idle');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  const cleanUsername = username.trim().toLowerCase().replace(/^@/, '');
+  const usernameValid = /^[a-z0-9_][a-z0-9_.]{1,28}[a-z0-9_]$/.test(cleanUsername);
+
+  useEffect(() => {
+    if (mode !== 'signup') { setUsernameStatus('idle'); return; }
+    if (!cleanUsername) { setUsernameStatus('idle'); return; }
+    if (!usernameValid) { setUsernameStatus('invalid'); return; }
+    if (!supabase) return;
+
+    let cancelled = false;
+    setUsernameStatus('checking');
+    const timer = window.setTimeout(async () => {
+      const { data, error } = await supabase.rpc('username_available', { candidate: cleanUsername });
+      if (cancelled) return;
+      if (error) setUsernameStatus('error');
+      else setUsernameStatus(data ? 'available' : 'taken');
+    }, 350);
+
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [mode, cleanUsername, usernameValid]);
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!supabase || !email.trim() || password.length < 6) return;
+    if (mode === 'signup' && (!displayName.trim() || !usernameValid)) {
+      setMessage(!displayName.trim() ? 'Add your name to finish your profile.' : 'Choose a username with 3–30 lowercase letters, numbers, underscores, or periods.');
+      return;
+    }
+
     setBusy(true);
     setMessage(null);
     try {
@@ -839,12 +871,27 @@ function AuthScreen() {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
       } else {
+        const availability = await supabase.rpc('username_available', { candidate: cleanUsername });
+        if (availability.error) throw availability.error;
+        if (!availability.data) {
+          setUsernameStatus('taken');
+          setMessage(`@${cleanUsername} is already taken. Try another username.`);
+          return;
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          options: { data: { display_name: displayName.trim() || email.split('@')[0] } },
+          options: { data: { display_name: displayName.trim(), username: cleanUsername } },
         });
-        if (error) throw error;
+        if (error) {
+          const recheck = await supabase.rpc('username_available', { candidate: cleanUsername });
+          if (!recheck.error && !recheck.data) {
+            setUsernameStatus('taken');
+            throw new Error(`@${cleanUsername} was just taken. Choose another username.`);
+          }
+          throw error;
+        }
         if (!data.session) setMessage('Account created. Check your email to confirm it, then sign in.');
       }
     } catch (error) {
@@ -871,14 +918,26 @@ function AuthScreen() {
         <div className="authMark">H</div>
         <p className="eyebrow">{mode === 'signin' ? 'WELCOME BACK' : 'JOIN HIMOTHY'}</p>
         <h2>{mode === 'signin' ? 'Lock back in.' : 'Create your profile.'}</h2>
-        <p>{mode === 'signin' ? 'Your dashboard is waiting.' : 'Start building a private record of your progress.'}</p>
+        <p>{mode === 'signin' ? 'Your dashboard is waiting.' : 'Pick the name and unique @username your friends will know you by.'}</p>
         {mode === 'signup' && (
-          <label className="authField">Name<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Prince" autoComplete="name"/></label>
+          <>
+            <label className="authField">Name<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Prince" autoComplete="name" required/></label>
+            <label className="authField">Username
+              <div className="authUsernameWrap"><span>@</span><input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))} placeholder="prince" autoComplete="username" maxLength={30} required/></div>
+            </label>
+            <div className={`usernameAvailability ${usernameStatus}`}>
+              {usernameStatus === 'checking' && 'Checking availability…'}
+              {usernameStatus === 'available' && <><Check size={12}/> @{cleanUsername} is available</>}
+              {usernameStatus === 'taken' && <><X size={12}/> @{cleanUsername} is already taken</>}
+              {usernameStatus === 'invalid' && 'Use 3–30 lowercase letters, numbers, underscores, or periods.'}
+              {usernameStatus === 'error' && 'Could not check availability yet. We’ll verify when you create the account.'}
+            </div>
+          </>
         )}
         <label className="authField">Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" required/></label>
         <label className="authField">Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" minLength={6} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required/></label>
         {message && <div className="authMessage">{message}</div>}
-        <button className="primaryButton authSubmit" disabled={busy}>{busy ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Create account'}</button>
+        <button className="primaryButton authSubmit" disabled={busy || (mode === 'signup' && (usernameStatus === 'checking' || usernameStatus === 'taken' || usernameStatus === 'invalid'))}>{busy ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Create account'}</button>
         <button type="button" className="authSwitch" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setMessage(null); }}>
           {mode === 'signin' ? 'New here? Create an account' : 'Already have an account? Sign in'}
         </button>
@@ -899,6 +958,7 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
   const [date, setDate] = useState(existing?.date || todayISO());
   const [image, setImage] = useState<string | undefined>(existing?.image);
   const [analyze, setAnalyze] = useState(true);
+  const [visibility, setVisibility] = useState<'friends' | 'private'>(existing?.visibility || 'friends');
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const quality = activity.trim() ? validateLogQuality(selectedCategories, activity, details) : null;
@@ -923,7 +983,7 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
       category: selectedCategories[0], categories: selectedCategories, activity: cleanActivity, details: details.trim(), image,
       imagePath: existing?.imagePath,
       aiInsight: analyze ? prototypeInsight(selectedCategories, cleanActivity, details, Boolean(image)) : undefined,
-      date, points, custom: true,
+      date, points, custom: true, visibility,
     });
   }
 
@@ -952,6 +1012,12 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
             </div>
             {existing && date !== existing.date && <small className="dateEditHint">Date will update from {new Date(`${existing.date}T12:00:00`).toLocaleDateString()} to {new Date(`${date}T12:00:00`).toLocaleDateString()}.</small>}
           </div>
+        </div>
+
+        <label className="fieldLabel">Who can see this?</label>
+        <div className="visibilityPicker">
+          <button type="button" className={visibility === 'friends' ? 'selected' : ''} onClick={() => setVisibility('friends')}><Users size={15}/> Friends</button>
+          <button type="button" className={visibility === 'private' ? 'selected' : ''} onClick={() => setVisibility('private')}>🔒 Private</button>
         </div>
 
         <label className="fieldLabel" htmlFor="details">Details <span>optional</span></label>
@@ -1369,30 +1435,125 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
   );
 }
 
-function FriendsView() {
-  const [reactions, setReactions] = useState<Record<string, ReactionMap>>({});
-  function react(id: string, reaction: string) {
-    setReactions((prev) => ({ ...prev, [id]: { ...(prev[id] || {}), [reaction]: (prev[id]?.[reaction] || 0) + 1 } }));
+type SocialProfile = { id: string; display_name: string | null; username: string | null; avatar_url: string | null };
+type Friendship = { id: string; requester_id: string; addressee_id: string; status: 'pending' | 'accepted' | 'blocked'; created_at: string };
+type SocialReaction = { id: string; log_id: string; user_id: string; reaction: string };
+type SocialComment = { id: string; log_id: string; user_id: string; body: string; created_at: string };
+type FeedLog = CloudLogRow;
+
+function FriendsView({ user, profileName, onProfileName }: { user: User; profileName: string; onProfileName: (name: string) => void }) {
+  const [friendships, setFriendships] = useState<Friendship[]>([]);
+  const [profiles, setProfiles] = useState<SocialProfile[]>([]);
+  const [feed, setFeed] = useState<FeedLog[]>([]);
+  const [reactions, setReactions] = useState<SocialReaction[]>([]);
+  const [comments, setComments] = useState<SocialComment[]>([]);
+  const [commentDrafts, setCommentDrafts] = useState<Record<string,string>>({});
+  const [query, setQuery] = useState('');
+  const [username, setUsername] = useState('');
+  const [displayName, setDisplayName] = useState(profileName);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  async function refreshSocial() {
+    if (!supabase) return;
+    const [{ data: friendshipRows, error: friendshipError }, { data: profileRows, error: profileError }] = await Promise.all([
+      supabase.from('friendships').select('*').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('id,display_name,username,avatar_url').order('display_name'),
+    ]);
+    if (friendshipError || profileError) { setNotice(friendshipError?.message || profileError?.message || 'Could not load friends.'); return; }
+    const fs = (friendshipRows || []) as Friendship[];
+    const ps = (profileRows || []) as SocialProfile[];
+    setFriendships(fs); setProfiles(ps);
+    const me = ps.find((p) => p.id === user.id);
+    if (me) { setUsername(me.username || ''); setDisplayName(me.display_name || profileName); }
+
+    const acceptedIds = fs.filter((f) => f.status === 'accepted').map((f) => f.requester_id === user.id ? f.addressee_id : f.requester_id);
+    if (!acceptedIds.length) { setFeed([]); setReactions([]); setComments([]); return; }
+    const { data: feedRows, error: feedError } = await supabase.from('logs')
+      .select('*')
+      .in('user_id', acceptedIds).eq('visibility', 'friends').order('created_at', { ascending: false }).limit(50);
+    if (feedError) { setNotice(feedError.message); return; }
+    const rows = (feedRows || []) as FeedLog[];
+    setFeed(rows);
+    const ids = rows.map((row) => row.id);
+    if (!ids.length) { setReactions([]); setComments([]); return; }
+    const [{ data: reactionRows }, { data: commentRows }] = await Promise.all([
+      supabase.from('log_reactions').select('*').in('log_id', ids),
+      supabase.from('log_comments').select('*').in('log_id', ids).order('created_at'),
+    ]);
+    setReactions((reactionRows || []) as SocialReaction[]);
+    setComments((commentRows || []) as SocialComment[]);
   }
+
+  useEffect(() => { refreshSocial(); }, [user.id]);
+
+  const relationByUser = (id: string) => friendships.find((f) => f.requester_id === id || f.addressee_id === id);
+  const friends = friendships.filter((f) => f.status === 'accepted').map((f) => profiles.find((p) => p.id === (f.requester_id === user.id ? f.addressee_id : f.requester_id))).filter(Boolean) as SocialProfile[];
+  const incoming = friendships.filter((f) => f.status === 'pending' && f.addressee_id === user.id);
+  const results = query.trim().length >= 2 ? profiles.filter((p) => p.id !== user.id && `${p.display_name || ''} ${p.username || ''}`.toLowerCase().includes(query.trim().toLowerCase())).slice(0,8) : [];
+
+  async function saveProfile() {
+    if (!supabase) return;
+    const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_.]/g,'');
+    if (cleanUsername.length < 3) { setNotice('Username must be at least 3 characters.'); return; }
+    setBusy(true);
+    const { error } = await supabase.from('profiles').update({ display_name: displayName.trim() || profileName, username: cleanUsername, updated_at: new Date().toISOString() }).eq('id', user.id);
+    setBusy(false);
+    if (error) { setNotice(error.code === '23505' ? 'That username is already taken.' : error.message); return; }
+    onProfileName(displayName.trim() || profileName); setNotice('Profile saved.'); await refreshSocial();
+  }
+
+  async function sendRequest(id: string) {
+    if (!supabase) return;
+    setBusy(true); const { error } = await supabase.from('friendships').insert({ requester_id: user.id, addressee_id: id, status: 'pending' }); setBusy(false);
+    setNotice(error ? (error.code === '23505' ? 'A friend connection already exists.' : error.message) : 'Friend request sent.'); if (!error) await refreshSocial();
+  }
+  async function acceptRequest(friendship: Friendship) { if (!supabase) return; const { error } = await supabase.from('friendships').update({ status:'accepted', updated_at:new Date().toISOString() }).eq('id',friendship.id); setNotice(error?.message || 'You are friends now.'); if (!error) await refreshSocial(); }
+  async function removeConnection(id: string) { if (!supabase) return; const { error } = await supabase.from('friendships').delete().eq('id',id); setNotice(error?.message || 'Connection removed.'); if (!error) await refreshSocial(); }
+
+  async function toggleReaction(logId: string, reaction: string) {
+    if (!supabase) return;
+    const existing = reactions.find((r) => r.log_id === logId && r.user_id === user.id && r.reaction === reaction);
+    const { error } = existing ? await supabase.from('log_reactions').delete().eq('id', existing.id) : await supabase.from('log_reactions').insert({ log_id: logId, user_id: user.id, reaction });
+    if (error) setNotice(error.message); else await refreshSocial();
+  }
+  async function addComment(logId: string) {
+    if (!supabase) return; const body = (commentDrafts[logId] || '').trim(); if (!body) return;
+    const { error } = await supabase.from('log_comments').insert({ log_id: logId, user_id: user.id, body });
+    if (error) setNotice(error.message); else { setCommentDrafts((d) => ({...d,[logId]:''})); await refreshSocial(); }
+  }
+
   return (
     <section className="pageSection">
-      <p className="eyebrow">THE BOYS</p>
-      <h2>Private accountability.</h2>
-      <p className="subtitle">No influencer feed. Just the people you chose to improve alongside.</p>
-      <div className="friendHero card"><div className="friendAvatar">J</div><div><strong>Jordan</strong><p>Level 14 · Discipline 81</p></div><span className="online">● active today</span></div>
-      <div className="feed">
-        {demoFriend.map((entry) => {
-          const category = categoryFor(entry.category);
-          return (
-            <article className="card feedItem" key={entry.id}>
-              <div className="feedIcon">{category.emoji}</div>
-              <div><div className="feedHeadline"><strong>{entry.name}</strong><span>{category.short}</span></div><p>{entry.activity}</p><small>{entry.detail} · {entry.time}</small></div>
-              <div className="reactions">{['🔥','W','💪'].map((reaction) => <button key={reaction} onClick={() => react(entry.id, reaction)}>{reaction}{reactions[entry.id]?.[reaction] ? <sup>{reactions[entry.id][reaction]}</sup> : null}</button>)}</div>
-            </article>
-          );
-        })}
+      <p className="eyebrow">YOUR CIRCLE</p><h2>Private accountability.</h2>
+      <p className="subtitle">Find your people, share only what you choose, and give each other a reason to keep showing up.</p>
+      {notice && <div className="socialNotice">{notice}<button onClick={() => setNotice(null)}><X size={14}/></button></div>}
+
+      <div className="socialGrid">
+        <article className="card socialPanel"><p className="eyebrow">YOUR PROFILE</p><h3>How friends find you</h3>
+          <label className="fieldLabel">Display name</label><input className="textInput" value={displayName} onChange={(e)=>setDisplayName(e.target.value)} maxLength={50}/>
+          <label className="fieldLabel">Username</label><div className="usernameField"><span>@</span><input className="textInput" value={username} onChange={(e)=>setUsername(e.target.value)} placeholder="prince" maxLength={30}/></div>
+          <button className="primaryButton socialPrimary" onClick={saveProfile} disabled={busy}>Save profile</button>
+        </article>
+        <article className="card socialPanel"><p className="eyebrow">FIND FRIENDS</p><h3>Build your circle</h3>
+          <input className="textInput" value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Search name or @username"/>
+          <div className="peopleList">{results.map((p) => { const rel=relationByUser(p.id); return <div className="personRow" key={p.id}><div className="friendAvatar">{(p.display_name||p.username||'?')[0].toUpperCase()}</div><div><strong>{p.display_name||'Himothy user'}</strong><small>{p.username ? `@${p.username}` : 'No username yet'}</small></div>{!rel ? <button onClick={()=>sendRequest(p.id)} disabled={busy}><Plus size={15}/> Add</button> : <span className="relationTag">{rel.status === 'accepted' ? 'Friends' : rel.requester_id === user.id ? 'Sent' : 'Requested you'}</span>}</div>})}{query.trim().length>=2 && !results.length && <p className="emptySocial">No users found.</p>}</div>
+        </article>
       </div>
-      <div className="duo card"><Sparkles/><div><p className="eyebrow">DUO STATUS</p><h3>You both showed up 5 of the last 7 days.</h3><p>Shared challenges and real friend accounts come with the database pass.</p></div></div>
+
+      {incoming.length > 0 && <article className="card requestPanel"><div><p className="eyebrow">REQUESTS</p><h3>People who want in your circle</h3></div><div className="peopleList">{incoming.map((f)=>{const p=profiles.find((x)=>x.id===f.requester_id);return <div className="personRow" key={f.id}><div className="friendAvatar">{(p?.display_name||'?')[0].toUpperCase()}</div><div><strong>{p?.display_name||'Himothy user'}</strong><small>{p?.username?`@${p.username}`:'Friend request'}</small></div><div className="requestActions"><button className="accept" onClick={()=>acceptRequest(f)}><Check size={15}/> Accept</button><button onClick={()=>removeConnection(f.id)}><X size={15}/></button></div></div>})}</div></article>}
+
+      <div className="sectionHead socialHead"><div><p className="eyebrow">FRIENDS · {friends.length}</p><h2>Your people.</h2></div></div>
+      {friends.length ? <div className="friendStrip">{friends.map((p)=>{const f=relationByUser(p.id)!;return <div className="friendChip card" key={p.id}><div className="friendAvatar">{(p.display_name||'?')[0].toUpperCase()}</div><div><strong>{p.display_name}</strong><small>{p.username?`@${p.username}`:'Friend'}</small></div><button title="Remove friend" onClick={()=>removeConnection(f.id)}><X size={14}/></button></div>})}</div> : <div className="card emptyFriendState"><Users/><h3>Your circle starts here.</h3><p>Search for your best friend above and send the first request.</p></div>}
+
+      <div className="sectionHead socialHead"><div><p className="eyebrow">FRIEND ACTIVITY</p><h2>What your circle is doing.</h2></div><button className="textButton" onClick={refreshSocial}>Refresh</button></div>
+      <div className="feed">{feed.map((entry)=>{const cat=categoryFor(entry.category);const owner=profiles.find((p)=>p.id===entry.user_id);const logReactions=reactions.filter((r)=>r.log_id===entry.id);const logComments=comments.filter((c)=>c.log_id===entry.id);return <article className="card socialFeedItem" key={entry.id}>
+        <div className="socialFeedTop"><div className="feedIcon">{cat.emoji}</div><div><div className="feedHeadline"><strong>{owner?.display_name||'Friend'}</strong><span>{cat.short}</span></div><small>{new Date(entry.created_at).toLocaleString()}</small></div></div>
+        <h3>{entry.activity}</h3>{entry.details&&<p>{entry.details}</p>}
+        <div className="reactions">{['🔥','W','💪'].map((emoji)=>{const count=logReactions.filter((r)=>r.reaction===emoji).length;const mine=logReactions.some((r)=>r.reaction===emoji&&r.user_id===user.id);return <button className={mine?'mine':''} key={emoji} onClick={()=>toggleReaction(entry.id,emoji)}>{emoji}{count>0&&<sup>{count}</sup>}</button>})}</div>
+        <div className="commentList">{logComments.map((c)=>{const author=profiles.find((p)=>p.id===c.user_id);return <div key={c.id}><strong>{author?.display_name||'Friend'}</strong><span>{c.body}</span></div>})}</div>
+        <div className="commentComposer"><input className="textInput" value={commentDrafts[entry.id]||''} onChange={(e)=>setCommentDrafts((d)=>({...d,[entry.id]:e.target.value}))} placeholder="Leave some encouragement…" maxLength={500} onKeyDown={(e)=>{if(e.key==='Enter')addComment(entry.id)}}/><button onClick={()=>addComment(entry.id)}><Send size={16}/></button></div>
+      </article>})}{friends.length>0&&!feed.length&&<div className="card emptyFriendState"><Flame/><h3>No shared activity yet.</h3><p>When a friend logs something with Friends visibility, it appears here.</p></div>}</div>
     </section>
   );
 }
