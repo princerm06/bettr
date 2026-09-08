@@ -572,3 +572,66 @@
     padding: 15px;
   }
 }
+
+/* v6.4 Social Threads */
+.accountCluster{align-items:center}
+.cloudBadge{height:42px;min-height:42px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;padding:0 17px;border-radius:999px}
+.notificationControl{position:relative;display:flex;align-items:center}
+.notificationBell,.avatar{width:42px!important;min-width:42px;height:42px!important;min-height:42px;box-sizing:border-box;border-radius:50%!important}
+.notificationBell{border:1px solid #4d5833;background:#1c2117;color:var(--accent)}
+.notificationBell:hover,.notificationBell.open{border-color:#758748;background:#242b1b;color:var(--accent)}
+.avatar{border:1px solid #4d5833!important;background:#1c2117!important;color:var(--accent)!important}
+.notificationPanel{position:absolute;z-index:80;top:52px;right:0;width:min(420px,calc(100vw - 28px));overflow:hidden;padding:0;border-color:#343b2b;box-shadow:0 22px 65px rgba(0,0,0,.48)}
+.notificationPanelHead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:17px 17px 13px;border-bottom:1px solid var(--line)}
+.notificationPanelHead h3{margin:2px 0 0;font-size:17px}
+.notificationPanelActions{display:flex;align-items:center;gap:8px}
+.notificationPanelActions>button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:10px;font-weight:800;cursor:pointer}
+.notificationPanelClose{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line)!important;border-radius:8px}
+.notificationPanelList{max-height:430px;overflow:auto}
+.notificationPanelRow{border-bottom:1px solid var(--line)}
+.notificationPanelRow.unread{background:rgba(205,255,57,.025)}
+.notificationPanelMain{width:100%;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:13px 15px;border:0;background:transparent;color:var(--text);text-align:left;cursor:pointer}
+.notificationPanelMain:hover{background:#191d19}
+.notificationMiniIcon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#22291c;color:var(--accent)}
+.notificationPanelCopy strong,.notificationPanelCopy span,.notificationPanelCopy small{display:block}
+.notificationPanelCopy strong{font-size:11px;line-height:1.35}
+.notificationPanelCopy span{margin-top:3px;color:#c8cdc3;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notificationPanelCopy small{margin-top:4px;color:var(--muted);font-size:9px}
+.notificationUnreadDot{width:7px;height:7px;border-radius:50%;background:#ff5555}
+.notificationRequestActions{display:flex;gap:7px;padding:0 15px 12px 59px}
+.notificationRequestActions button{border:1px solid var(--line);background:#24282d;color:var(--text);border-radius:8px;padding:6px 10px;font:inherit;font-size:10px;font-weight:800;cursor:pointer}
+.notificationRequestActions .accept{border-color:rgba(205,255,57,.36);background:rgba(205,255,57,.10);color:var(--accent)}
+.notificationPanelEmpty{display:grid;justify-items:center;padding:27px 16px;color:var(--muted);text-align:center}
+.notificationPanelEmpty svg{color:var(--accent);margin-bottom:8px}
+.notificationPanelEmpty strong{color:var(--text);font-size:12px}
+.notificationPanelEmpty span{margin-top:4px;font-size:10px}
+.notificationViewAll{width:100%;display:flex;align-items:center;justify-content:center;gap:5px;padding:13px;border:0;border-top:1px solid var(--line);background:#171b17;color:var(--text);font:inherit;font-size:11px;font-weight:850;cursor:pointer}
+.notificationViewAll:hover{color:var(--accent)}
+.threadedComments{margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+.threadedCommentsHead>div{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:10px}
+.threadedCommentsHead strong{color:var(--text)}
+.threadCommentList{display:grid;gap:11px;margin-top:12px}
+.threadComment{display:grid;grid-template-columns:30px 1fr;gap:9px;min-width:0}
+.commentAvatar{width:30px;height:30px;display:grid;place-items:center;border:1px solid #48523a;border-radius:50%;background:#1b201a;color:var(--accent);font-size:10px;font-weight:900}
+.threadCommentBody{min-width:0}
+.threadCommentMeta{display:flex;align-items:center;gap:7px}
+.threadCommentMeta strong{font-size:11px}
+.threadCommentMeta span{color:var(--muted);font-size:9px}
+.threadCommentBody>p{margin:4px 0 0;color:#d3d6d0;font-size:11px;line-height:1.5}
+.replyButton{margin-top:5px;padding:0;border:0;background:transparent;color:var(--muted);font:inherit;font-size:9px;font-weight:800;cursor:pointer}
+.replyButton:hover{color:var(--accent)}
+.threadReply{margin-top:10px;padding-left:11px;border-left:1px solid #343b31}
+.commentPhoto{display:block;width:min(260px,100%);max-height:240px;object-fit:cover;margin-top:8px;border:1px solid var(--line);border-radius:11px}
+.commentImageLoading{margin-top:7px;color:var(--muted);font-size:9px}
+.replyingTo,.commentPhotoPreview{display:flex;align-items:center;gap:7px;margin-top:10px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#151915;color:var(--muted);font-size:9px}
+.replyingTo span,.commentPhotoPreview span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.replyingTo strong{color:var(--text)}
+.replyingTo button,.commentPhotoPreview button{border:0;background:transparent;color:var(--muted);cursor:pointer}
+.threadComposer{display:grid;grid-template-columns:auto 1fr auto;gap:7px;align-items:center;margin-top:10px}
+.threadComposer .textInput{min-width:0;padding:10px 11px;font-size:11px}
+.commentPhotoButton,.threadPostButton{height:38px;border:1px solid var(--line);border-radius:9px;background:#22262c;color:var(--text);cursor:pointer}
+.commentPhotoButton{width:38px;display:grid;place-items:center;color:var(--muted)}
+.commentPhotoButton:hover{color:var(--accent)}
+.threadPostButton{padding:0 12px;color:var(--accent);font:inherit;font-size:10px;font-weight:900}
+.threadPostButton:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:600px){.notificationPanel{position:fixed;top:74px;right:12px;left:12px;width:auto}.threadComposer{grid-template-columns:auto 1fr}.threadPostButton{grid-column:2;justify-self:end}}

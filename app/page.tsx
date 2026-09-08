@@ -411,6 +411,7 @@ export default function Home() {
   });
   const [tab, setTab] = useState<'dashboard' | 'history' | 'activity' | 'analytics' | 'friends'>('dashboard');
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
   const [quickCategory, setQuickCategory] = useState<Category | null>(null);
   const [composerCategory, setComposerCategory] = useState<CategoryKey>('academics');
   const [showComposer, setShowComposer] = useState(false);
@@ -870,22 +871,40 @@ export default function Home() {
         <div className="accountCluster">
           {supabaseConfigured && <span className={`cloudBadge ${cloudReady ? 'ready' : ''}`}><Cloud size={13}/> {cloudReady ? 'Cloud' : 'Syncing'}</span>}
           {supabaseConfigured && user && (
-            <button
-              className="notificationBell"
-              aria-label="Activity"
-              title="Activity"
-              onClick={() => {
-                setAccountOpen(false);
-                setTab('activity');
-              }}
-            >
-              <Bell size={18}/>
-              {unreadNotifications > 0 && (
-                <span>{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>
+            <div className="notificationControl">
+              <button
+                className={`notificationBell ${notificationPanelOpen ? 'open' : ''}`}
+                aria-label="Notifications"
+                title="Notifications"
+                onClick={() => {
+                  setAccountOpen(false);
+                  setNotificationPanelOpen((open) => !open);
+                }}
+              >
+                <Bell size={18}/>
+                {unreadNotifications > 0 && (
+                  <span>{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>
+                )}
+              </button>
+
+              {notificationPanelOpen && (
+                <NotificationPanel
+                  user={user}
+                  onUnreadChange={setUnreadNotifications}
+                  onClose={() => setNotificationPanelOpen(false)}
+                  onViewAll={() => {
+                    setNotificationPanelOpen(false);
+                    setTab('activity');
+                  }}
+                  onOpenFriends={() => {
+                    setNotificationPanelOpen(false);
+                    setTab('friends');
+                  }}
+                />
               )}
-            </button>
+            </div>
           )}
-          <button className="avatar" aria-label="Profile" onClick={() => setAccountOpen((value) => !value)}>{profileName.slice(0, 1).toUpperCase()}</button>
+          <button className="avatar" aria-label="Profile" onClick={() => { setNotificationPanelOpen(false); setAccountOpen((value) => !value); }}>{profileName.slice(0, 1).toUpperCase()}</button>
           {accountOpen && (
             <div className="accountMenu card">
               <strong>{profileName}</strong>
@@ -2056,19 +2075,395 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
 type SocialProfile = { id: string; display_name: string | null; username: string | null; avatar_url: string | null };
 type Friendship = { id: string; requester_id: string; addressee_id: string; status: 'pending' | 'accepted' | 'blocked'; created_at: string };
 type SocialReaction = { id: string; log_id: string; user_id: string; reaction: string };
-type SocialComment = { id: string; log_id: string; user_id: string; body: string; created_at: string };
+type SocialComment = {
+  id: string;
+  log_id: string;
+  user_id: string;
+  body: string | null;
+  parent_comment_id: string | null;
+  image_path: string | null;
+  created_at: string;
+};
 type FeedLog = CloudLogRow;
 
 type HimothyNotification = {
   id: string;
   user_id: string;
   actor_id: string | null;
-  type: 'friend_request' | 'comment';
+  type: 'friend_request' | 'comment' | 'reply';
   log_id: string | null;
   friendship_id: string | null;
   read_at: string | null;
   created_at: string;
 };
+
+
+function timeAgo(value: string) {
+  const then = new Date(value).getTime();
+  const seconds = Math.max(0, Math.floor((Date.now() - then) / 1000));
+
+  if (seconds < 45) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+
+  return new Date(value).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+function NotificationPanel({
+  user,
+  onUnreadChange,
+  onClose,
+  onViewAll,
+  onOpenFriends,
+}: {
+  user: User;
+  onUnreadChange: (count: number) => void;
+  onClose: () => void;
+  onViewAll: () => void;
+  onOpenFriends: () => void;
+}) {
+  const [items, setItems] = useState<HimothyNotification[]>([]);
+  const [profiles, setProfiles] = useState<SocialProfile[]>([]);
+  const [logs, setLogs] = useState<FeedLog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function refreshPanel() {
+    if (!supabase) return;
+
+    const [{ data: notifications }, { data: profileRows }, { data: logRows }] =
+      await Promise.all([
+        supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(8),
+        supabase.from('profiles').select('id,display_name,username,avatar_url'),
+        supabase.from('logs').select('*').order('created_at', { ascending: false }).limit(100),
+      ]);
+
+    const ns = (notifications || []) as HimothyNotification[];
+    setItems(ns);
+    setProfiles((profileRows || []) as SocialProfile[]);
+    setLogs((logRows || []) as FeedLog[]);
+    onUnreadChange(ns.filter((item) => !item.read_at).length);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    refreshPanel();
+  }, [user.id]);
+
+  async function markRead(item: HimothyNotification) {
+    if (!supabase || item.read_at) return;
+    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', item.id).eq('user_id', user.id);
+  }
+
+  async function markAllRead() {
+    if (!supabase) return;
+    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('user_id', user.id).is('read_at', null);
+    await refreshPanel();
+  }
+
+  async function acceptRequest(item: HimothyNotification) {
+    if (!supabase || !item.friendship_id) return;
+    const { error } = await supabase.from('friendships').update({ status: 'accepted' }).eq('id', item.friendship_id);
+    if (!error) {
+      await markRead(item);
+      await refreshPanel();
+    }
+  }
+
+  async function declineRequest(item: HimothyNotification) {
+    if (!supabase || !item.friendship_id) return;
+    const { error } = await supabase.from('friendships').delete().eq('id', item.friendship_id);
+    if (!error) {
+      await markRead(item);
+      await refreshPanel();
+    }
+  }
+
+  async function openItem(item: HimothyNotification) {
+    await markRead(item);
+    if (item.type === 'friend_request') onOpenFriends();
+    else onViewAll();
+  }
+
+  function actorName(id: string | null) {
+    const actor = profiles.find((profile) => profile.id === id);
+    return actor?.display_name || (actor?.username ? `@${actor.username}` : 'Someone');
+  }
+
+  return (
+    <div className="notificationPanel card" onClick={(event) => event.stopPropagation()}>
+      <div className="notificationPanelHead">
+        <div>
+          <p className="eyebrow">NOTIFICATIONS</p>
+          <h3>What&apos;s new</h3>
+        </div>
+
+        <div className="notificationPanelActions">
+          {items.some((item) => !item.read_at) && <button onClick={markAllRead}>Mark all read</button>}
+          <button className="notificationPanelClose" onClick={onClose} aria-label="Close notifications">
+            <X size={15}/>
+          </button>
+        </div>
+      </div>
+
+      <div className="notificationPanelList">
+        {items.map((item) => {
+          const log = item.log_id ? logs.find((entry) => entry.id === item.log_id) : null;
+          const label =
+            item.type === 'friend_request'
+              ? `${actorName(item.actor_id)} sent you a friend request`
+              : item.type === 'reply'
+                ? `${actorName(item.actor_id)} replied to your comment`
+                : `${actorName(item.actor_id)} commented on your log`;
+
+          return (
+            <div className={`notificationPanelRow ${item.read_at ? '' : 'unread'}`} key={item.id}>
+              <button className="notificationPanelMain" onClick={() => openItem(item)}>
+                <span className="notificationMiniIcon">
+                  {item.type === 'friend_request' ? <Users size={15}/> : <MessageCircle size={15}/>}
+                </span>
+                <span className="notificationPanelCopy">
+                  <strong>{label}</strong>
+                  {log && <span>“{log.activity}”</span>}
+                  <small>{timeAgo(item.created_at)}</small>
+                </span>
+                {!item.read_at && <i className="notificationUnreadDot"/>}
+              </button>
+
+              {item.type === 'friend_request' && item.friendship_id && (
+                <div className="notificationRequestActions">
+                  <button className="accept" onClick={() => acceptRequest(item)}>Accept</button>
+                  <button onClick={() => declineRequest(item)}>Decline</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {!loading && !items.length && (
+          <div className="notificationPanelEmpty">
+            <Bell size={19}/>
+            <strong>You&apos;re caught up.</strong>
+            <span>No new notifications.</span>
+          </div>
+        )}
+      </div>
+
+      <button className="notificationViewAll" onClick={onViewAll}>
+        View all activity <ChevronRight size={15}/>
+      </button>
+    </div>
+  );
+}
+
+function SignedCommentImage({ path }: { path: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function load() {
+      if (!supabase) return;
+      const { data } = await supabase.storage.from('comment-images').createSignedUrl(path, 60 * 30);
+      if (alive) setSrc(data?.signedUrl || null);
+    }
+
+    load();
+    return () => { alive = false; };
+  }, [path]);
+
+  if (!src) return <div className="commentImageLoading">Loading photo…</div>;
+  return <img className="commentPhoto" src={src} alt="Comment attachment"/>;
+}
+
+function ThreadedComments({
+  logId,
+  user,
+  profiles,
+  comments,
+  onRefresh,
+}: {
+  logId: string;
+  user: User;
+  profiles: SocialProfile[];
+  comments: SocialComment[];
+  onRefresh: () => Promise<void> | void;
+}) {
+  const [draft, setDraft] = useState('');
+  const [replyTo, setReplyTo] = useState<SocialComment | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [posting, setPosting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const roots = comments.filter((comment) => !comment.parent_comment_id);
+
+  function profileName(id: string) {
+    const profile = profiles.find((item) => item.id === id);
+    return profile?.display_name || (profile?.username ? `@${profile.username}` : 'Friend');
+  }
+
+  function childrenOf(parentId: string) {
+    return comments.filter((comment) => comment.parent_comment_id === parentId);
+  }
+
+  async function submit() {
+    if (!supabase || posting) return;
+
+    const body = draft.trim();
+    if (!body && !imageFile) return;
+
+    setPosting(true);
+    let imagePath: string | null = null;
+
+    try {
+      if (imageFile) {
+        if (!imageFile.type.startsWith('image/')) throw new Error('Please choose an image file.');
+        if (imageFile.size > 5 * 1024 * 1024) throw new Error('Comment photos must be 5 MB or smaller.');
+
+        const safeName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+        imagePath = `${user.id}/${crypto.randomUUID()}-${safeName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('comment-images')
+          .upload(imagePath, imageFile, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: imageFile.type,
+          });
+
+        if (uploadError) throw uploadError;
+      }
+
+      const { error } = await supabase.from('log_comments').insert({
+        log_id: logId,
+        user_id: user.id,
+        body: body || null,
+        parent_comment_id: replyTo?.id || null,
+        image_path: imagePath,
+      });
+
+      if (error) {
+        if (imagePath) await supabase.storage.from('comment-images').remove([imagePath]);
+        throw error;
+      }
+
+      setDraft('');
+      setReplyTo(null);
+      setImageFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      await onRefresh();
+    } catch (error: any) {
+      console.error('COMMENT POST ERROR:', error);
+      window.alert(
+        error?.message ||
+        error?.details ||
+        error?.hint ||
+        JSON.stringify(error) ||
+        'Could not post comment.'
+      );
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  function renderComment(comment: SocialComment, nested = false) {
+    return (
+      <div className={`threadComment ${nested ? 'threadReply' : ''}`} key={comment.id}>
+        <div className="commentAvatar">
+          {(profileName(comment.user_id).replace('@', '').slice(0, 1) || '?').toUpperCase()}
+        </div>
+
+        <div className="threadCommentBody">
+          <div className="threadCommentMeta">
+            <strong>{comment.user_id === user.id ? 'You' : profileName(comment.user_id)}</strong>
+            <span>{timeAgo(comment.created_at)}</span>
+          </div>
+
+          {comment.body && <p>{comment.body}</p>}
+          {comment.image_path && <SignedCommentImage path={comment.image_path}/>}
+
+          <button className="replyButton" onClick={() => setReplyTo(comment)}>Reply</button>
+
+          {childrenOf(comment.id).map((child) => renderComment(child, true))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="threadedComments">
+      <div className="threadedCommentsHead">
+        <div>
+          <MessageCircle size={14}/>
+          <strong>{comments.length}</strong>
+          <span>{comments.length === 1 ? 'comment' : 'comments'}</span>
+        </div>
+      </div>
+
+      <div className="threadCommentList">
+        {roots.map((comment) => renderComment(comment))}
+      </div>
+
+      {replyTo && (
+        <div className="replyingTo">
+          <span>Replying to <strong>{replyTo.user_id === user.id ? 'yourself' : profileName(replyTo.user_id)}</strong></span>
+          <button onClick={() => setReplyTo(null)}><X size={13}/></button>
+        </div>
+      )}
+
+      {imageFile && (
+        <div className="commentPhotoPreview">
+          <ImageIcon size={15}/>
+          <span>{imageFile.name}</span>
+          <button onClick={() => {
+            setImageFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+          }}>
+            <X size={13}/>
+          </button>
+        </div>
+      )}
+
+      <div className="threadComposer">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(event) => setImageFile(event.target.files?.[0] || null)}
+        />
+
+        <button className="commentPhotoButton" onClick={() => fileInputRef.current?.click()} aria-label="Add photo" title="Add photo">
+          <ImageIcon size={17}/>
+        </button>
+
+        <input
+          className="textInput"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder={replyTo ? 'Write a reply…' : 'Write a comment…'}
+          maxLength={500}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
+              submit();
+            }
+          }}
+        />
+
+        <button className="threadPostButton" onClick={submit} disabled={posting || (!draft.trim() && !imageFile)}>
+          {posting ? 'Posting…' : 'Post'}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 
 function ActivityView({
@@ -2084,7 +2479,6 @@ function ActivityView({
   const [visibleLogs, setVisibleLogs] = useState<FeedLog[]>([]);
   const [comments, setComments] = useState<SocialComment[]>([]);
   const [notifications, setNotifications] = useState<HimothyNotification[]>([]);
-  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -2099,23 +2493,9 @@ function ActivityView({
       { data: logRows, error: logError },
       { data: notificationRows, error: notificationError },
     ] = await Promise.all([
-      client
-        .from('profiles')
-        .select('id,display_name,username,avatar_url')
-        .order('display_name'),
-
-      client
-        .from('logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100),
-
-      client
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50),
+      client.from('profiles').select('id,display_name,username,avatar_url').order('display_name'),
+      client.from('logs').select('*').order('created_at', { ascending: false }).limit(100),
+      client.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50),
     ]);
 
     if (profileError || logError || notificationError) {
@@ -2131,7 +2511,6 @@ function ActivityView({
 
     const logs = (logRows || []) as FeedLog[];
     const ids = logs.map((log) => log.id);
-
     let commentRows: SocialComment[] = [];
 
     if (ids.length) {
@@ -2141,11 +2520,8 @@ function ActivityView({
         .in('log_id', ids)
         .order('created_at', { ascending: true });
 
-      if (error) {
-        setNotice(error.message);
-      } else {
-        commentRows = (data || []) as SocialComment[];
-      }
+      if (error) setNotice(error.message);
+      else commentRows = (data || []) as SocialComment[];
     }
 
     const ns = (notificationRows || []) as HimothyNotification[];
@@ -2165,10 +2541,9 @@ function ActivityView({
   const profileFor = (id: string | null) =>
     profiles.find((profile) => profile.id === id);
 
-  const myLogsWithConversation = visibleLogs.filter((log) => {
-    if (log.user_id !== user.id) return false;
-    return comments.some((comment) => comment.log_id === log.id);
-  });
+  const myLogsWithConversation = visibleLogs.filter((log) =>
+    log.user_id === user.id && comments.some((comment) => comment.log_id === log.id)
+  );
 
   const commentedLogIds = new Set(
     comments
@@ -2180,36 +2555,8 @@ function ActivityView({
     (log) => log.user_id !== user.id && commentedLogIds.has(log.id)
   );
 
-  async function addComment(logId: string) {
-    if (!supabase) return;
-
-    const body = (commentDrafts[logId] || '').trim();
-    if (!body) return;
-
-    const { error } = await supabase
-      .from('log_comments')
-      .insert({
-        log_id: logId,
-        user_id: user.id,
-        body,
-      });
-
-    if (error) {
-      setNotice(error.message);
-      return;
-    }
-
-    setCommentDrafts((current) => ({
-      ...current,
-      [logId]: '',
-    }));
-
-    await refreshActivity();
-  }
-
   async function markNotificationRead(notification: HimothyNotification) {
     if (!supabase || notification.read_at) return;
-
     const { error } = await supabase
       .from('notifications')
       .update({ read_at: new Date().toISOString() })
@@ -2221,10 +2568,7 @@ function ActivityView({
 
   async function openNotification(notification: HimothyNotification) {
     await markNotificationRead(notification);
-
-    if (notification.type === 'friend_request') {
-      onOpenFriends();
-    }
+    if (notification.type === 'friend_request') onOpenFriends();
   }
 
   async function markAllRead() {
@@ -2262,59 +2606,20 @@ function ActivityView({
               </strong>
               <span>{cat.short}</span>
             </div>
-            <small>{new Date(log.created_at).toLocaleString()}</small>
+            <small>{timeAgo(log.created_at)}</small>
           </div>
         </div>
 
         <h3>{log.activity}</h3>
         {log.details && <p>{log.details}</p>}
 
-        <div className="activityCommentCount">
-          <MessageCircle size={14}/>
-          {threadComments.length} {threadComments.length === 1 ? 'comment' : 'comments'}
-        </div>
-
-        <div className="commentList activityComments">
-          {threadComments.map((comment) => {
-            const author = profileFor(comment.user_id);
-
-            return (
-              <div
-                key={comment.id}
-                className={comment.user_id === user.id ? 'myActivityComment' : ''}
-              >
-                <strong>
-                  {comment.user_id === user.id
-                    ? 'You'
-                    : author?.display_name || author?.username || 'Friend'}
-                </strong>
-                <span>{comment.body}</span>
-                <small>{new Date(comment.created_at).toLocaleString()}</small>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="commentComposer">
-          <input
-            className="textInput"
-            value={commentDrafts[log.id] || ''}
-            onChange={(event) =>
-              setCommentDrafts((current) => ({
-                ...current,
-                [log.id]: event.target.value,
-              }))
-            }
-            placeholder="Reply…"
-            maxLength={500}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') addComment(log.id);
-            }}
-          />
-          <button onClick={() => addComment(log.id)}>
-            <Send size={16}/>
-          </button>
-        </div>
+        <ThreadedComments
+          logId={log.id}
+          user={user}
+          profiles={profiles}
+          comments={threadComments}
+          onRefresh={refreshActivity}
+        />
       </article>
     );
   }
@@ -2326,7 +2631,7 @@ function ActivityView({
           <p className="eyebrow">SOCIAL ACTIVITY</p>
           <h2>Keep up with your circle.</h2>
           <p className="subtitle">
-            Comments, conversations, and requests without digging through the feed.
+            Comments, replies, photos, and requests without digging through the feed.
           </p>
         </div>
 
@@ -2369,6 +2674,13 @@ function ActivityView({
               ? visibleLogs.find((item) => item.id === notification.log_id)
               : null;
 
+            const label =
+              notification.type === 'friend_request'
+                ? `${actorName} sent you a friend request`
+                : notification.type === 'reply'
+                  ? `${actorName} replied to your comment`
+                  : `${actorName} commented on your log`;
+
             return (
               <button
                 key={notification.id}
@@ -2382,19 +2694,9 @@ function ActivityView({
                 </div>
 
                 <div>
-                  <strong>
-                    {notification.type === 'friend_request'
-                      ? `${actorName} sent you a friend request`
-                      : `${actorName} commented on your log`}
-                  </strong>
-
-                  {notification.type === 'comment' && log && (
-                    <span>“{log.activity}”</span>
-                  )}
-
-                  <small>
-                    {new Date(notification.created_at).toLocaleString()}
-                  </small>
+                  <strong>{label}</strong>
+                  {log && <span>“{log.activity}”</span>}
+                  <small>{timeAgo(notification.created_at)}</small>
                 </div>
 
                 {!notification.read_at && <i/>}
@@ -2460,6 +2762,7 @@ function ActivityView({
     </section>
   );
 }
+
 
 function FriendsView({ user, profileName, onProfileName }: { user: User; profileName: string; onProfileName: (name: string) => void }) {
   const [friendships, setFriendships] = useState<Friendship[]>([]);
@@ -2575,8 +2878,13 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
         <div className="socialFeedTop"><div className="feedIcon">{cat.emoji}</div><div><div className="feedHeadline"><strong>{owner?.display_name||'Friend'}</strong><span>{cat.short}</span></div><small>{new Date(entry.created_at).toLocaleString()}</small></div></div>
         <h3>{entry.activity}</h3>{entry.details&&<p>{entry.details}</p>}
         <div className="reactions">{['🔥','W','💪'].map((emoji)=>{const count=logReactions.filter((r)=>r.reaction===emoji).length;const mine=logReactions.some((r)=>r.reaction===emoji&&r.user_id===user.id);return <button className={mine?'mine':''} key={emoji} onClick={()=>toggleReaction(entry.id,emoji)}>{emoji}{count>0&&<sup>{count}</sup>}</button>})}</div>
-        <div className="commentList">{logComments.map((c)=>{const author=profiles.find((p)=>p.id===c.user_id);return <div key={c.id}><strong>{author?.display_name||'Friend'}</strong><span>{c.body}</span></div>})}</div>
-        <div className="commentComposer"><input className="textInput" value={commentDrafts[entry.id]||''} onChange={(e)=>setCommentDrafts((d)=>({...d,[entry.id]:e.target.value}))} placeholder="Leave some encouragement…" maxLength={500} onKeyDown={(e)=>{if(e.key==='Enter')addComment(entry.id)}}/><button onClick={()=>addComment(entry.id)}><Send size={16}/></button></div>
+        <ThreadedComments
+          logId={entry.id}
+          user={user}
+          profiles={profiles}
+          comments={logComments}
+          onRefresh={refreshSocial}
+        />
       </article>})}{friends.length>0&&!feed.length&&<div className="card emptyFriendState"><Flame/><h3>No shared activity yet.</h3><p>When a friend logs something with Friends visibility, it appears here.</p></div>}</div>
     </section>
   );
