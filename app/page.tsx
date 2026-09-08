@@ -22,7 +22,7 @@ import {
   Trash2,
   Users,
   X,
-} from 'lucide-react';
+  Settings,} from 'lucide-react';
 
 type CategoryKey =
   | 'appearance'
@@ -420,6 +420,13 @@ export default function Home() {
   const [cloudReady, setCloudReady] = useState(!supabaseConfigured);
   const [profileName, setProfileName] = useState('Prince');
   const [accountOpen, setAccountOpen] = useState(false);
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryEmailVerified, setRecoveryEmailVerified] = useState(false);
+  const [securityEmailDraft, setSecurityEmailDraft] = useState('');
+  const [savingSecurityEmail, setSavingSecurityEmail] = useState(false);
+  const [securityEmailError, setSecurityEmailError] = useState('');
+  const [securityEmailSaved, setSecurityEmailSaved] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -482,7 +489,7 @@ export default function Home() {
       const [{ data: remoteLogs, error: logsError }, { data: priorityRow }, { data: profileRow }] = await Promise.all([
         client.from('logs').select('*').order('created_at', { ascending: false }),
         client.from('user_priorities').select('priorities').maybeSingle(),
-        client.from('profiles').select('display_name,onboarding_completed').eq('id', account.id).maybeSingle(),
+        client.from('profiles').select('display_name,onboarding_completed,recovery_email,recovery_email_verified').eq('id', account.id).maybeSingle(),
       ]);
       if (cancelled) return;
       if (logsError) {
@@ -492,6 +499,8 @@ export default function Home() {
       }
 
       if (profileRow?.display_name) setProfileName(profileRow.display_name);
+      setRecoveryEmail(profileRow?.recovery_email || '');
+      setRecoveryEmailVerified(Boolean(profileRow?.recovery_email_verified));
       if (typeof profileRow?.onboarding_completed === 'boolean') setOnboardingComplete(profileRow.onboarding_completed);
       else setProfileName(account.user_metadata?.display_name || account.email?.split('@')[0] || 'Himothy');
       if (priorityRow?.priorities) setPriorities(priorityRow.priorities as Record<CategoryKey, Priority>);
@@ -734,6 +743,53 @@ export default function Home() {
   }
 
 
+  async function saveRecoveryEmail() {
+    if (!supabase || !user || savingSecurityEmail) return;
+
+    const nextEmail = securityEmailDraft.trim().toLowerCase();
+
+    setSavingSecurityEmail(true);
+    setSecurityEmailError('');
+    setSecurityEmailSaved(false);
+
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
+      if (sessionError || !accessToken) {
+        throw new Error('Your session expired. Sign in again and retry.');
+      }
+
+      const response = await fetch('/api/account/security', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ recoveryEmail: nextEmail || null }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload?.error || 'Could not update your recovery email.');
+      }
+
+      setRecoveryEmail(payload.recoveryEmail || '');
+      setSecurityEmailDraft(payload.recoveryEmail || '');
+      setRecoveryEmailVerified(false);
+      setSecurityEmailSaved(true);
+
+      window.setTimeout(() => setSecurityEmailSaved(false), 2500);
+    } catch (error) {
+      setSecurityEmailError(
+        error instanceof Error ? error.message : 'Could not update your recovery email.'
+      );
+    } finally {
+      setSavingSecurityEmail(false);
+    }
+  }
+
   async function deleteAccount() {
     if (!supabase || !user || deleteConfirm !== 'DELETE' || deletingAccount) return;
     setDeletingAccount(true);
@@ -784,11 +840,20 @@ export default function Home() {
           {accountOpen && (
             <div className="accountMenu card">
               <strong>{profileName}</strong>
-              <small>{user?.email || 'Local prototype mode'}</small>
+              <small>Himothy account</small>
               {supabaseConfigured ? (
                 <>
+                  <button onClick={() => {
+                    setAccountOpen(false);
+                    setSecurityEmailDraft(recoveryEmail);
+                    setSecurityEmailError('');
+                    setSecurityEmailSaved(false);
+                    setShowAccountSettings(true);
+                  }}>
+                    <Settings size={15}/> Account settings
+                  </button>
                   <button onClick={async () => { setAccountOpen(false); await supabase?.auth.signOut(); }}><LogOut size={15}/> Sign out</button>
-                  <button onClick={() => { setAccountOpen(false); setDeleteConfirm(''); setDeleteAccountError(''); setShowDeleteAccount(true); }} style={{ color: '#b42318' }}><Trash2 size={15}/> Delete account</button>
+
                 </>
               ) : (
                 <p>Add Supabase keys to turn on accounts and cloud sync.</p>
@@ -938,6 +1003,148 @@ export default function Home() {
               ))}
             </div>
             <button className="primaryButton" onClick={() => setShowPriority(false)}>Save priority mode</button>
+          </div>
+        </div>
+      )}
+
+      {showAccountSettings && (
+        <div className="overlay" onClick={() => !savingSecurityEmail && setShowAccountSettings(false)}>
+          <div
+            className="modal accountSettingsModal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="close"
+              disabled={savingSecurityEmail}
+              onClick={() => setShowAccountSettings(false)}
+            >
+              <X/>
+            </button>
+
+            <p className="eyebrow">ACCOUNT SETTINGS</p>
+            <h2>Security</h2>
+            <p className="accountSettingsIntro">
+              Your username and password are your primary Himothy login. Add an email for account recovery and stronger sign-in security later.
+            </p>
+
+            <section className="securitySettingCard">
+              <div className="securitySettingTop">
+                <div>
+                  <strong>Recovery email</strong>
+                  <p>
+                    Optional. This email is never required to use Himothy.
+                  </p>
+                </div>
+
+                {recoveryEmail ? (
+                  <span className={`emailStatus ${recoveryEmailVerified ? 'verified' : 'pending'}`}>
+                    {recoveryEmailVerified ? '✓ Verified' : 'Not verified'}
+                  </span>
+                ) : (
+                  <span className="emailStatus empty">Not added</span>
+                )}
+              </div>
+
+              <label className="securityEmailField">
+                Email address
+                <input
+                  type="email"
+                  value={securityEmailDraft}
+                  disabled={savingSecurityEmail}
+                  onChange={(event) => {
+                    setSecurityEmailDraft(event.target.value);
+                    setSecurityEmailError('');
+                    setSecurityEmailSaved(false);
+                  }}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                />
+              </label>
+
+              <div className="securityActions">
+                <button
+                  className="primaryButton"
+                  disabled={
+                    savingSecurityEmail ||
+                    securityEmailDraft.trim().toLowerCase() === recoveryEmail.toLowerCase()
+                  }
+                  onClick={saveRecoveryEmail}
+                >
+                  {savingSecurityEmail
+                    ? 'Saving…'
+                    : recoveryEmail
+                      ? 'Save email'
+                      : 'Add email'}
+                </button>
+
+                {recoveryEmail && (
+                  <button
+                    className="verifyComingSoon"
+                    disabled
+                    title="Email delivery will be connected later"
+                  >
+                    Send verification
+                    <small>Coming soon</small>
+                  </button>
+                )}
+              </div>
+
+              {securityEmailSaved && (
+                <div className="securitySuccess">
+                  ✓ Recovery email updated
+                </div>
+              )}
+
+              {securityEmailError && (
+                <div className="securityError">
+                  {securityEmailError}
+                </div>
+              )}
+
+              {recoveryEmail && !recoveryEmailVerified && (
+                <div className="verificationNotice">
+                  <strong>Verification isn&apos;t active yet.</strong>
+                  <p>
+                    Your email has been saved, but Himothy will not mark it verified until email delivery is connected.
+                  </p>
+                </div>
+              )}
+            </section>
+
+            <section className="futureSecurityCard">
+              <div>
+                <span>NEW DEVICE PROTECTION</span>
+                <strong>Require an email code on new devices</strong>
+                <p>
+                  Once email verification is available, you&apos;ll be able to use your verified email as an extra sign-in step.
+                </p>
+              </div>
+
+              <button disabled>Coming soon</button>
+            </section>
+
+            <section className="dangerZoneCard">
+              <div>
+                <span>DANGER ZONE</span>
+                <strong>Delete account</strong>
+                <p>
+                  Permanently delete your Himothy profile, logs, friendships, photos, and account data.
+                </p>
+              </div>
+
+              <button
+                className="dangerZoneButton"
+                onClick={() => {
+                  setShowAccountSettings(false);
+                  setDeleteConfirm('');
+                  setDeleteAccountError('');
+                  setShowDeleteAccount(true);
+                }}
+              >
+                <Trash2 size={15}/>
+                Delete account
+              </button>
+            </section>
           </div>
         </div>
       )}
@@ -1141,43 +1348,50 @@ function AuthScreen() {
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    if (!supabase || !email.trim() || password.length < 6) return;
-    const client = supabase;
-    if (mode === 'signup' && (!displayName.trim() || !usernameValid)) {
-      setMessage(!displayName.trim() ? 'Add your name to finish your profile.' : 'Choose a username with 3–30 lowercase letters, numbers, underscores, or periods.');
+
+    if (!supabase || !usernameValid || password.length < 6) return;
+
+    if (mode === 'signup' && !displayName.trim()) {
+      setMessage('Add your name to finish your profile.');
       return;
     }
 
     setBusy(true);
     setMessage(null);
+
     try {
-      if (mode === 'signin') {
-        const { error } = await client.auth.signInWithPassword({ email: email.trim(), password });
-        if (error) throw error;
-      } else {
-        const availability = await client.rpc('username_available', { candidate: cleanUsername });
-        if (availability.error) throw availability.error;
-        if (!availability.data) {
+      const response = await fetch('/api/auth/username', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode,
+          username: cleanUsername,
+          password,
+          displayName: mode === 'signup' ? displayName.trim() : undefined,
+          recoveryEmail: mode === 'signup' && email.trim() ? email.trim() : undefined,
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        if (payload?.code === 'username_taken') {
           setUsernameStatus('taken');
-          setMessage(`@${cleanUsername} is already taken. Try another username.`);
-          return;
         }
 
-        const { data, error } = await client.auth.signUp({
-          email: email.trim(),
-          password,
-          options: { data: { display_name: displayName.trim(), username: cleanUsername } },
-        });
-        if (error) {
-          const recheck = await client.rpc('username_available', { candidate: cleanUsername });
-          if (!recheck.error && !recheck.data) {
-            setUsernameStatus('taken');
-            throw new Error(`@${cleanUsername} was just taken. Choose another username.`);
-          }
-          throw error;
-        }
-        if (!data.session) setMessage('Account created. Check your email to confirm it, then sign in.');
+        throw new Error(payload?.error || 'Could not authenticate.');
       }
+
+      if (!payload?.access_token || !payload?.refresh_token) {
+        throw new Error('Could not start your session.');
+      }
+
+      const { error } = await supabase.auth.setSession({
+        access_token: payload.access_token,
+        refresh_token: payload.refresh_token,
+      });
+
+      if (error) throw error;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not authenticate.');
     } finally {
@@ -1202,26 +1416,80 @@ function AuthScreen() {
         <div className="authMark">H</div>
         <p className="eyebrow">{mode === 'signin' ? 'WELCOME BACK' : 'JOIN HIMOTHY'}</p>
         <h2>{mode === 'signin' ? 'Lock back in.' : 'Create your profile.'}</h2>
-        <p>{mode === 'signin' ? 'Your dashboard is waiting.' : 'Pick the name and unique @username your friends will know you by.'}</p>
+        <p>{mode === 'signin' ? 'Sign in with your username and password.' : 'Pick the name and unique @username your friends will know you by.'}</p>
         {mode === 'signup' && (
-          <>
-            <label className="authField">Name<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Prince" autoComplete="name" required/></label>
-            <label className="authField">Username
-              <div className="authUsernameWrap"><span>@</span><input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))} placeholder="prince" autoComplete="username" maxLength={30} required/></div>
-            </label>
-            <div className={`usernameAvailability ${usernameStatus}`}>
-              {usernameStatus === 'checking' && 'Checking availability…'}
-              {usernameStatus === 'available' && <><Check size={12}/> @{cleanUsername} is available</>}
-              {usernameStatus === 'taken' && <><X size={12}/> @{cleanUsername} is already taken</>}
-              {usernameStatus === 'invalid' && 'Use 3–30 lowercase letters, numbers, underscores, or periods.'}
-              {usernameStatus === 'error' && 'Could not check availability yet. We’ll verify when you create the account.'}
-            </div>
-          </>
+          <label className="authField">
+            Name
+            <input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Prince"
+              autoComplete="name"
+              required
+            />
+          </label>
         )}
-        <label className="authField">Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" required/></label>
-        <label className="authField">Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" minLength={6} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required/></label>
+
+        <label className="authField">
+          Username
+          <div className="authUsernameWrap">
+            <span>@</span>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+              placeholder="prince"
+              autoComplete="username"
+              maxLength={30}
+              required
+            />
+          </div>
+        </label>
+
+        {mode === 'signup' && (
+          <div className={`usernameAvailability ${usernameStatus}`}>
+            {usernameStatus === 'checking' && 'Checking availability…'}
+            {usernameStatus === 'available' && <><Check size={12}/> @{cleanUsername} is available</>}
+            {usernameStatus === 'taken' && <><X size={12}/> @{cleanUsername} is already taken</>}
+            {usernameStatus === 'invalid' && 'Use 3–30 lowercase letters, numbers, underscores, or periods.'}
+            {usernameStatus === 'error' && 'Could not check availability yet. We’ll verify when you create the account.'}
+          </div>
+        )}
+
+        <label className="authField">
+          Password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="At least 6 characters"
+            minLength={6}
+            autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+            required
+          />
+        </label>
+
+        {mode === 'signup' && (
+          <label className="authField">
+            <span style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+              <span>Email</span>
+              <span style={{ opacity: .5, fontSize: 11 }}>OPTIONAL</span>
+            </span>
+
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="For recovery & account security"
+              autoComplete="email"
+            />
+
+            <small style={{ opacity: .55, lineHeight: 1.45 }}>
+              Not required to create your account. You&apos;ll be able to verify it later for recovery and extra sign-in security.
+            </small>
+          </label>
+        )}
         {message && <div className="authMessage">{message}</div>}
-        <button className="primaryButton authSubmit" disabled={busy || (mode === 'signup' && (usernameStatus === 'checking' || usernameStatus === 'taken' || usernameStatus === 'invalid'))}>{busy ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Create account'}</button>
+        <button className="primaryButton authSubmit" disabled={busy || !usernameValid || (mode === 'signup' && (usernameStatus === 'checking' || usernameStatus === 'taken' || usernameStatus === 'invalid'))}>{busy ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Create account'}</button>
         <button type="button" className="authSwitch" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setMessage(null); }}>
           {mode === 'signin' ? 'New here? Create an account' : 'Already have an account? Sign in'}
         </button>
