@@ -1803,3 +1803,26 @@
     padding:12px 14px;
   }
 }
+
+/* Keep iOS/Safari autofilled auth fields consistent with Himothy dark theme */
+.authField input:-webkit-autofill,
+.authField input:-webkit-autofill:hover,
+.authField input:-webkit-autofill:focus,
+.authUsernameWrap input:-webkit-autofill,
+.authUsernameWrap input:-webkit-autofill:hover,
+.authUsernameWrap input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f5f7fa !important;
+  -webkit-box-shadow: 0 0 0 1000px #111418 inset !important;
+  box-shadow: 0 0 0 1000px #111418 inset !important;
+  caret-color: #f5f7fa;
+  transition: background-color 9999s ease-out 0s;
+}
+
+/* Make the username wrapper itself stay dark on mobile */
+.authUsernameWrap{
+  background:#111418 !important;
+}
+
+.authUsernameWrap input{
+  background:transparent !important;
+}
