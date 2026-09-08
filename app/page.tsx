@@ -151,6 +151,9 @@ function categoriesForLog(log: Pick<Log, 'category' | 'categories'>) {
 type QualityResult = {
   status: 'valid' | 'questionable' | 'invalid';
   message: string;
+  rewardRatio: number;
+  matchedCategories?: CategoryKey[];
+  unsupportedCategories?: CategoryKey[];
   suggestedCategory?: CategoryKey;
   suggestionMode?: 'switch' | 'add';
 };
@@ -158,13 +161,13 @@ type QualityResult = {
 const categorySignals: Record<CategoryKey, RegExp> = {
   appearance: /\b(skin|skincare|hair|groom|shav|hygiene|dental|teeth|face|acne|moistur|cleanser|sunscreen|trim|barber)\w*\b/,
   fashion: /\b(outfit|fit|wardrobe|shirt|pants|shoe|jacket|style|accessor|watch|jewel|fragrance|cologne|dress)\w*\b/,
-  academics: /\b(stud|class|lecture|homework|assignment|quiz|exam|test|problem|leetcode|course|grade|review|learn|notes?|flashcards?)\w*\b/,
-  career: /\b(job|career|intern|resume|résumé|application|apply|interview|network|recruit|portfolio|project|research|linkedin|meeting|professional)\w*\b/,
+  academics: /\b(stud|class|lecture|homework|assignment|quiz|exam|test|problem|leetcode|course|grade|review|learn|notes?|flashcards?|school|college|university)\w*\b/,
+  career: /\b(job|career|intern|resume|résumé|application|apply|interview|network|recruit|portfolio|project|research|linkedin|meeting|professional|app)\w*\b/,
   finance: /\b(budget|spend|spent|save|saved|saving|invest|money|dollar|income|expense|grocer|trade|stock|deposit|cash|debt|bill)\w*\b/,
   nutrition: /\b(cook|meal|food|protein|calor|nutrition|grocery|water|hydr|breakfast|lunch|dinner|vegetable|fruit|prep)\w*\b/,
   social: /\b(friend|social|talk|conversation|meet|met|hang|party|event|date|call|text|introduc|connect|plan|roommate)\w*\b/,
   physical: /\b(gym|lift|run|ran|walk|squat|bench|deadlift|workout|train|mile|km|5k|10k|rep|set|sport|basketball|soccer|mobility|stretch|cardio|pr)\w*\b/,
-  mind: /\b(read|book|journal|meditat|write|wrote|guitar|piano|instrument|language|chess|philosoph|practice|speech|debate|craft|draw|paint|creat)\w*\b/,
+  mind: /\bapp\b|\b(read|book|journal|meditat|write|wrote|guitar|piano|instrument|language|chess|philosoph|practice|speech|debate|craft|draw|paint|creat|code|coding|software|program|develop|build|debug|website)\w*\b/,
   spirituality: /\b(pray|prayer|church|mosque|temple|scripture|bible|quran|faith|worship|relig|gratitude|spiritual|service|reflection)\w*\b/,
 };
 
@@ -191,53 +194,115 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
     /\bscroll(?:ed|ing)? (?:tiktok|instagram|reels|shorts)\b/, /\bwatched (?:random )?(?:tiktok|reels|shorts)\b/,
   ];
   if (noCredit.some((pattern) => pattern.test(compact))) {
-    return { status: 'invalid', message: 'This activity doesn’t appear to represent progress in the selected area, so it won’t affect your score. You can still save it to your private history.' };
+    return { status: 'invalid', rewardRatio: 0, message: 'This activity doesn’t appear to represent progress in the selected area, so it won’t affect your score. You can still save it to your private history.' };
   }
   if (compact.length < 4 || /^(test|asdf|lol|idk|nothing|stuff|thing|things|random|whatever)$/.test(compact) || looksLikeGibberish(compact)) {
-    return { status: 'questionable', message: 'This entry isn’t clear enough to score confidently. Add a plain-language description of what you did, and it can count once the progress is understandable.' };
+    return { status: 'questionable', rewardRatio: 0, message: 'This entry isn’t clear enough to score confidently. Add a plain-language description of what you did, and it can count once the progress is understandable.' };
   }
-  const generic = /^(walked|read|studied|worked|workout|gym|ran|cooked|prayed|journaled|talked|socialized)$/i.test(activity.trim());
-  if (generic && !details.trim()) {
-    return { status: 'questionable', message: 'This may be real progress, but it needs a little context before earning points—try adding time, distance, pages, reps, topic, or what changed.' };
-  }
+
   const detectedCategories = categories
     .map((item) => item.key)
     .filter((key) => categorySignals[key].test(compact));
+  const matched = categoryKeys.filter((key) => detectedCategories.includes(key));
+  const unsupported = categoryKeys.filter((key) => !detectedCategories.includes(key));
+  const generic = /^(walked|read|studied|worked|workout|gym|ran|cooked|prayed|journaled|talked|socialized)$/i.test(activity.trim());
+
+  if (generic && !details.trim()) {
+    return {
+      status: 'questionable', rewardRatio: 0.5, matchedCategories: matched, unsupportedCategories: unsupported,
+      message: 'This sounds like real progress, but it is very broad. It can earn reduced credit now; add time, distance, pages, reps, topic, or what changed for full credit.',
+    };
+  }
 
   if (categoryKeys.length > 1) {
-    const matched = categoryKeys.filter((key) => detectedCategories.includes(key));
-    const requiredMatches = Math.min(categoryKeys.length, Math.max(1, Math.ceil(categoryKeys.length / 2)));
-    if (matched.length < requiredMatches) {
-      const outsideMatch = detectedCategories.find((key) => !categoryKeys.includes(key));
-      if (outsideMatch) {
-        return {
-          status: 'questionable',
-          message: `This activity appears more related to ${categoryFor(outsideMatch).label} than enough of the selected areas. Add the relevant area or clarify how the others were involved.`,
-          suggestedCategory: outsideMatch,
-          suggestionMode: 'add',
-        };
-      }
-      return { status: 'questionable', message: 'You selected several areas, but the entry doesn’t yet explain how it contributed to enough of them. Add a little context or remove categories that weren’t meaningfully involved.' };
+    if (matched.length === categoryKeys.length) {
+      return {
+        status: 'valid', rewardRatio: 1, matchedCategories: matched,
+        message: 'This clearly supports all selected areas. The activity earns one capped reward that is split across them—not extra points for extra tags.',
+      };
+    }
+
+    if (matched.length > 0) {
+      const clear = matched.map((key) => categoryFor(key).short).join(', ');
+      const unclear = unsupported.map((key) => categoryFor(key).short).join(', ');
+      return {
+        status: 'questionable', rewardRatio: 1, matchedCategories: matched, unsupportedCategories: unsupported,
+        message: `This is clear progress and ${clear} ${matched.length === 1 ? 'fits' : 'fit'} directly. ${unclear} ${unsupported.length === 1 ? 'isn’t' : 'aren’t'} obvious from the wording, but you can keep ${unsupported.length === 1 ? 'that tag' : 'those tags'}. The total reward stays capped and is split across every selected area, so extra tags never create extra points.`,
+      };
+    }
+
+    const outsideMatch = detectedCategories.find((key) => !categoryKeys.includes(key));
+    if (outsideMatch) {
+      return {
+        status: 'questionable', rewardRatio: 0.5, matchedCategories: [], unsupportedCategories: categoryKeys,
+        message: `The activity looks real, but the selected areas are not well supported by the wording. ${categoryFor(outsideMatch).label} is the clearest match right now. You can keep your tags for reduced credit or add context that explains the connection.`,
+        suggestedCategory: outsideMatch,
+        suggestionMode: 'add',
+      };
+    }
+
+    if (progressSignals.test(compact)) {
+      return {
+        status: 'questionable', rewardRatio: 0.5, matchedCategories: [], unsupportedCategories: categoryKeys,
+        message: 'The activity itself sounds like progress, but the connection to the selected areas is unclear. It can earn reduced credit, or you can add a little context for full credit.',
+      };
     }
   } else {
     const selected = categoryKeys[0];
-    const selectedMatches = detectedCategories.includes(selected);
+    const selectedMatches = matched.includes(selected);
     const alternative = detectedCategories.find((key) => key !== selected);
 
-    if (!selectedMatches && alternative) {
+    if (selectedMatches) {
+      return { status: 'valid', rewardRatio: 1, matchedCategories: [selected], message: 'This looks clear enough to count toward the selected area.' };
+    }
+
+    if (alternative) {
       return {
-        status: 'invalid',
-        message: `This activity looks more related to ${categoryFor(alternative).label} than ${categoryFor(selected).label}. Switch the category to earn progress points, or keep this entry as-is for 0 points.`,
+        status: 'questionable', rewardRatio: 0.5, matchedCategories: [], unsupportedCategories: [selected],
+        message: `This looks more related to ${categoryFor(alternative).label} than ${categoryFor(selected).label}. You can keep the current tag for reduced credit, or switch categories for full credit.`,
         suggestedCategory: alternative,
         suggestionMode: 'switch',
       };
     }
 
-    if (!selectedMatches && !progressSignals.test(compact)) {
-      return { status: 'questionable', message: 'This entry doesn’t clearly describe progress in the selected area yet. Add what you actually did or what improved so Himothy can score it fairly.' };
+    if (progressSignals.test(compact)) {
+      return {
+        status: 'questionable', rewardRatio: 0.5, matchedCategories: [], unsupportedCategories: [selected],
+        message: 'This sounds like progress, but the selected category is not obvious from the wording. It can earn reduced credit, or you can add a little context for full credit.',
+      };
     }
   }
-  return { status: 'valid', message: categoryKeys.length > 1 ? 'This looks clear enough to count across the selected areas.' : 'This looks clear enough to count toward the selected area.' };
+
+  return { status: 'questionable', rewardRatio: 0, matchedCategories: matched, unsupportedCategories: unsupported, message: 'This entry doesn’t clearly describe meaningful progress yet. Add what you actually did or what improved so Himothy can score it fairly.' };
+}
+
+function calculateLogPoints(categoryKeys: CategoryKey[], activity: string, details: string, hasImage: boolean) {
+  const quality = validateLogQuality(categoryKeys, activity, details);
+  const basePoints = details.trim() || hasImage ? 7 : 5;
+  return Math.round(basePoints * quality.rewardRatio);
+}
+
+function attributionShareForCategory(log: Log, category: CategoryKey) {
+  const selected = categoriesForLog(log);
+  if (!selected.includes(category)) return 0;
+
+  const compact = `${log.activity} ${log.details || ''}`.toLowerCase().replace(/[^a-z0-9$\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  const matched = selected.filter((key) => categorySignals[key].test(compact));
+  if (!matched.length) return 1 / selected.length;
+
+  // Evidence-backed tags receive most of the category credit. Intentional but
+  // unclear tags still receive a small share, so Himothy guides instead of blocks.
+  const weights = selected.map((key) => matched.includes(key) ? 1 : 0.35);
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  return weights[selected.indexOf(category)] / totalWeight;
+}
+
+function pointsForCategory(log: Log, category: CategoryKey) {
+  return log.points * attributionShareForCategory(log, category);
+}
+
+function effortShareForCategory(log: Log, category: CategoryKey) {
+  return attributionShareForCategory(log, category);
 }
 
 function prototypeInsight(categoryKeys: CategoryKey[], activity: string, details: string, hasImage: boolean) {
@@ -520,8 +585,8 @@ export default function Home() {
   const categoryScores = useMemo(() => {
     const result = {} as Record<CategoryKey, number>;
     categories.forEach((c, i) => {
-      const earned = logs.filter((log) => categoriesForLog(log).includes(c.key)).reduce((sum, log) => sum + log.points, 0);
-      result[c.key] = Math.min(99, 34 + i * 2 + earned);
+      const earned = logs.reduce((sum, log) => sum + pointsForCategory(log, c.key), 0);
+      result[c.key] = Math.min(99, Math.round(34 + i * 2 + earned));
     });
     return result;
   }, [logs]);
@@ -533,7 +598,7 @@ export default function Home() {
     const recent = logs.filter((log) => new Date(`${log.date}T12:00:00`) >= week);
     const totalWeight = categories.reduce((sum, category) => sum + priorityWeights[priorities[category.key]], 0);
     const earned = categories.reduce((sum, category) => {
-      const count = recent.filter((log) => categoriesForLog(log).includes(category.key)).length;
+      const count = recent.reduce((sum, log) => sum + effortShareForCategory(log, category.key), 0);
       const priority = priorities[category.key];
       return sum + Math.min(1, count / priorityTargets[priority]) * priorityWeights[priority];
     }, 0);
@@ -974,6 +1039,7 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const quality = activity.trim() ? validateLogQuality(selectedCategories, activity, details) : null;
+  const estimatedPoints = activity.trim() ? calculateLogPoints(selectedCategories, activity, details, Boolean(image)) : 0;
 
   function toggleCategory(key: CategoryKey) {
     setSelectedCategories((current) => current.includes(key) ? (current.length === 1 ? current : current.filter((item) => item !== key)) : [...current, key]);
@@ -989,8 +1055,7 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
   function submit() {
     const cleanActivity = activity.trim();
     if (!cleanActivity || !selectedCategories.length) return;
-    const check = validateLogQuality(selectedCategories, cleanActivity, details);
-    const points = check.status === 'valid' ? (details.trim() || image ? 7 : 5) : 0;
+    const points = calculateLogPoints(selectedCategories, cleanActivity, details, Boolean(image));
     onSave({
       category: selectedCategories[0], categories: selectedCategories, activity: cleanActivity, details: details.trim(), image,
       imagePath: existing?.imagePath,
@@ -1036,7 +1101,7 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
         <textarea id="details" className="textArea" value={details} onChange={(event) => setDetails(event.target.value)} placeholder="Numbers, context, what went well, what you learned, what you want to improve…"/>
 
         {quality && <div className={`qualityCheck ${quality.status}`}>
-          <strong>{quality.status === 'valid' ? '✓ Looks good' : quality.status === 'questionable' ? 'Category / context check' : 'No progress points'}</strong>
+          <strong>{quality.status === 'valid' ? '✓ Looks good' : quality.rewardRatio > 0 ? 'Tag / context check' : 'No progress points'}</strong>
           <span>{quality.message}</span>
           {quality.suggestedCategory && (
             <div className="qualityActions">
@@ -1050,7 +1115,7 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
               }}>
                 {quality.suggestionMode === 'add' ? 'Add' : 'Switch to'} {categoryFor(quality.suggestedCategory).emoji} {categoryFor(quality.suggestedCategory).short}
               </button>
-              <small>If you keep the current category selection, this entry can still be saved but will earn 0 points.</small>
+              <small>{quality.rewardRatio > 0 ? `Current selection earns ${estimatedPoints} total points. Better category evidence can restore full credit.` : 'This entry can still be saved, but it needs clearer evidence before it earns points.'}</small>
             </div>
           )}
         </div>}
@@ -1059,7 +1124,7 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
         {!image ? <button className="photoDrop" onClick={() => fileRef.current?.click()} disabled={busy}><ImageIcon size={22}/><div><strong>{busy ? 'Preparing photo…' : 'Add a photo'}</strong><small>Fit check, meal, gym PR, project screenshot, book, anything.</small></div></button> : <div className="photoPreview"><img src={image} alt="Custom log preview"/><button onClick={() => setImage(undefined)}><Trash2 size={16}/> Remove</button></div>}
 
         <label className="aiToggle"><input type="checkbox" checked={analyze} onChange={(event) => setAnalyze(event.target.checked)}/><span className="toggleTrack"><i/></span><div><strong><Sparkles size={15}/> Smart feedback</strong><small>Supportive prototype check. It evaluates the entry, never the person.</small></div></label>
-        <button className="primaryButton submitLog" onClick={submit} disabled={!activity.trim() || busy}><Send size={17}/> {existing ? 'Save changes' : quality && quality.status !== 'valid' ? 'Save without points' : 'Claim this progress'}</button>
+        <button className="primaryButton submitLog" onClick={submit} disabled={!activity.trim() || busy}><Send size={17}/> {existing ? 'Save changes' : estimatedPoints > 0 ? `Claim this progress (+${estimatedPoints})` : 'Save without points'}</button>
       </div>
     </div>
   );
@@ -1379,7 +1444,7 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
   const totals = categories.map((category) => ({
     category,
     count: recent.filter((log) => categoriesForLog(log).includes(category.key)).length,
-    points: recent.filter((log) => categoriesForLog(log).includes(category.key)).reduce((sum, log) => sum + log.points, 0),
+    points: recent.reduce((sum, log) => sum + pointsForCategory(log, category.key), 0),
   })).sort((a, b) => b.points - a.points);
   const maxPoints = Math.max(1, ...totals.map((item) => item.points));
   const activeAreas = totals.filter((item) => item.count > 0).length;
@@ -1411,7 +1476,7 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
         <article className="analyticsMetric card"><small>30-DAY POINTS</small><strong>{points}</strong><span className={delta >= 0 ? 'up' : 'down'}>{delta >= 0 ? '↑' : '↓'} {Math.abs(delta)}% vs prior 30d</span></article>
         <article className="analyticsMetric card"><small>ACTIVE DAYS</small><strong>{activeDays}<i>/30</i></strong><span>{Math.round((activeDays / 30) * 100)}% consistency</span></article>
         <article className="analyticsMetric card"><small>AREAS ACTIVE</small><strong>{activeAreas}<i>/10</i></strong><span>{balance}% life coverage</span></article>
-        <article className="analyticsMetric card"><small>TOP FOCUS</small><strong className="focusStat">{top.category.emoji} {top.category.short}</strong><span>{top.points} points · {top.count} logs</span></article>
+        <article className="analyticsMetric card"><small>TOP FOCUS</small><strong className="focusStat">{top.category.emoji} {top.category.short}</strong><span>{Math.round(top.points)} points · {top.count} logs</span></article>
       </div>
 
       <div className="analyticsGrid">
@@ -1438,7 +1503,7 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
               <span className="analyticsEmoji">{category.emoji}</span>
               <div className="analyticsLabel"><strong>{category.short}</strong><small>{count} {count === 1 ? 'log' : 'logs'}</small></div>
               <div className="analyticsBar"><i style={{ width: `${(categoryPoints / maxPoints) * 100}%` }}/></div>
-              <b>{categoryPoints}</b>
+              <b>{Math.round(categoryPoints)}</b>
             </div>
           ))}
         </div>
