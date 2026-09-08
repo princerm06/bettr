@@ -163,8 +163,8 @@ type QualityResult = {
 
 const categorySignals: Record<CategoryKey, RegExp> = {
   appearance: /\b(skin|skincare|hair|groom|shav|hygiene|dental|teeth|face|acne|moistur|cleanser|sunscreen|trim|barber)\w*\b/,
-  fashion: /\b(outfit|fit|wardrobe|shirt|pants|shoe|jacket|style|accessor|watch|jewel|fragrance|cologne|dress)\w*\b/,
-  academics: /\b(stud|class|lecture|homework|assignment|quiz|exam|test|problem|leetcode|course|grade|review|learn|notes?|flashcards?|school|college|university)\w*\b/,
+  fashion: /\b(outfit|wardrobe|shirt|pants|shoe|jacket|style|accessor|watch|jewel|fragrance|cologne|dress)\w*\b|\bfit\b/,
+  academics: /\b(stud|class|lecture|homework|assignment|quiz|exam|test|problem|leetcode|course|grade|review|learn|notes?|flashcards?|school|college|university|theorem|proof|math|algebra|calculus|biology|chemistry|physics|bio|equation|formula)\w*\b/,
   career: /\b(job|career|intern|resume|résumé|application|apply|interview|network|recruit|portfolio|project|research|linkedin|meeting|professional|app)\w*\b/,
   finance: /\b(budget|spend|spent|save|saved|saving|invest|money|dollar|income|expense|grocer|trade|stock|deposit|cash|debt|bill)\w*\b/,
   nutrition: /\b(cook|meal|food|protein|calor|nutrition|grocery|water|hydr|breakfast|lunch|dinner|vegetable|fruit|prep)\w*\b/,
@@ -189,9 +189,28 @@ function looksLikeGibberish(compact: string) {
   return !recognizable && (tokens.length <= 2 || suspicious >= Math.ceil(tokens.length / 2));
 }
 
+const activityProgressSignals = /\b(stud(?:y|ied|ying)|learn(?:ed|ing)?|read|wrote|write|solv(?:e|ed|ing)|practic(?:e|ed|ing)|train(?:ed|ing)?|work(?:ed|ing)?|lift(?:ed|ing)?|ran|run(?:ning)?|walk(?:ed|ing)?|cook(?:ed|ing)?|prep(?:ped|ping)?|apply|applied|built|build(?:ing)?|finish(?:ed|ing)?|complete(?:d|ing)?|review(?:ed|ing)?|save(?:d|ing)?|invest(?:ed|ing)?|budget(?:ed|ing)?|plan(?:ned|ning)?|meet|met|talk(?:ed|ing)?|prayed|pray(?:ing)?|journal(?:ed|ing)?|meditat(?:ed|ing)|clean(?:ed|ing)?|organ(?:ize|ized|izing)|improv(?:e|ed|ing)|debug(?:ged|ging)?|develop(?:ed|ing)?|created?|made|wore|styled|shaved|groomed|personal record|pr)\b/i;
+
+function looksLikeReferenceDump(details: string) {
+  const text = details.trim();
+  if (!text) return false;
+
+  const urls = (text.match(/https?:\/\//gi) || []).length;
+  const citations = (text.match(/\[\d+\]/g) || []).length;
+  const latex = (text.match(/\\(?:vert|cdot|langle|rangle|frac|text|mathbb|begin|end)/g) || []).length;
+
+  return (
+    text.length > 1400 ||
+    (text.length > 650 && urls >= 2) ||
+    (text.length > 650 && citations >= 3) ||
+    (text.length > 650 && latex >= 2)
+  );
+}
+
 function validateLogQuality(categoryKeys: CategoryKey[], activity: string, details: string): QualityResult {
   const text = `${activity} ${details}`.trim().toLowerCase();
   const compact = text.replace(/[^a-z0-9$\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  const activityCompact = activity.toLowerCase().replace(/[^a-z0-9$\s]/g, ' ').replace(/\s+/g, ' ').trim();
   const noCredit = [
     /\bjerk\w*\s*off\b/, /\bmasturbat\w*\b/, /\bdid nothing\b/, /\bdoom ?scroll\w*\b/,
     /\bscroll(?:ed|ing)? (?:tiktok|instagram|reels|shorts)\b/, /\bwatched (?:random )?(?:tiktok|reels|shorts)\b/,
@@ -201,6 +220,14 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
   }
   if (compact.length < 4 || /^(test|asdf|lol|idk|nothing|stuff|thing|things|random|whatever)$/.test(compact) || looksLikeGibberish(compact)) {
     return { status: 'questionable', rewardRatio: 0, message: 'This entry isn’t clear enough to score confidently. Add a plain-language description of what you did, and it can count once the progress is understandable.' };
+  }
+
+  if (!activityProgressSignals.test(activityCompact)) {
+    return {
+      status: 'questionable',
+      rewardRatio: 0,
+      message: 'Describe what you actually did in the entry itself. Notes and pasted reference material can support an activity, but they cannot create progress credit on their own.',
+    };
   }
 
   const detectedCategories = categories
@@ -237,8 +264,8 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
     const outsideMatch = detectedCategories.find((key) => !categoryKeys.includes(key));
     if (outsideMatch) {
       return {
-        status: 'questionable', rewardRatio: 0.5, matchedCategories: [], unsupportedCategories: categoryKeys,
-        message: `The activity looks real, but the selected areas are not well supported by the wording. ${categoryFor(outsideMatch).label} is the clearest match right now. You can keep your tags for reduced credit or add context that explains the connection.`,
+        status: 'questionable', rewardRatio: 0, matchedCategories: [], unsupportedCategories: categoryKeys,
+        message: `The activity looks real, but it does not support the selected areas. ${categoryFor(outsideMatch).label} is the clearest match. Switch to a supported category before this earns progress credit.`,
         suggestedCategory: outsideMatch,
         suggestionMode: 'add',
       };
@@ -246,8 +273,8 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
 
     if (progressSignals.test(compact)) {
       return {
-        status: 'questionable', rewardRatio: 0.5, matchedCategories: [], unsupportedCategories: categoryKeys,
-        message: 'The activity itself sounds like progress, but the connection to the selected areas is unclear. It can earn reduced credit, or you can add a little context for full credit.',
+        status: 'questionable', rewardRatio: 0, matchedCategories: [], unsupportedCategories: categoryKeys,
+        message: 'The activity sounds like progress, but none of the selected areas are supported clearly enough. Choose a category that matches what you actually did.',
       };
     }
   } else {
@@ -261,8 +288,8 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
 
     if (alternative) {
       return {
-        status: 'questionable', rewardRatio: 0.5, matchedCategories: [], unsupportedCategories: [selected],
-        message: `This looks more related to ${categoryFor(alternative).label} than ${categoryFor(selected).label}. You can keep the current tag for reduced credit, or switch categories for full credit.`,
+        status: 'questionable', rewardRatio: 0, matchedCategories: [], unsupportedCategories: [selected],
+        message: `This looks related to ${categoryFor(alternative).label}, not ${categoryFor(selected).label}. Switch categories before this entry can earn points.`,
         suggestedCategory: alternative,
         suggestionMode: 'switch',
       };
@@ -270,8 +297,8 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
 
     if (progressSignals.test(compact)) {
       return {
-        status: 'questionable', rewardRatio: 0.5, matchedCategories: [], unsupportedCategories: [selected],
-        message: 'This sounds like progress, but the selected category is not obvious from the wording. It can earn reduced credit, or you can add a little context for full credit.',
+        status: 'questionable', rewardRatio: 0, matchedCategories: [], unsupportedCategories: [selected],
+        message: 'This sounds like progress, but the selected category is not supported clearly enough. Choose the area that actually matches the activity.',
       };
     }
   }
@@ -281,7 +308,8 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
 
 function calculateLogPoints(categoryKeys: CategoryKey[], activity: string, details: string, hasImage: boolean) {
   const quality = validateLogQuality(categoryKeys, activity, details);
-  const basePoints = details.trim() || hasImage ? 7 : 5;
+  const usefulDetails = Boolean(details.trim()) && !looksLikeReferenceDump(details);
+  const basePoints = usefulDetails || hasImage ? 7 : 5;
   return Math.round(basePoints * quality.rewardRatio);
 }
 
@@ -491,7 +519,11 @@ export default function Home() {
     async function hydrateCloud() {
       setCloudReady(false);
       const [{ data: remoteLogs, error: logsError }, { data: priorityRow }, { data: profileRow }] = await Promise.all([
-        client.from('logs').select('*').order('created_at', { ascending: false }),
+        client
+          .from('logs')
+          .select('*')
+          .eq('user_id', account.id)
+          .order('created_at', { ascending: false }),
         client.from('user_priorities').select('priorities').maybeSingle(),
         client.from('profiles').select('display_name,onboarding_completed,recovery_email,recovery_email_verified').eq('id', account.id).maybeSingle(),
       ]);
@@ -712,11 +744,29 @@ export default function Home() {
 
   async function saveCustomLog(log: Omit<Log, 'id' | 'timestamp'>) {
     const id = crypto.randomUUID();
-    const newLog: Log = { ...log, id, timestamp: Date.now(), custom: true };
+
+    const zeroPoint = Number(log.points || 0) <= 0;
+
+    const newLog: Log = {
+      ...log,
+      id,
+      timestamp: Date.now(),
+      custom: true,
+      visibility: zeroPoint ? 'private' : (log.visibility || 'friends'),
+    };
+
     setLogs((prev) => [newLog, ...prev]);
     setShowComposer(false);
     setRecentLogId(id);
-    setToast(`${categoryFor(log.category).emoji} Custom entry added`);
+
+    if (zeroPoint) {
+      setToast(
+        'Saved privately — this entry wasn’t counted as progress or shared to Friends.'
+      );
+    } else {
+      setToast(`${categoryFor(log.category).emoji} Custom entry added`);
+    }
+
     window.setTimeout(() => setRecentLogId(null), 1200);
     await persistCloudLog(newLog);
   }
@@ -724,7 +774,15 @@ export default function Home() {
   async function updateLog(id: string, patch: Omit<Log, 'id' | 'timestamp'>) {
     const current = logs.find((item) => item.id === id);
     if (!current) return;
-    let updated: Log = { ...current, ...patch, id, timestamp: current.timestamp };
+    let updated: Log = {
+      ...current,
+      ...patch,
+      id,
+      timestamp: current.timestamp,
+      visibility: Number(patch.points || 0) <= 0
+        ? 'private'
+        : (patch.visibility || current.visibility || 'friends'),
+    };
     if (supabase && user) {
       const client = supabase;
       const account = user;
@@ -1675,10 +1733,20 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
               }}>
                 {quality.suggestionMode === 'add' ? 'Add' : 'Switch to'} {categoryFor(quality.suggestedCategory).emoji} {categoryFor(quality.suggestedCategory).short}
               </button>
-              <small>{quality.rewardRatio > 0 ? `Current selection earns ${estimatedPoints} total points. Better category evidence can restore full credit.` : 'This entry can still be saved, but it needs clearer evidence before it earns points.'}</small>
+              <small>{quality.rewardRatio > 0
+                ? `Current selection earns ${estimatedPoints} total points. Better category evidence can restore full credit.`
+                : 'This entry can still be saved, but it will be saved privately and will not appear in Friends until it earns progress credit.'
+              }</small>
             </div>
           )}
         </div>}
+
+        {activity.trim() && estimatedPoints === 0 && (
+          <div className="zeroPointPrivacyNotice">
+            <strong>🔒 Saved privately</strong>
+            <span>0-point entries stay in your history, but they are not shared to Friends.</span>
+          </div>
+        )}
 
         <input ref={fileRef} className="hiddenInput" type="file" accept="image/*" onChange={handleImage}/>
         {!image ? <button className="photoDrop" onClick={() => fileRef.current?.click()} disabled={busy}><ImageIcon size={22}/><div><strong>{busy ? 'Preparing photo…' : 'Add a photo'}</strong><small>Fit check, meal, gym PR, project screenshot, book, anything.</small></div></button> : <div className="photoPreview"><img src={image} alt="Custom log preview"/><button onClick={() => setImage(undefined)}><Trash2 size={16}/> Remove</button></div>}
@@ -2133,6 +2201,7 @@ function NotificationPanel({
   const [profiles, setProfiles] = useState<SocialProfile[]>([]);
   const [logs, setLogs] = useState<FeedLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resolvedRequests, setResolvedRequests] = useState<Record<string, 'accepted' | 'declined'>>({});
 
   async function refreshPanel() {
     if (!supabase) return;
@@ -2169,19 +2238,35 @@ function NotificationPanel({
 
   async function acceptRequest(item: HimothyNotification) {
     if (!supabase || !item.friendship_id) return;
-    const { error } = await supabase.from('friendships').update({ status: 'accepted' }).eq('id', item.friendship_id);
+
+    const { error } = await supabase
+      .from('friendships')
+      .update({ status: 'accepted' })
+      .eq('id', item.friendship_id);
+
     if (!error) {
+      setResolvedRequests((current) => ({
+        ...current,
+        [item.id]: 'accepted',
+      }));
       await markRead(item);
-      await refreshPanel();
     }
   }
 
   async function declineRequest(item: HimothyNotification) {
     if (!supabase || !item.friendship_id) return;
-    const { error } = await supabase.from('friendships').delete().eq('id', item.friendship_id);
+
+    const { error } = await supabase
+      .from('friendships')
+      .delete()
+      .eq('id', item.friendship_id);
+
     if (!error) {
+      setResolvedRequests((current) => ({
+        ...current,
+        [item.id]: 'declined',
+      }));
       await markRead(item);
-      await refreshPanel();
     }
   }
 
@@ -2238,8 +2323,16 @@ function NotificationPanel({
 
               {item.type === 'friend_request' && item.friendship_id && (
                 <div className="notificationRequestActions">
-                  <button className="accept" onClick={() => acceptRequest(item)}>Accept</button>
-                  <button onClick={() => declineRequest(item)}>Decline</button>
+                  {resolvedRequests[item.id] === 'accepted' ? (
+                    <span className="requestAccepted">✓ Accepted</span>
+                  ) : resolvedRequests[item.id] === 'declined' ? (
+                    <span className="requestDeclined">Declined</span>
+                  ) : (
+                    <>
+                      <button className="accept" onClick={() => acceptRequest(item)}>Accept</button>
+                      <button onClick={() => declineRequest(item)}>Decline</button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

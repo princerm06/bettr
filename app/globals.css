@@ -635,3 +635,43 @@
 .threadPostButton{padding:0 12px;color:var(--accent);font:inherit;font-size:10px;font-weight:900}
 .threadPostButton:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:600px){.notificationPanel{position:fixed;top:74px;right:12px;left:12px;width:auto}.threadComposer{grid-template-columns:auto 1fr}.threadPostButton{grid-column:2;justify-self:end}}
+
+    
+/* v6.5 social quality */
+.requestAccepted{
+  color:var(--accent);
+  font-size:11px;
+  font-weight:900;
+  padding:7px 0;
+}
+
+.requestDeclined{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  padding:7px 0;
+}
+
+
+/* v6.5 zero-point privacy */
+.zeroPointPrivacyNotice{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin:12px 0;
+  padding:10px 12px;
+  border:1px solid rgba(255,189,89,.26);
+  border-radius:10px;
+  background:rgba(255,189,89,.04);
+}
+
+.zeroPointPrivacyNotice strong{
+  color:#e5c274;
+  font-size:11px;
+}
+
+.zeroPointPrivacyNotice span{
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.4;
+}
