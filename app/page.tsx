@@ -56,6 +56,8 @@ type Log = {
   details?: string;
   date: string;
   timestamp: number;
+  startTime?: string;
+  durationMinutes?: number;
   points: number;
   image?: string;
   imagePath?: string;
@@ -350,6 +352,31 @@ function calculateLogPoints(categoryKeys: CategoryKey[], activity: string, detai
   return Math.round(basePoints * quality.rewardRatio);
 }
 
+function applyPriorityReward(
+  basePoints: number,
+  categoryKeys: CategoryKey[],
+  priorities: Record<CategoryKey, Priority>
+) {
+  // Priority can amplify legitimate progress, but it can never rescue
+  // an invalid / zero-point entry.
+  if (basePoints <= 0 || categoryKeys.length === 0) return 0;
+
+  const bonusByPriority: Record<Priority, number> = {
+    critical: 2,
+    high: 1,
+    normal: 0,
+    maintenance: -1,
+  };
+
+  const averageBonus =
+    categoryKeys.reduce(
+      (sum, key) => sum + bonusByPriority[priorities[key]],
+      0
+    ) / categoryKeys.length;
+
+  return Math.max(1, Math.round(basePoints + averageBonus));
+}
+
 function attributionShareForCategory(log: Log, category: CategoryKey) {
   const selected = categoriesForLog(log);
   if (!selected.includes(category)) return 0;
@@ -415,6 +442,8 @@ type CloudLogRow = {
   details: string | null;
   log_date: string;
   created_at: string;
+  start_time: string | null;
+  duration_minutes: number | null;
   points: number;
   image_path: string | null;
   ai_insight: string | null;
@@ -446,6 +475,8 @@ async function rowToLog(row: CloudLogRow): Promise<Log> {
     details: row.details || '',
     date: row.log_date,
     timestamp: new Date(row.created_at).getTime(),
+    startTime: row.start_time || undefined,
+    durationMinutes: row.duration_minutes ?? undefined,
     points: row.points,
     imagePath: row.image_path || undefined,
     image: await signedImageUrl(row.image_path),
@@ -521,7 +552,7 @@ export default function Home() {
         details: log.details || '',
         date: log.date || todayISO(),
         timestamp: log.timestamp || Date.now() - index,
-        points: log.points || 5,
+        points: log.points ?? 5,
       })) as Log[];
       setLogs(migrated);
     } else {
@@ -607,6 +638,8 @@ export default function Home() {
                 details: local.details || null,
                 log_date: local.date,
                 created_at: new Date(local.timestamp).toISOString(),
+                start_time: local.startTime || null,
+                duration_minutes: local.durationMinutes ?? null,
                 points: local.points,
                 image_path: imagePath || null,
                 ai_insight: local.aiInsight || null,
@@ -703,9 +736,12 @@ export default function Home() {
 
   const categoryScores = useMemo(() => {
     const result = {} as Record<CategoryKey, number>;
-    categories.forEach((c, i) => {
-      const earned = logs.reduce((sum, log) => sum + pointsForCategory(log, c.key), 0);
-      result[c.key] = Math.min(99, Math.round(34 + i * 2 + earned));
+    categories.forEach((c) => {
+      const earned = logs
+        .filter((log) => log.points > 0)
+        .reduce((sum, log) => sum + pointsForCategory(log, c.key), 0);
+
+      result[c.key] = Math.min(99, Math.max(0, Math.round(earned)));
     });
     return result;
   }, [logs]);
@@ -714,7 +750,11 @@ export default function Home() {
     const week = new Date();
     week.setHours(0, 0, 0, 0);
     week.setDate(week.getDate() - 6);
-    const recent = logs.filter((log) => new Date(`${log.date}T12:00:00`) >= week);
+    const recent = logs.filter(
+      (log) =>
+        log.points > 0 &&
+        new Date(`${log.date}T12:00:00`) >= week
+    );
     const totalWeight = categories.reduce((sum, category) => sum + priorityWeights[priorities[category.key]], 0);
     const earned = categories.reduce((sum, category) => {
       const count = recent.reduce((sum, log) => sum + effortShareForCategory(log, category.key), 0);
@@ -725,8 +765,12 @@ export default function Home() {
   }, [logs, priorities]);
 
   const todayLogs = logs.filter((log) => log.date === todayISO());
-  const activeDays = new Set(logs.filter((log) => log.date >= dayISO(-6)).map((log) => log.date)).size;
-  const level = Math.max(1, Math.floor(logs.reduce((sum, log) => sum + log.points, 0) / 28) + 14);
+  const activeDays = new Set(
+    logs
+      .filter((log) => log.points > 0 && log.date >= dayISO(-6))
+      .map((log) => log.date)
+  ).size;
+  const level = Math.max(1, Math.floor(logs.reduce((sum, log) => sum + log.points, 0) / 28) + 1);
   const primaryPriority = categories.find((category) => priorities[category.key] === 'critical') || categories[0];
 
   async function persistCloudLog(log: Log) {
@@ -749,6 +793,8 @@ export default function Home() {
         details: finalLog.details || null,
         log_date: finalLog.date,
         created_at: new Date(finalLog.timestamp).toISOString(),
+        start_time: finalLog.startTime || null,
+        duration_minutes: finalLog.durationMinutes ?? null,
         points: finalLog.points,
         image_path: finalLog.imagePath || null,
         ai_insight: finalLog.aiInsight || null,
@@ -764,11 +810,21 @@ export default function Home() {
 
   async function claimLog(category: CategoryKey, activity: string) {
     const id = crypto.randomUUID();
-    const log: Log = { id, category, activity, date: todayISO(), timestamp: Date.now(), points: 5 };
+    const points = applyPriorityReward(5, [category], priorities);
+
+    const log: Log = {
+      id,
+      category,
+      activity,
+      date: todayISO(),
+      timestamp: Date.now(),
+      points,
+    };
+
     setLogs((prev) => [log, ...prev]);
     setQuickCategory(null);
     setRecentLogId(id);
-    setToast(`+5 ${categoryFor(category).short} · claimed`);
+    setToast(`+${points} ${categoryFor(category).short} · claimed`);
     window.setTimeout(() => setRecentLogId(null), 1200);
     await persistCloudLog(log);
   }
@@ -782,12 +838,14 @@ export default function Home() {
   async function saveCustomLog(log: Omit<Log, 'id' | 'timestamp'>) {
     const id = crypto.randomUUID();
 
-    const zeroPoint = Number(log.points || 0) <= 0;
+    const finalPoints = Number(log.points || 0);
+    const zeroPoint = finalPoints <= 0;
 
     const newLog: Log = {
       ...log,
       id,
       timestamp: Date.now(),
+      points: finalPoints,
       custom: true,
       visibility: zeroPoint ? 'private' : (log.visibility || 'friends'),
     };
@@ -830,7 +888,7 @@ export default function Home() {
         }
         const { error } = await client.from('logs').update({
           category: updated.category, categories: categoriesForLog(updated), activity: updated.activity, details: updated.details || null,
-          log_date: updated.date, points: updated.points, image_path: updated.imagePath || null, ai_insight: updated.aiInsight || null, custom: Boolean(updated.custom), visibility: updated.visibility || 'friends',
+          log_date: updated.date, start_time: updated.startTime || null, duration_minutes: updated.durationMinutes ?? null, points: updated.points, image_path: updated.imagePath || null, ai_insight: updated.aiInsight || null, custom: Boolean(updated.custom), visibility: updated.visibility || 'friends',
         }).eq('id', id);
         if (error) throw error;
       } catch (error) {
@@ -1000,8 +1058,13 @@ export default function Home() {
 
       try {
         localStorage.removeItem(`himothy.logs.v2.${user.id}`);
+        localStorage.removeItem('himothy.logs.v2');
+        localStorage.removeItem('himothy.logs');
         localStorage.removeItem('himothy.legacyMigrationClaimed');
       } catch {}
+
+      setLogs([]);
+
       await supabase.auth.signOut();
       setShowDeleteAccount(false);
     } catch (error) {
@@ -1239,11 +1302,23 @@ export default function Home() {
       )}
 
       {showComposer && (
-        <CustomComposer initialCategory={composerCategory} onClose={() => setShowComposer(false)} onSave={saveCustomLog}/>
+        <CustomComposer
+          initialCategory={composerCategory}
+          priorities={priorities}
+          onClose={() => setShowComposer(false)}
+          onSave={saveCustomLog}
+        />
       )}
 
       {editingLog && (
-        <CustomComposer key={`edit-${editingLog.id}`} initialCategory={editingLog.category} existing={editingLog} onClose={() => setEditingLog(null)} onSave={(patch) => updateLog(editingLog.id, patch)}/>
+        <CustomComposer
+          key={`edit-${editingLog.id}`}
+          initialCategory={editingLog.category}
+          existing={editingLog}
+          priorities={priorities}
+          onClose={() => setEditingLog(null)}
+          onSave={(patch) => updateLog(editingLog.id, patch)}
+        />
       )}
 
       {showPriority && (
@@ -1773,9 +1848,10 @@ function AuthScreen() {
   );
 }
 
-function CustomComposer({ initialCategory, existing, onClose, onSave }: {
+function CustomComposer({ initialCategory, existing, priorities, onClose, onSave }: {
   initialCategory: CategoryKey;
   existing?: Log;
+  priorities: Record<CategoryKey, Priority>;
   onClose: () => void;
   onSave: (log: Omit<Log, 'id' | 'timestamp'>) => void;
 }) {
@@ -1783,13 +1859,40 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
   const [activity, setActivity] = useState(existing?.activity || '');
   const [details, setDetails] = useState(existing?.details || '');
   const [date, setDate] = useState(existing?.date || todayISO());
+  const initialStartTime = existing?.startTime?.slice(0, 5) || '';
+  const initialHour24 = initialStartTime ? Number(initialStartTime.slice(0, 2)) : 12;
+  const [startHour, setStartHour] = useState(
+    initialStartTime ? String(((initialHour24 + 11) % 12) + 1) : ''
+  );
+  const [startMinute, setStartMinute] = useState(
+    initialStartTime ? initialStartTime.slice(3, 5) : ''
+  );
+  const [startPeriod, setStartPeriod] = useState<'AM' | 'PM' | null>(
+    initialStartTime ? (initialHour24 >= 12 ? 'PM' : 'AM') : null
+  );
+  const [durationHours, setDurationHours] = useState(
+    existing?.durationMinutes ? String(Math.floor(existing.durationMinutes / 60) || '') : ''
+  );
+  const [durationMinutes, setDurationMinutes] = useState(
+    existing?.durationMinutes ? String(existing.durationMinutes % 60 || '') : ''
+  );
   const [image, setImage] = useState<string | undefined>(existing?.image);
   const [analyze, setAnalyze] = useState(true);
-  const [visibility, setVisibility] = useState<'friends' | 'private'>(existing?.visibility || 'friends');
+  const [visibility, setVisibility] = useState<'friends' | 'private'>(
+    existing?.visibility || 'private'
+  );
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const quality = activity.trim() ? validateLogQuality(selectedCategories, activity, details) : null;
-  const estimatedPoints = activity.trim() ? calculateLogPoints(selectedCategories, activity, details, Boolean(image)) : 0;
+  const baseEstimatedPoints = activity.trim()
+    ? calculateLogPoints(selectedCategories, activity, details, Boolean(image))
+    : 0;
+
+  const estimatedPoints = applyPriorityReward(
+    baseEstimatedPoints,
+    selectedCategories,
+    priorities
+  );
 
   function toggleCategory(key: CategoryKey) {
     setSelectedCategories((current) => current.includes(key) ? (current.length === 1 ? current : current.filter((item) => item !== key)) : [...current, key]);
@@ -1805,12 +1908,43 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
   function submit() {
     const cleanActivity = activity.trim();
     if (!cleanActivity || !selectedCategories.length) return;
-    const points = calculateLogPoints(selectedCategories, cleanActivity, details, Boolean(image));
+    const basePoints = calculateLogPoints(
+      selectedCategories,
+      cleanActivity,
+      details,
+      Boolean(image)
+    );
+
+    const points = applyPriorityReward(
+      basePoints,
+      selectedCategories,
+      priorities
+    );
+    const totalDurationMinutes =
+      (Math.max(0, Number(durationHours) || 0) * 60) +
+      Math.max(0, Number(durationMinutes) || 0);
+
+    let normalizedStartTime: string | undefined;
+    if (startHour && startMinute !== '' && startPeriod) {
+      const hour12 = Math.min(12, Math.max(1, Number(startHour)));
+      const minute = Math.min(59, Math.max(0, Number(startMinute)));
+      let hour24 = hour12 % 12;
+      if (startPeriod === 'PM') hour24 += 12;
+
+      normalizedStartTime =
+        `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    }
+
     onSave({
       category: selectedCategories[0], categories: selectedCategories, activity: cleanActivity, details: details.trim(), image,
       imagePath: existing?.imagePath,
       aiInsight: analyze ? prototypeInsight(selectedCategories, cleanActivity, details, Boolean(image)) : undefined,
-      date, points, custom: true, visibility,
+      date,
+      startTime: normalizedStartTime,
+      durationMinutes: totalDurationMinutes > 0 ? totalDurationMinutes : undefined,
+      points,
+      custom: true,
+      visibility,
     });
   }
 
@@ -1826,18 +1960,166 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
         <div className="categoryPicker multiCategoryPicker">
           {categories.map((item) => <button key={item.key} className={selectedCategories.includes(item.key) ? 'selected' : ''} onClick={() => toggleCategory(item.key)} title={item.label}>{item.emoji}<span>{item.short}</span></button>)}
         </div>
-        <div className="selectedCategorySummary">{selectedCategories.map((key) => <span key={key}>{categoryFor(key).emoji} {categoryFor(key).short}</span>)}</div>
+        <div className="selectedCategorySummary">
+          {selectedCategories.map((key) => (
+            <span key={key} className="selectedCategoryPill">
+              {categoryFor(key).emoji} {categoryFor(key).short}
+              <button
+                type="button"
+                className="selectedCategoryRemove"
+                aria-label={`Remove ${categoryFor(key).short}`}
+                title={`Remove ${categoryFor(key).short}`}
+                disabled={selectedCategories.length === 1}
+                onClick={() => {
+                  if (selectedCategories.length > 1) {
+                    setSelectedCategories((current) =>
+                      current.filter((item) => item !== key)
+                    );
+                  }
+                }}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
 
         <label className="fieldLabel" htmlFor="activity">Entry</label>
         <input id="activity" className="textInput" autoFocus value={activity} onChange={(event) => setActivity(event.target.value)} placeholder="e.g. Hit a new squat PR, cooked salmon bowls, talked to someone new…"/>
 
-        <div className="composerSplit">
+        <div className="composerSplit logTimingGrid">
           <div>
-            <label className="fieldLabel" htmlFor="logDate">When did this happen?</label>
+            <label className="fieldLabel" htmlFor="logDate">Date</label>
             <div className="dateField">
-              <input id="logDate" className="textInput" type="date" max={todayISO()} value={date} onChange={(event) => setDate(event.target.value)} title="Choose activity date" />
+              <input
+                id="logDate"
+                className="textInput"
+                type="date"
+                max={todayISO()}
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+                title="Choose activity date"
+              />
             </div>
-            {existing && date !== existing.date && <small className="dateEditHint">Date will update from {new Date(`${existing.date}T12:00:00`).toLocaleDateString()} to {new Date(`${date}T12:00:00`).toLocaleDateString()}.</small>}
+            {existing && date !== existing.date && (
+              <small className="dateEditHint">
+                Date will update from {new Date(`${existing.date}T12:00:00`).toLocaleDateString()} to {new Date(`${date}T12:00:00`).toLocaleDateString()}.
+              </small>
+            )}
+          </div>
+
+          <div>
+            <label className="fieldLabel" htmlFor="logStartTime">
+              Start time <span>optional</span>
+            </label>
+            <div id="logStartTime" className="customTimePicker">
+              <select
+                className="textInput"
+                value={startHour}
+                onChange={(event) => setStartHour(event.target.value)}
+                aria-label="Start hour"
+              >
+                <option value="">--</option>
+                {Array.from({ length: 12 }, (_, index) => index + 1).map((hour) => (
+                  <option key={hour} value={hour}>{hour}</option>
+                ))}
+              </select>
+
+              <span className="timeSeparator">:</span>
+
+              <select
+                className="textInput"
+                value={startMinute}
+                onChange={(event) => setStartMinute(event.target.value)}
+                aria-label="Start minute"
+              >
+                <option value="">--</option>
+                {Array.from({ length: 60 }, (_, minute) => (
+                  <option key={minute} value={String(minute).padStart(2, '0')}>
+                    {String(minute).padStart(2, '0')}
+                  </option>
+                ))}
+              </select>
+
+              <div className="periodToggle">
+                <button
+                  type="button"
+                  className={startPeriod === 'AM' ? 'selected' : ''}
+                  onClick={() => setStartPeriod('AM')}
+                >
+                  AM
+                </button>
+                <button
+                  type="button"
+                  className={startPeriod === 'PM' ? 'selected' : ''}
+                  onClick={() => setStartPeriod('PM')}
+                >
+                  PM
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="durationField">
+            <label className="fieldLabel">
+              Duration <span>optional</span>
+            </label>
+
+            <div className="durationInputs">
+              <label>
+                <input
+                  className="textInput"
+                  type="number"
+                  min="0"
+                  max="23"
+                  inputMode="numeric"
+                  value={durationHours}
+                  onChange={(event) => {
+                    const digits = event.target.value.replace(/\D/g, '');
+                    if (!digits) {
+                      setDurationHours('');
+                      return;
+                    }
+                    setDurationHours(String(Math.min(23, Number(digits))));
+                  }}
+                  onKeyDown={(event) => {
+                    if (['-', '+', 'e', 'E', '.', ','].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
+                  placeholder="0"
+                  aria-label="Duration hours"
+                />
+                <span>hr</span>
+              </label>
+
+              <label>
+                <input
+                  className="textInput"
+                  type="number"
+                  min="0"
+                  max="59"
+                  inputMode="numeric"
+                  value={durationMinutes}
+                  onChange={(event) => {
+                    const digits = event.target.value.replace(/\D/g, '');
+                    if (!digits) {
+                      setDurationMinutes('');
+                      return;
+                    }
+                    setDurationMinutes(String(Math.min(59, Number(digits))));
+                  }}
+                  onKeyDown={(event) => {
+                    if (['-', '+', 'e', 'E', '.', ','].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
+                  placeholder="0"
+                  aria-label="Duration minutes"
+                />
+                <span>min</span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -1891,30 +2173,275 @@ function CustomComposer({ initialCategory, existing, onClose, onSave }: {
 }
 
 function RecentMemories({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: string) => void; onEdit: (log: Log) => void }) {
+  const [viewingLog, setViewingLog] = useState<Log | null>(null);
+
   return (
     <section className="memoriesSection">
       <div className="sectionHead"><div><p className="eyebrow">RECENT</p><h2>What you actually did.</h2><p>Entries become a private timeline of your progress.</p></div></div>
+
       <div className="memoryGrid">
-        {logs.map((log) => <LogCard key={log.id} log={log} onDelete={onDelete} onEdit={onEdit}/>) }
+        {logs.map((log) => (
+          <LogCard
+            key={log.id}
+            log={log}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            onView={setViewingLog}
+          />
+        ))}
       </div>
+
+      {viewingLog && (
+        <LogDetailViewer
+          log={viewingLog}
+          onClose={() => setViewingLog(null)}
+          onEdit={(log) => {
+            setViewingLog(null);
+            onEdit(log);
+          }}
+          onDelete={(id) => {
+            setViewingLog(null);
+            onDelete(id);
+          }}
+        />
+      )}
     </section>
   );
 }
 
-function LogCard({ log, onDelete, onEdit }: { log: Log; onDelete: (id: string) => void; onEdit: (log: Log) => void }) {
-  const category = categoryFor(log.category);
+function LogCard({
+  log,
+  onDelete,
+  onEdit,
+  onView,
+}: {
+  log: Log;
+  onDelete: (id: string) => void;
+  onEdit: (log: Log) => void;
+  onView: (log: Log) => void;
+}) {
   const logAreas = categoriesForLog(log);
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+
+  function handlePointerDown(event: React.PointerEvent<HTMLElement>) {
+    pointerStart.current = { x: event.clientX, y: event.clientY };
+  }
+
+  function handlePointerUp(event: React.PointerEvent<HTMLElement>) {
+    const start = pointerStart.current;
+    pointerStart.current = null;
+
+    if (!start) return;
+
+    const moved = Math.hypot(
+      event.clientX - start.x,
+      event.clientY - start.y
+    );
+
+    // A finger/mouse movement larger than 8px is treated as scrolling/dragging,
+    // not an attempt to open the entry.
+    if (moved <= 8) onView(log);
+  }
+
   return (
-    <article className={`memory card ${log.image ? 'withImage' : ''}`}>
+    <article
+      className={`memory card clickableHistoryLog ${log.image ? 'withImage' : ''}`}
+      role="button"
+      tabIndex={0}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={() => {
+        pointerStart.current = null;
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onView(log);
+        }
+      }}
+    >
       {log.image && <img className="memoryPhoto" src={log.image} alt="Log attachment"/>}
+
       <div className="memoryBody">
-        <div className="memoryTop"><span className="memoryCategory">{logAreas.map((key) => `${categoryFor(key).emoji} ${categoryFor(key).short}`).join(" · ")}</span><span><button className="iconButton" title="Edit entry" onClick={() => onEdit(log)}><Pencil size={14}/></button><button className="iconButton" title="Delete entry" onClick={() => onDelete(log.id)}><Trash2 size={14}/></button></span></div>
+        <div className="memoryTop">
+          <span className="memoryCategory">
+            {logAreas.map((key) => `${categoryFor(key).emoji} ${categoryFor(key).short}`).join(" · ")}
+          </span>
+
+          <span>
+            <button
+              className="iconButton"
+              title="Edit entry"
+              onPointerDown={(event) => event.stopPropagation()}
+              onPointerUp={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(log);
+              }}
+            >
+              <Pencil size={14}/>
+            </button>
+
+            <button
+              className="iconButton"
+              title="Delete entry"
+              onPointerDown={(event) => event.stopPropagation()}
+              onPointerUp={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(log.id);
+              }}
+            >
+              <Trash2 size={14}/>
+            </button>
+          </span>
+        </div>
+
         <h3>{log.activity}</h3>
+
         {log.details && <p>{log.details}</p>}
-        {log.aiInsight && <div className="aiInsight"><span><Sparkles size={14}/> SMART FEEDBACK · PROTOTYPE</span><p>{log.aiInsight}</p></div>}
-        <footer><span>{new Date(`${log.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span><b>+{log.points}</b></footer>
+
+        {log.aiInsight && (
+          <div className="aiInsight">
+            <span><Sparkles size={14}/> SMART FEEDBACK · PROTOTYPE</span>
+            <p>{log.aiInsight}</p>
+          </div>
+        )}
+
+        <footer>
+          <span>{new Date(`${log.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+          <b>+{log.points}</b>
+        </footer>
       </div>
     </article>
+  );
+}
+
+function LogDetailViewer({
+  log,
+  onClose,
+  onEdit,
+  onDelete,
+}: {
+  log: Log;
+  onClose: () => void;
+  onEdit: (log: Log) => void;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <div className="overlay" onClick={onClose}>
+      <article
+        className="modal historyLogViewer"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          className="close"
+          onClick={onClose}
+          aria-label="Close entry"
+        >
+          <X/>
+        </button>
+
+        <div className="historyViewerHead">
+          <div>
+            <p className="eyebrow">LOG ENTRY</p>
+            <h2>{log.activity}</h2>
+          </div>
+
+          <b className="historyViewerPoints">+{log.points}</b>
+        </div>
+
+        <div className="historyViewerMeta">
+          <span>
+            {categoriesForLog(log)
+              .map((key) => `${categoryFor(key).emoji} ${categoryFor(key).short}`)
+              .join(' · ')}
+          </span>
+
+          <span>
+            {new Date(`${log.date}T12:00:00`).toLocaleDateString(undefined, {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </span>
+
+          {log.startTime && (
+            <span>
+              🕒 {new Date(`1970-01-01T${log.startTime}`).toLocaleTimeString([], {
+                hour: 'numeric',
+                minute: '2-digit',
+              })}
+            </span>
+          )}
+
+          {log.durationMinutes && (
+            <span>
+              ⏱ {[
+                Math.floor(log.durationMinutes / 60) > 0
+                  ? `${Math.floor(log.durationMinutes / 60)} hr`
+                  : '',
+                log.durationMinutes % 60 > 0
+                  ? `${log.durationMinutes % 60} min`
+                  : '',
+              ].filter(Boolean).join(' ')}
+            </span>
+          )}
+
+          <span>
+            {log.visibility === 'private'
+              ? '🔒 Private'
+              : '👥 Friends'}
+          </span>
+        </div>
+
+        {log.image && (
+          <img
+            className="historyViewerImage"
+            src={log.image}
+            alt="Log attachment"
+          />
+        )}
+
+        <section className="historyViewerSection">
+          <small>DETAILS</small>
+
+          {log.details ? (
+            <p>{log.details}</p>
+          ) : (
+            <p className="historyViewerMuted">
+              No extra details were added.
+            </p>
+          )}
+        </section>
+
+        {log.aiInsight && (
+          <section className="historyViewerSection">
+            <small>SMART FEEDBACK</small>
+            <p>{log.aiInsight}</p>
+          </section>
+        )}
+
+        <div className="historyViewerActions">
+          <button
+            className="primaryButton"
+            onClick={() => onEdit(log)}
+          >
+            <Pencil size={16}/>
+            Edit entry
+          </button>
+
+          <button
+            className="historyViewerDelete"
+            onClick={() => onDelete(log.id)}
+          >
+            <Trash2 size={15}/>
+            Delete
+          </button>
+        </div>
+      </article>
+    </div>
   );
 }
 
@@ -2362,10 +2889,9 @@ function AnalyticsView({
   const balance = activeAreas ? Math.round((activeAreas / categories.length) * 100) : 0;
   const top = totals[0];
 
-  const mainPriority =
-    categories.find((category) => priorities[category.key] === 'critical') ||
-    categories.find((category) => priorities[category.key] === 'high') ||
-    categories[0];
+  const criticalPriorities = categories.filter(
+    (category) => priorities[category.key] === 'critical'
+  );
   const days = Array.from({ length: 30 }, (_, index) => {
     const date = new Date();
     date.setHours(12, 0, 0, 0);
@@ -2404,9 +2930,21 @@ function AnalyticsView({
         </article>
 
         <article className="analyticsMetric card priorityMetric">
-          <small>MAIN PRIORITY</small>
-          <strong className="focusStat">{mainPriority.emoji} {mainPriority.short}</strong>
-          <span>{priorities[mainPriority.key]} · chosen priority</span>
+          <small>CRITICAL PRIORITIES</small>
+
+          <div className="criticalPriorityList">
+            {criticalPriorities.map((category) => (
+              <strong key={category.key} className="focusStat">
+                {category.emoji} {category.short}
+              </strong>
+            ))}
+          </div>
+
+          <span>
+            {criticalPriorities.length === 1
+              ? '1 current critical focus'
+              : `${criticalPriorities.length} current critical focuses`}
+          </span>
         </article>
       </div>
 
