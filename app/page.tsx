@@ -403,13 +403,15 @@ export default function Home() {
 
   useEffect(() => {
     if (!supabase || !user) return;
+    const client = supabase;
+    const account = user;
     let cancelled = false;
     async function hydrateCloud() {
       setCloudReady(false);
       const [{ data: remoteLogs, error: logsError }, { data: priorityRow }, { data: profileRow }] = await Promise.all([
-        supabase.from('logs').select('*').order('created_at', { ascending: false }),
-        supabase.from('user_priorities').select('priorities').maybeSingle(),
-        supabase.from('profiles').select('display_name').maybeSingle(),
+        client.from('logs').select('*').order('created_at', { ascending: false }),
+        client.from('user_priorities').select('priorities').maybeSingle(),
+        client.from('profiles').select('display_name').maybeSingle(),
       ]);
       if (cancelled) return;
       if (logsError) {
@@ -419,7 +421,7 @@ export default function Home() {
       }
 
       if (profileRow?.display_name) setProfileName(profileRow.display_name);
-      else setProfileName(user.user_metadata?.display_name || user.email?.split('@')[0] || 'Himothy');
+      else setProfileName(account.user_metadata?.display_name || account.email?.split('@')[0] || 'Himothy');
       if (priorityRow?.priorities) setPriorities(priorityRow.priorities as Record<CategoryKey, Priority>);
 
       if (remoteLogs?.length) {
@@ -427,7 +429,7 @@ export default function Home() {
         if (!cancelled) setLogs(hydrated);
       } else {
         const migrationOwner = localStorage.getItem('himothy.legacyMigrationClaimed');
-        const canClaimLegacy = !migrationOwner || migrationOwner === user.id;
+        const canClaimLegacy = !migrationOwner || migrationOwner === account.id;
         const localRaw = canClaimLegacy ? localStorage.getItem('himothy.logs.v2') : null;
         const localLogs = localRaw ? (JSON.parse(localRaw) as Log[]) : [];
         if (localLogs.length) {
@@ -438,13 +440,13 @@ export default function Home() {
             let imageUrl = local.image;
             try {
               if (local.image?.startsWith('data:')) {
-                const uploaded = await uploadImageForLog(user.id, local.id, local.image);
+                const uploaded = await uploadImageForLog(account.id, local.id, local.image);
                 imagePath = uploaded.imagePath;
                 imageUrl = uploaded.imageUrl;
               }
-              const { error } = await supabase.from('logs').insert({
+              const { error } = await client.from('logs').insert({
                 id: local.id,
-                user_id: user.id,
+                user_id: account.id,
                 category: local.category,
                 categories: categoriesForLog(local),
                 activity: local.activity,
@@ -464,7 +466,7 @@ export default function Home() {
             }
           }
           if (!migrationFailed) {
-            localStorage.setItem('himothy.legacyMigrationClaimed', user.id);
+            localStorage.setItem('himothy.legacyMigrationClaimed', account.id);
             localStorage.removeItem('himothy.logs.v2');
             localStorage.removeItem('himothy.logs');
             if (!cancelled) setToast(`Imported ${migrated.length} local ${migrated.length === 1 ? 'log' : 'logs'} into your account.`);
@@ -496,9 +498,11 @@ export default function Home() {
     const priorityKey = supabaseConfigured && user ? `himothy.priorities.${user.id}` : 'himothy.priorities';
     localStorage.setItem(priorityKey, JSON.stringify(priorities));
     if (!supabase || !user || !cloudReady) return;
+    const client = supabase;
+    const account = user;
     const timer = window.setTimeout(async () => {
-      const { error } = await supabase.from('user_priorities').upsert({
-        user_id: user.id,
+      const { error } = await client.from('user_priorities').upsert({
+        user_id: account.id,
         priorities,
         updated_at: new Date().toISOString(),
       });
@@ -543,16 +547,18 @@ export default function Home() {
 
   async function persistCloudLog(log: Log) {
     if (!supabase || !user) return log;
+    const client = supabase;
+    const account = user;
     let finalLog = log;
     try {
       if (log.image?.startsWith('data:')) {
-        const uploaded = await uploadImageForLog(user.id, log.id, log.image);
+        const uploaded = await uploadImageForLog(account.id, log.id, log.image);
         finalLog = { ...log, imagePath: uploaded.imagePath, image: uploaded.imageUrl || log.image };
         setLogs((prev) => prev.map((item) => item.id === log.id ? finalLog : item));
       }
-      const { error } = await supabase.from('logs').insert({
+      const { error } = await client.from('logs').insert({
         id: finalLog.id,
-        user_id: user.id,
+        user_id: account.id,
         category: finalLog.category,
         categories: categoriesForLog(finalLog),
         activity: finalLog.activity,
@@ -563,6 +569,7 @@ export default function Home() {
         image_path: finalLog.imagePath || null,
         ai_insight: finalLog.aiInsight || null,
         custom: Boolean(finalLog.custom),
+        visibility: finalLog.visibility || 'friends',
       });
       if (error) throw error;
     } catch (error) {
@@ -604,12 +611,14 @@ export default function Home() {
     if (!current) return;
     let updated: Log = { ...current, ...patch, id, timestamp: current.timestamp };
     if (supabase && user) {
+      const client = supabase;
+      const account = user;
       try {
         if (patch.image?.startsWith('data:')) {
-          const uploaded = await uploadImageForLog(user.id, id, patch.image);
+          const uploaded = await uploadImageForLog(account.id, id, patch.image);
           updated = { ...updated, imagePath: uploaded.imagePath, image: uploaded.imageUrl || patch.image };
         }
-        const { error } = await supabase.from('logs').update({
+        const { error } = await client.from('logs').update({
           category: updated.category, categories: categoriesForLog(updated), activity: updated.activity, details: updated.details || null,
           log_date: updated.date, points: updated.points, image_path: updated.imagePath || null, ai_insight: updated.aiInsight || null, custom: Boolean(updated.custom), visibility: updated.visibility || 'friends',
         }).eq('id', id);
@@ -628,9 +637,10 @@ export default function Home() {
     setLogs((prev) => prev.filter((log) => log.id !== id));
     setToast('Entry removed');
     if (!supabase || !user) return;
-    const { error } = await supabase.from('logs').delete().eq('id', id);
+    const client = supabase;
+    const { error } = await client.from('logs').delete().eq('id', id);
     if (error) setToast(`Removed locally; cloud delete failed: ${error.message}`);
-    if (target?.imagePath) await supabase.storage.from('log-images').remove([target.imagePath]);
+    if (target?.imagePath) await client.storage.from('log-images').remove([target.imagePath]);
   }
 
   if (supabaseConfigured && !authReady) return <CloudBoot/>;
@@ -844,10 +854,11 @@ function AuthScreen() {
     if (!usernameValid) { setUsernameStatus('invalid'); return; }
     if (!supabase) return;
 
+    const client = supabase;
     let cancelled = false;
     setUsernameStatus('checking');
     const timer = window.setTimeout(async () => {
-      const { data, error } = await supabase.rpc('username_available', { candidate: cleanUsername });
+      const { data, error } = await client.rpc('username_available', { candidate: cleanUsername });
       if (cancelled) return;
       if (error) setUsernameStatus('error');
       else setUsernameStatus(data ? 'available' : 'taken');
@@ -859,6 +870,7 @@ function AuthScreen() {
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!supabase || !email.trim() || password.length < 6) return;
+    const client = supabase;
     if (mode === 'signup' && (!displayName.trim() || !usernameValid)) {
       setMessage(!displayName.trim() ? 'Add your name to finish your profile.' : 'Choose a username with 3–30 lowercase letters, numbers, underscores, or periods.');
       return;
@@ -868,10 +880,10 @@ function AuthScreen() {
     setMessage(null);
     try {
       if (mode === 'signin') {
-        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        const { error } = await client.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
       } else {
-        const availability = await supabase.rpc('username_available', { candidate: cleanUsername });
+        const availability = await client.rpc('username_available', { candidate: cleanUsername });
         if (availability.error) throw availability.error;
         if (!availability.data) {
           setUsernameStatus('taken');
@@ -879,13 +891,13 @@ function AuthScreen() {
           return;
         }
 
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await client.auth.signUp({
           email: email.trim(),
           password,
           options: { data: { display_name: displayName.trim(), username: cleanUsername } },
         });
         if (error) {
-          const recheck = await supabase.rpc('username_available', { candidate: cleanUsername });
+          const recheck = await client.rpc('username_available', { candidate: cleanUsername });
           if (!recheck.error && !recheck.data) {
             setUsernameStatus('taken');
             throw new Error(`@${cleanUsername} was just taken. Choose another username.`);
@@ -1456,9 +1468,10 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
 
   async function refreshSocial() {
     if (!supabase) return;
+    const client = supabase;
     const [{ data: friendshipRows, error: friendshipError }, { data: profileRows, error: profileError }] = await Promise.all([
-      supabase.from('friendships').select('*').order('created_at', { ascending: false }),
-      supabase.from('profiles').select('id,display_name,username,avatar_url').order('display_name'),
+      client.from('friendships').select('*').order('created_at', { ascending: false }),
+      client.from('profiles').select('id,display_name,username,avatar_url').order('display_name'),
     ]);
     if (friendshipError || profileError) { setNotice(friendshipError?.message || profileError?.message || 'Could not load friends.'); return; }
     const fs = (friendshipRows || []) as Friendship[];
@@ -1469,7 +1482,7 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
 
     const acceptedIds = fs.filter((f) => f.status === 'accepted').map((f) => f.requester_id === user.id ? f.addressee_id : f.requester_id);
     if (!acceptedIds.length) { setFeed([]); setReactions([]); setComments([]); return; }
-    const { data: feedRows, error: feedError } = await supabase.from('logs')
+    const { data: feedRows, error: feedError } = await client.from('logs')
       .select('*')
       .in('user_id', acceptedIds).eq('visibility', 'friends').order('created_at', { ascending: false }).limit(50);
     if (feedError) { setNotice(feedError.message); return; }
@@ -1478,8 +1491,8 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
     const ids = rows.map((row) => row.id);
     if (!ids.length) { setReactions([]); setComments([]); return; }
     const [{ data: reactionRows }, { data: commentRows }] = await Promise.all([
-      supabase.from('log_reactions').select('*').in('log_id', ids),
-      supabase.from('log_comments').select('*').in('log_id', ids).order('created_at'),
+      client.from('log_reactions').select('*').in('log_id', ids),
+      client.from('log_comments').select('*').in('log_id', ids).order('created_at'),
     ]);
     setReactions((reactionRows || []) as SocialReaction[]);
     setComments((commentRows || []) as SocialComment[]);
@@ -1494,10 +1507,11 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
 
   async function saveProfile() {
     if (!supabase) return;
+    const client = supabase;
     const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_.]/g,'');
     if (cleanUsername.length < 3) { setNotice('Username must be at least 3 characters.'); return; }
     setBusy(true);
-    const { error } = await supabase.from('profiles').update({ display_name: displayName.trim() || profileName, username: cleanUsername, updated_at: new Date().toISOString() }).eq('id', user.id);
+    const { error } = await client.from('profiles').update({ display_name: displayName.trim() || profileName, username: cleanUsername, updated_at: new Date().toISOString() }).eq('id', user.id);
     setBusy(false);
     if (error) { setNotice(error.code === '23505' ? 'That username is already taken.' : error.message); return; }
     onProfileName(displayName.trim() || profileName); setNotice('Profile saved.'); await refreshSocial();
@@ -1505,21 +1519,23 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
 
   async function sendRequest(id: string) {
     if (!supabase) return;
-    setBusy(true); const { error } = await supabase.from('friendships').insert({ requester_id: user.id, addressee_id: id, status: 'pending' }); setBusy(false);
+    const client = supabase;
+    setBusy(true); const { error } = await client.from('friendships').insert({ requester_id: user.id, addressee_id: id, status: 'pending' }); setBusy(false);
     setNotice(error ? (error.code === '23505' ? 'A friend connection already exists.' : error.message) : 'Friend request sent.'); if (!error) await refreshSocial();
   }
-  async function acceptRequest(friendship: Friendship) { if (!supabase) return; const { error } = await supabase.from('friendships').update({ status:'accepted', updated_at:new Date().toISOString() }).eq('id',friendship.id); setNotice(error?.message || 'You are friends now.'); if (!error) await refreshSocial(); }
-  async function removeConnection(id: string) { if (!supabase) return; const { error } = await supabase.from('friendships').delete().eq('id',id); setNotice(error?.message || 'Connection removed.'); if (!error) await refreshSocial(); }
+  async function acceptRequest(friendship: Friendship) { if (!supabase) return; const client = supabase; const { error } = await client.from('friendships').update({ status:'accepted', updated_at:new Date().toISOString() }).eq('id',friendship.id); setNotice(error?.message || 'You are friends now.'); if (!error) await refreshSocial(); }
+  async function removeConnection(id: string) { if (!supabase) return; const client = supabase; const { error } = await client.from('friendships').delete().eq('id',id); setNotice(error?.message || 'Connection removed.'); if (!error) await refreshSocial(); }
 
   async function toggleReaction(logId: string, reaction: string) {
     if (!supabase) return;
+    const client = supabase;
     const existing = reactions.find((r) => r.log_id === logId && r.user_id === user.id && r.reaction === reaction);
-    const { error } = existing ? await supabase.from('log_reactions').delete().eq('id', existing.id) : await supabase.from('log_reactions').insert({ log_id: logId, user_id: user.id, reaction });
+    const { error } = existing ? await client.from('log_reactions').delete().eq('id', existing.id) : await client.from('log_reactions').insert({ log_id: logId, user_id: user.id, reaction });
     if (error) setNotice(error.message); else await refreshSocial();
   }
   async function addComment(logId: string) {
-    if (!supabase) return; const body = (commentDrafts[logId] || '').trim(); if (!body) return;
-    const { error } = await supabase.from('log_comments').insert({ log_id: logId, user_id: user.id, body });
+    if (!supabase) return; const client = supabase; const body = (commentDrafts[logId] || '').trim(); if (!body) return;
+    const { error } = await client.from('log_comments').insert({ log_id: logId, user_id: user.id, body });
     if (error) setNotice(error.message); else { setCommentDrafts((d) => ({...d,[logId]:''})); await refreshSocial(); }
   }
 
