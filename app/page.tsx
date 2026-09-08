@@ -3,6 +3,7 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase, supabaseConfigured } from '../lib/supabase';
+import onboardingStyles from './onboarding.module.css';
 import {
   BarChart3,
   CalendarDays,
@@ -419,6 +420,11 @@ export default function Home() {
   const [cloudReady, setCloudReady] = useState(!supabaseConfigured);
   const [profileName, setProfileName] = useState('Prince');
   const [accountOpen, setAccountOpen] = useState(false);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState('');
+  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(supabaseConfigured ? null : true);
 
   useEffect(() => {
     // Local prototype data is only hydrated directly when cloud mode is off.
@@ -476,7 +482,7 @@ export default function Home() {
       const [{ data: remoteLogs, error: logsError }, { data: priorityRow }, { data: profileRow }] = await Promise.all([
         client.from('logs').select('*').order('created_at', { ascending: false }),
         client.from('user_priorities').select('priorities').maybeSingle(),
-        client.from('profiles').select('display_name').maybeSingle(),
+        client.from('profiles').select('display_name,onboarding_completed').eq('id', account.id).maybeSingle(),
       ]);
       if (cancelled) return;
       if (logsError) {
@@ -486,6 +492,7 @@ export default function Home() {
       }
 
       if (profileRow?.display_name) setProfileName(profileRow.display_name);
+      if (typeof profileRow?.onboarding_completed === 'boolean') setOnboardingComplete(profileRow.onboarding_completed);
       else setProfileName(account.user_metadata?.display_name || account.email?.split('@')[0] || 'Himothy');
       if (priorityRow?.priorities) setPriorities(priorityRow.priorities as Record<CategoryKey, Priority>);
 
@@ -547,7 +554,7 @@ export default function Home() {
     }
     hydrateCloud();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!logs.length) return;
@@ -708,8 +715,60 @@ export default function Home() {
     if (target?.imagePath) await client.storage.from('log-images').remove([target.imagePath]);
   }
 
+  async function finishOnboarding(nextPriorities: Record<CategoryKey, Priority>, startLog = false, suggestedCategory: CategoryKey = 'mind') {
+    setPriorities(nextPriorities);
+    setOnboardingComplete(true);
+    if (supabase && user) {
+      const client = supabase;
+      const { error } = await client.from('profiles').update({ onboarding_completed: true, updated_at: new Date().toISOString() }).eq('id', user.id);
+      if (error) {
+        setOnboardingComplete(false);
+        setToast(`Could not finish onboarding: ${error.message}`);
+        return;
+      }
+    }
+    if (startLog) {
+      setComposerCategory(suggestedCategory);
+      setShowComposer(true);
+    }
+  }
+
+
+  async function deleteAccount() {
+    if (!supabase || !user || deleteConfirm !== 'DELETE' || deletingAccount) return;
+    setDeletingAccount(true);
+    setDeleteAccountError('');
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (sessionError || !accessToken) throw new Error('Your session expired. Sign in again and retry.');
+
+      const response = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload?.error || 'Could not delete your account.');
+
+      try {
+        localStorage.removeItem(`himothy.logs.v2.${user.id}`);
+        localStorage.removeItem('himothy.legacyMigrationClaimed');
+      } catch {}
+      await supabase.auth.signOut();
+      setShowDeleteAccount(false);
+    } catch (error) {
+      setDeleteAccountError(error instanceof Error ? error.message : 'Could not delete your account.');
+    } finally {
+      setDeletingAccount(false);
+    }
+  }
+
   if (supabaseConfigured && !authReady) return <CloudBoot/>;
   if (supabaseConfigured && authReady && !user) return <AuthScreen/>;
+  if (supabaseConfigured && user && (!cloudReady || onboardingComplete === null)) return <CloudBoot/>;
+  if (supabaseConfigured && user && onboardingComplete === false) {
+    return <OnboardingFlow profileName={profileName} initialPriorities={priorities} onFinish={finishOnboarding}/>;
+  }
 
   return (
     <main className="shell">
@@ -727,7 +786,10 @@ export default function Home() {
               <strong>{profileName}</strong>
               <small>{user?.email || 'Local prototype mode'}</small>
               {supabaseConfigured ? (
-                <button onClick={async () => { setAccountOpen(false); await supabase?.auth.signOut(); }}><LogOut size={15}/> Sign out</button>
+                <>
+                  <button onClick={async () => { setAccountOpen(false); await supabase?.auth.signOut(); }}><LogOut size={15}/> Sign out</button>
+                  <button onClick={() => { setAccountOpen(false); setDeleteConfirm(''); setDeleteAccountError(''); setShowDeleteAccount(true); }} style={{ color: '#b42318' }}><Trash2 size={15}/> Delete account</button>
+                </>
               ) : (
                 <p>Add Supabase keys to turn on accounts and cloud sync.</p>
               )}
@@ -880,6 +942,28 @@ export default function Home() {
         </div>
       )}
 
+      {showDeleteAccount && (
+        <div className="overlay" onClick={() => !deletingAccount && setShowDeleteAccount(false)}>
+          <div className="modal" onClick={(event) => event.stopPropagation()}>
+            <button className="close" disabled={deletingAccount} onClick={() => setShowDeleteAccount(false)}><X/></button>
+            <p className="eyebrow">ACCOUNT</p>
+            <h2>Delete your Himothy account?</h2>
+            <p>This permanently deletes your profile, logs, priorities, friendships, reactions, comments, and uploaded log photos. This cannot be undone.</p>
+            <label style={{ display: 'grid', gap: 8, marginTop: 18 }}>
+              <span>Type <strong>DELETE</strong> to confirm.</span>
+              <input value={deleteConfirm} disabled={deletingAccount} onChange={(event) => setDeleteConfirm(event.target.value)} placeholder="DELETE" autoComplete="off" />
+            </label>
+            {deleteAccountError && <p style={{ color: '#b42318', marginTop: 10 }}>{deleteAccountError}</p>}
+            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+              <button className="primaryButton" style={{ background: '#b42318', flex: 1 }} disabled={deleteConfirm !== 'DELETE' || deletingAccount} onClick={deleteAccount}>
+                {deletingAccount ? 'Deleting…' : 'Delete account permanently'}
+              </button>
+              <button disabled={deletingAccount} onClick={() => setShowDeleteAccount(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {toast && <div className="toast">{toast}</div>}
     </main>
   );
@@ -895,6 +979,129 @@ function CloudBoot() {
         <h1>Getting your account ready.</h1>
         <p>Checking your session and syncing your progress.</p>
         <div className="syncPulse"><i/><i/><i/></div>
+      </div>
+    </main>
+  );
+}
+
+function OnboardingFlow({ profileName, initialPriorities, onFinish }: {
+  profileName: string;
+  initialPriorities: Record<CategoryKey, Priority>;
+  onFinish: (priorities: Record<CategoryKey, Priority>, startLog?: boolean, suggestedCategory?: CategoryKey) => Promise<void>;
+}) {
+  const [step, setStep] = useState(0);
+  const [focus, setFocus] = useState<CategoryKey[]>([]);
+  const [mission, setMission] = useState<CategoryKey | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const firstName = profileName.trim().split(/\s+/)[0] || 'there';
+  const totalSteps = 5;
+  const toggleFocus = (key: CategoryKey) => {
+    setFocus((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key]);
+  };
+  const configuredPriorities = () => {
+    const next = { ...initialPriorities };
+    categories.forEach((category) => { next[category.key] = 'maintenance'; });
+    focus.forEach((key) => { next[key] = key === mission ? 'critical' : 'high'; });
+    return next;
+  };
+  async function finish(startLog: boolean) {
+    if (!mission) return;
+    setSaving(true);
+    await onFinish(configuredPriorities(), startLog, mission);
+    setSaving(false);
+  }
+
+  return (
+    <main className={onboardingStyles.shell}>
+      <div className={onboardingStyles.frame}>
+        <header className={onboardingStyles.header}>
+          <div><span className={onboardingStyles.mark}>H</span><strong>HIMOTHY</strong></div>
+          <span>{Math.min(step + 1, totalSteps)} / {totalSteps}</span>
+        </header>
+        <div className={onboardingStyles.progress}><i style={{ width: `${((step + 1) / totalSteps) * 100}%` }}/></div>
+
+        {step === 0 && <section className={onboardingStyles.panel}>
+          <p className={onboardingStyles.kicker}>WELCOME, {firstName.toUpperCase()}</p>
+          <h1>Keep track of the work<br/>you&apos;re already doing.</h1>
+          <p className={onboardingStyles.lead}>Himothy helps you log the things you do to improve, see the progress add up, and build alongside people close to you.</p>
+          <div className={onboardingStyles.promiseCard}>
+            <div className={onboardingStyles.promiseCopy}>
+              <strong>Build momentum you can actually see.</strong>
+              <p>Track meaningful progress without turning self-improvement into homework.</p>
+            </div>
+
+            <div className={onboardingStyles.momentumRail}>
+              <div className={onboardingStyles.momentumStep}>
+                <div className={onboardingStyles.momentumIcon}>⚡</div>
+                <div>
+                  <strong>DO</strong>
+                  <span>Make progress</span>
+                </div>
+              </div>
+
+              <div className={onboardingStyles.railLine} />
+
+              <div className={onboardingStyles.momentumStep}>
+                <div className={onboardingStyles.momentumIcon}>✎</div>
+                <div>
+                  <strong>LOG</strong>
+                  <span>Claim the work</span>
+                </div>
+              </div>
+
+              <div className={onboardingStyles.railLine} />
+
+              <div className={onboardingStyles.momentumStep}>
+                <div className={onboardingStyles.momentumIcon}>↗</div>
+                <div>
+                  <strong>BUILD</strong>
+                  <span>See momentum</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button className={onboardingStyles.primary} onClick={() => setStep(1)}>Get started <ChevronRight size={17}/></button>
+        </section>}
+
+        {step === 1 && <section className={onboardingStyles.panel}>
+          <p className={onboardingStyles.kicker}>YOUR FOCUS</p>
+          <h1>What are you focused on right now?</h1>
+          <p className={onboardingStyles.lead}>Pick at least one. Choose whatever matters to you right now — you can change these priorities anytime.</p>
+          <div className={onboardingStyles.categoryGrid}>{categories.map((category) => <button key={category.key} className={`${onboardingStyles.category} ${focus.includes(category.key) ? onboardingStyles.selected : ''}`} onClick={() => toggleFocus(category.key)}><span>{category.emoji}</span><div><strong>{category.short}</strong><small>{category.description}</small></div>{focus.includes(category.key) && <Check size={17}/>}</button>)}</div>
+          <div className={onboardingStyles.actions}><button className={onboardingStyles.back} onClick={() => setStep(0)}>Back</button><button className={onboardingStyles.primary} disabled={focus.length < 1} onClick={() => { if (!focus.includes(mission as CategoryKey)) setMission(null); setStep(2); }}>Choose priorities <ChevronRight size={17}/></button></div>
+        </section>}
+
+        {step === 2 && <section className={onboardingStyles.panel}>
+          <p className={onboardingStyles.kicker}>PRIORITY MODE</p>
+          <h1>What matters most right now?</h1>
+          <p className={onboardingStyles.lead}>Choose one main focus. Himothy&apos;s Discipline score rewards consistency with what you said matters—not trying to do everything every day.</p>
+          <div className={onboardingStyles.missionList}>{focus.map((key) => { const category = categoryFor(key); return <button key={key} className={`${onboardingStyles.mission} ${mission === key ? onboardingStyles.selected : ''}`} onClick={() => setMission(key)}><span>{category.emoji}</span><div><strong>{category.label}</strong><small>{mission === key ? 'Critical priority' : 'Make this my main focus'}</small></div>{mission === key && <Check size={18}/>}</button>; })}</div>
+          <div className={onboardingStyles.note}><strong>How scoring works</strong><p>Your main focus becomes Critical, your other selected areas become High, and everything else stays in Maintenance. One activity has one total reward—even if it legitimately belongs to multiple categories.</p></div>
+          <div className={onboardingStyles.actions}><button className={onboardingStyles.back} onClick={() => setStep(1)}>Back</button><button className={onboardingStyles.primary} disabled={!mission} onClick={() => setStep(3)}>Continue <ChevronRight size={17}/></button></div>
+        </section>}
+
+        {step === 3 && <section className={onboardingStyles.panel}>
+          <p className={onboardingStyles.kicker}>HOW IT WORKS</p>
+          <h1>Log the progress. Keep the context.</h1>
+          <div className={onboardingStyles.explainGrid}>
+            <article><span>⚡</span><div><strong>Quick Log</strong><p>Two taps for common things like studying, lifting, cooking, or reading.</p></div></article>
+            <article><span>✍️</span><div><strong>Custom entries</strong><p>Add details, photos, dates, and multiple categories when something is worth remembering.</p></div></article>
+            <article><span>◎</span><div><strong>Progress & Discipline</strong><p>Your stats show accumulated evidence. Discipline measures how consistently your effort follows your priorities.</p></div></article>
+          </div>
+          <div className={onboardingStyles.example}><small>EXAMPLE</small><div><span>💼</span><div><strong>Worked on my app</strong><p>Career + Mind & Craft · 5 total points</p></div><b>+5</b></div></div>
+          <div className={onboardingStyles.actions}><button className={onboardingStyles.back} onClick={() => setStep(2)}>Back</button><button className={onboardingStyles.primary} onClick={() => setStep(4)}>Continue <ChevronRight size={17}/></button></div>
+        </section>}
+
+        {step === 4 && <section className={onboardingStyles.panel}>
+          <p className={onboardingStyles.kicker}>BUILD WITH FRIENDS</p>
+          <h1>Share what you want.<br/>Keep the rest yours.</h1>
+          <p className={onboardingStyles.lead}>Friends can see entries you share, react, and comment. Set any entry to Private when you want it to stay yours.</p>
+          <div className={onboardingStyles.privacy}><div><Users size={20}/><span><strong>Friends</strong><small>Visible to accepted friends</small></span></div><div><span className={onboardingStyles.lock}>🔒</span><span><strong>Private</strong><small>Only visible to you</small></span></div></div>
+          <div className={onboardingStyles.ready}><strong>You&apos;re set.</strong><p>Want to claim something you&apos;ve already done today?</p></div>
+          <div className={onboardingStyles.finishActions}><button className={onboardingStyles.primary} disabled={saving} onClick={() => finish(true)}><Plus size={17}/>{saving ? 'Saving…' : 'Log something'}</button><button className={onboardingStyles.skip} disabled={saving} onClick={() => finish(false)}>Skip for now</button></div>
+          <button className={onboardingStyles.backLink} onClick={() => setStep(3)}>Back</button>
+        </section>}
       </div>
     </main>
   );
