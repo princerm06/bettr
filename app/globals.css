@@ -1826,3 +1826,10 @@
 .authUsernameWrap input{
   background:transparent !important;
 }
+
+.authField input,
+.authUsernameWrap input {
+  color: #f5f7fa !important;
+  -webkit-text-fill-color: #f5f7fa !important;
+  caret-color: #f5f7fa !important;
+}
