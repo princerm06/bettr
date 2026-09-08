@@ -233,6 +233,43 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
   const detectedCategories = categories
     .map((item) => item.key)
     .filter((key) => categorySignals[key].test(compact));
+
+  const activityOnly = activity
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9$\\s]/g, ' ')
+    .replace(/\\s+/g, ' ')
+    .trim();
+
+  const activityDetectedCategories = categories
+    .map((item) => item.key)
+    .filter((key) => categorySignals[key].test(activityOnly));
+
+  const selectedActivityMatches = categoryKeys.filter((key) =>
+    activityDetectedCategories.includes(key)
+  );
+
+  const obviousOutsideActivityMatch =
+    activityDetectedCategories.find(
+      (key) => !categoryKeys.includes(key)
+    );
+
+  if (
+    obviousOutsideActivityMatch &&
+    selectedActivityMatches.length === 0
+  ) {
+    return {
+      status: 'invalid',
+      rewardRatio: 0,
+      message: `The activity itself clearly looks like ${
+        categoryFor(obviousOutsideActivityMatch).label
+      }, not the selected ${
+        categoryKeys.length === 1 ? 'category' : 'categories'
+      }. Switch the category before this earns progress points.`,
+      suggestedCategory: obviousOutsideActivityMatch,
+      suggestionMode: categoryKeys.length === 1 ? 'switch' : 'add',
+    };
+  }
   const matched = categoryKeys.filter((key) => detectedCategories.includes(key));
   const unsupported = categoryKeys.filter((key) => !detectedCategories.includes(key));
   const generic = /^(walked|read|studied|worked|workout|gym|ran|cooked|prayed|journaled|talked|socialized)$/i.test(activity.trim());
@@ -816,18 +853,71 @@ export default function Home() {
     if (target?.imagePath) await client.storage.from('log-images').remove([target.imagePath]);
   }
 
-  async function finishOnboarding(nextPriorities: Record<CategoryKey, Priority>, startLog = false, suggestedCategory: CategoryKey = 'mind') {
+  async function persistPriorities(nextPriorities: Record<CategoryKey, Priority>) {
     setPriorities(nextPriorities);
+
+    if (!supabase || !user) return true;
+
+    const { error } = await supabase
+      .from('user_priorities')
+      .upsert({
+        user_id: user.id,
+        priorities: nextPriorities,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (error) {
+      setToast(`Could not sync priorities: ${error.message}`);
+      return false;
+    }
+
+    return true;
+  }
+
+  async function finishOnboarding(
+    nextPriorities: Record<CategoryKey, Priority>,
+    startLog = false,
+    suggestedCategory: CategoryKey = 'mind'
+  ) {
     setOnboardingComplete(true);
+
     if (supabase && user) {
       const client = supabase;
-      const { error } = await client.from('profiles').update({ onboarding_completed: true, updated_at: new Date().toISOString() }).eq('id', user.id);
-      if (error) {
+
+      const [{ error: priorityError }, { error: profileError }] =
+        await Promise.all([
+          client
+            .from('user_priorities')
+            .upsert({
+              user_id: user.id,
+              priorities: nextPriorities,
+              updated_at: new Date().toISOString(),
+            }),
+
+          client
+            .from('profiles')
+            .update({
+              onboarding_completed: true,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', user.id),
+        ]);
+
+      if (priorityError || profileError) {
         setOnboardingComplete(false);
-        setToast(`Could not finish onboarding: ${error.message}`);
+        setToast(
+          `Could not finish onboarding: ${
+            priorityError?.message ||
+            profileError?.message ||
+            'unknown error'
+          }`
+        );
         return;
       }
     }
+
+    setPriorities(nextPriorities);
+
     if (startLog) {
       setComposerCategory(suggestedCategory);
       setShowComposer(true);
@@ -838,14 +928,15 @@ export default function Home() {
   async function saveRecoveryEmail() {
     if (!supabase || !user || savingSecurityEmail) return;
 
-    const nextEmail = securityEmailDraft.trim().toLowerCase();
+    const email = securityEmailDraft.trim().toLowerCase();
 
     setSavingSecurityEmail(true);
     setSecurityEmailError('');
-    setSecurityEmailSaved(false);
 
     try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
       const accessToken = sessionData.session?.access_token;
 
       if (sessionError || !accessToken) {
@@ -858,29 +949,38 @@ export default function Home() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ recoveryEmail: nextEmail || null }),
+        body: JSON.stringify({
+          recoveryEmail: email || null,
+        }),
       });
 
       const payload = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(payload?.error || 'Could not update your recovery email.');
+        throw new Error(
+          payload?.error || 'Could not update recovery email.'
+        );
       }
 
-      setRecoveryEmail(payload.recoveryEmail || '');
-      setSecurityEmailDraft(payload.recoveryEmail || '');
+      setRecoveryEmail(email);
+      setSecurityEmailDraft(email);
       setRecoveryEmailVerified(false);
-      setSecurityEmailSaved(true);
-
-      window.setTimeout(() => setSecurityEmailSaved(false), 2500);
+      setToast(
+        email
+          ? 'Recovery email saved.'
+          : 'Recovery email removed.'
+      );
     } catch (error) {
       setSecurityEmailError(
-        error instanceof Error ? error.message : 'Could not update your recovery email.'
+        error instanceof Error
+          ? error.message
+          : 'Could not update recovery email.'
       );
     } finally {
       setSavingSecurityEmail(false);
     }
   }
+
 
   async function deleteAccount() {
     if (!supabase || !user || deleteConfirm !== 'DELETE' || deletingAccount) return;
@@ -1016,7 +1116,14 @@ export default function Home() {
               <div className="disciplineRing" style={{ '--score': `${discipline * 3.6}deg` } as React.CSSProperties}>
                 <div><strong>{discipline}</strong><small>DISCIPLINE</small></div>
               </div>
-              <button className="miniPriority" onClick={() => setShowPriority(true)}>Tune priorities <ChevronRight size={14}/></button>
+              <button className="miniPriority priorityAttention" onClick={() => setShowPriority(true)}>
+                <Flame size={16}/>
+                <span>
+                  <small>YOUR WEEK</small>
+                  Tune priorities
+                </span>
+                <ChevronRight size={15}/>
+              </button>
             </div>
           </section>
 
@@ -1066,6 +1173,9 @@ export default function Home() {
                 <span key={category.key} className={priorities[category.key]}>{category.emoji} {category.short} · {priorities[category.key]}</span>
               ))}
             </div>
+            <button className="priorityCardEdit" onClick={() => setShowPriority(true)}>
+              Tune weekly priorities <ChevronRight size={15}/>
+            </button>
           </section>
 
           <RecentMemories logs={logs.slice(0, 4)} onDelete={deleteLog} onEdit={setEditingLog}/>
@@ -1080,13 +1190,24 @@ export default function Home() {
           onOpenFriends={() => setTab('friends')}
         />
       )}
-      {tab === 'analytics' && <AnalyticsView logs={logs}/>}
+      {tab === 'analytics' && <AnalyticsView
+          logs={logs}
+          priorities={priorities}
+          onTunePriorities={() => setShowPriority(true)}
+        />}
       {tab === 'friends' && user && <FriendsView user={user} profileName={profileName} onProfileName={setProfileName}/>}
 
       <button className="floating" onClick={() => openComposer()}><Plus size={25}/> Log</button>
 
       <nav className="mobileNav">
         <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}><BarChart3 size={19}/><span>Build</span></button>
+        <button
+          className={tab === 'history' ? 'active' : ''}
+          onClick={() => setTab('history')}
+        >
+          <CalendarDays size={19}/>
+          <span>History</span>
+        </button>
         <button className={tab === 'activity' ? 'active' : ''} onClick={() => setTab('activity')}>
           <span className="mobileActivityIcon">
             <MessageCircle size={19}/>
@@ -1145,7 +1266,18 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <button className="primaryButton" onClick={() => setShowPriority(false)}>Save priority mode</button>
+            <button
+              className="primaryButton"
+              onClick={async () => {
+                const saved = await persistPriorities(priorities);
+                if (saved) {
+                  setShowPriority(false);
+                  setToast('Priorities saved.');
+                }
+              }}
+            >
+              Save priority mode
+            </button>
           </div>
         </div>
       )}
@@ -1794,6 +1926,7 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [selectedDate, setSelectedDate] = useState(todayISO());
+  const [viewingLog, setViewingLog] = useState<Log | null>(null);
 
   const grouped = useMemo(() => {
     return logs.reduce((acc, log) => {
@@ -2000,11 +2133,32 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
                   const category = categoryFor(log.category);
   const logAreas = categoriesForLog(log);
                   return (
-                    <div className="selectedLog" key={log.id}>
+                    <div
+                      className="selectedLog clickableHistoryLog"
+                      key={log.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setViewingLog(log)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          setViewingLog(log);
+                        }
+                      }}
+                    >
                       {log.image ? <img src={log.image} alt=""/> : <span>{category.emoji}</span>}
                       <div><strong>{log.activity}</strong><small>{category.short}{log.details ? ` · ${log.details}` : ''}</small></div>
                       <b>+{log.points}</b>
-                      <button className="iconButton" onClick={() => onDelete(log.id)}><Trash2 size={14}/></button>
+                      <button
+                        className="iconButton"
+                        title="Delete entry"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onDelete(log.id);
+                        }}
+                      >
+                        <Trash2 size={14}/>
+                      </button>
                     </div>
                   );
                 })}
@@ -2027,7 +2181,13 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
             <div className="sideHead"><strong>Recent highlights</strong><Sparkles size={15}/></div>
             <div className="highlightsList">
               {recentHighlights.length ? recentHighlights.map((log) => (
-                <button key={log.id} onClick={() => setSelectedDate(log.date)}>
+                <button
+                  key={log.id}
+                  onClick={() => {
+                    setSelectedDate(log.date);
+                    setViewingLog(log);
+                  }}
+                >
                   {log.image ? <img src={log.image} alt=""/> : <span>{categoryFor(log.category).emoji}</span>}
                   <div><strong>{log.activity}</strong><small>{categoryFor(log.category).short} · {new Date(`${log.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</small></div>
                 </button>
@@ -2038,6 +2198,121 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
           <DailyQuoteCard />
         </aside>
       </div>
+
+      {viewingLog && (
+        <div
+          className="overlay"
+          onClick={() => setViewingLog(null)}
+        >
+          <article
+            className="modal historyLogViewer"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="close"
+              onClick={() => setViewingLog(null)}
+              aria-label="Close entry"
+            >
+              <X/>
+            </button>
+
+            <div className="historyViewerHead">
+              <div>
+                <p className="eyebrow">LOG ENTRY</p>
+                <h2>{viewingLog.activity}</h2>
+              </div>
+
+              <b className="historyViewerPoints">
+                +{viewingLog.points}
+              </b>
+            </div>
+
+            <div className="historyViewerMeta">
+              <span>
+                {categoriesForLog(viewingLog)
+                  .map(
+                    (key) =>
+                      `${categoryFor(key).emoji} ${categoryFor(key).short}`
+                  )
+                  .join(' · ')}
+              </span>
+
+              <span>
+                {new Date(
+                  `${viewingLog.date}T12:00:00`
+                ).toLocaleDateString(undefined, {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </span>
+
+              <span>
+                {viewingLog.visibility === 'private'
+                  ? '🔒 Private'
+                  : '👥 Friends'}
+              </span>
+            </div>
+
+            {viewingLog.image && (
+              <img
+                className="historyViewerImage"
+                src={viewingLog.image}
+                alt="Log attachment"
+              />
+            )}
+
+            {viewingLog.details ? (
+              <section className="historyViewerSection">
+                <small>DETAILS</small>
+                <p>{viewingLog.details}</p>
+              </section>
+            ) : (
+              <section className="historyViewerSection">
+                <small>DETAILS</small>
+                <p className="historyViewerMuted">
+                  No extra details were added.
+                </p>
+              </section>
+            )}
+
+            {viewingLog.aiInsight && (
+              <section className="historyViewerSection">
+                <small>SMART FEEDBACK</small>
+                <p>{viewingLog.aiInsight}</p>
+              </section>
+            )}
+
+            <div className="historyViewerActions">
+              <button
+                className="primaryButton"
+                onClick={() => {
+                  const log = viewingLog;
+                  setViewingLog(null);
+                  onEdit(log);
+                }}
+              >
+                <Pencil size={16}/>
+                Edit entry
+              </button>
+
+              <button
+                className="historyViewerDelete"
+                onClick={() => {
+                  const id = viewingLog.id;
+                  setViewingLog(null);
+                  onDelete(id);
+                }}
+              >
+                <Trash2 size={15}/>
+                Delete
+              </button>
+            </div>
+          </article>
+        </div>
+      )}
+
     </section>
   );
 }
@@ -2054,7 +2329,15 @@ function DailyQuoteCard() {
   );
 }
 
-function AnalyticsView({ logs }: { logs: Log[] }) {
+function AnalyticsView({
+  logs,
+  priorities,
+  onTunePriorities,
+}: {
+  logs: Log[];
+  priorities: Record<CategoryKey, Priority>;
+  onTunePriorities: () => void;
+}) {
   const cutoff = new Date();
   cutoff.setHours(0, 0, 0, 0);
   cutoff.setDate(cutoff.getDate() - 29);
@@ -2078,6 +2361,11 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
   const activeAreas = totals.filter((item) => item.count > 0).length;
   const balance = activeAreas ? Math.round((activeAreas / categories.length) * 100) : 0;
   const top = totals[0];
+
+  const mainPriority =
+    categories.find((category) => priorities[category.key] === 'critical') ||
+    categories.find((category) => priorities[category.key] === 'high') ||
+    categories[0];
   const days = Array.from({ length: 30 }, (_, index) => {
     const date = new Date();
     date.setHours(12, 0, 0, 0);
@@ -2096,6 +2384,11 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
           <p className="eyebrow">ANALYTICS</p>
           <h2>See what your effort is becoming.</h2>
           <p className="subtitle">Thirty-day patterns, category balance, and where your attention is actually going.</p>
+          <button className="analyticsPriorityButton" onClick={onTunePriorities}>
+            <Flame size={16}/>
+            Tune weekly priorities
+            <ChevronRight size={15}/>
+          </button>
         </div>
         <div className="quoteChip"><span>“</span><p>{quote.text}</p><small>— {quote.author}</small></div>
       </div>
@@ -2104,7 +2397,17 @@ function AnalyticsView({ logs }: { logs: Log[] }) {
         <article className="analyticsMetric card"><small>30-DAY POINTS</small><strong>{points}</strong><span className={delta >= 0 ? 'up' : 'down'}>{delta >= 0 ? '↑' : '↓'} {Math.abs(delta)}% vs prior 30d</span></article>
         <article className="analyticsMetric card"><small>ACTIVE DAYS</small><strong>{activeDays}<i>/30</i></strong><span>{Math.round((activeDays / 30) * 100)}% consistency</span></article>
         <article className="analyticsMetric card"><small>AREAS ACTIVE</small><strong>{activeAreas}<i>/10</i></strong><span>{balance}% life coverage</span></article>
-        <article className="analyticsMetric card"><small>TOP FOCUS</small><strong className="focusStat">{top.category.emoji} {top.category.short}</strong><span>{Math.round(top.points)} points · {top.count} logs</span></article>
+        <article className="analyticsMetric card">
+          <small>MOST ACTIVE</small>
+          <strong className="focusStat">{top.category.emoji} {top.category.short}</strong>
+          <span>{Math.round(top.points)} points · {top.count} logs in the last 30 days</span>
+        </article>
+
+        <article className="analyticsMetric card priorityMetric">
+          <small>MAIN PRIORITY</small>
+          <strong className="focusStat">{mainPriority.emoji} {mainPriority.short}</strong>
+          <span>{priorities[mainPriority.key]} · chosen priority</span>
+        </article>
       </div>
 
       <div className="analyticsGrid">
@@ -2201,88 +2504,339 @@ function NotificationPanel({
   const [profiles, setProfiles] = useState<SocialProfile[]>([]);
   const [logs, setLogs] = useState<FeedLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [resolvedRequests, setResolvedRequests] = useState<Record<string, 'accepted' | 'declined'>>({});
+  const [requestBusy, setRequestBusy] = useState<string | null>(null);
 
   async function refreshPanel() {
     if (!supabase) return;
 
-    const [{ data: notifications }, { data: profileRows }, { data: logRows }] =
-      await Promise.all([
-        supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(8),
-        supabase.from('profiles').select('id,display_name,username,avatar_url'),
-        supabase.from('logs').select('*').order('created_at', { ascending: false }).limit(100),
-      ]);
+    const [
+      { data: notificationRows },
+      { data: profileRows },
+      { data: logRows },
+      { data: friendshipRows },
+    ] = await Promise.all([
+      supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20),
 
-    const ns = (notifications || []) as HimothyNotification[];
-    setItems(ns);
+      supabase
+        .from('profiles')
+        .select('id,display_name,username,avatar_url'),
+
+      supabase
+        .from('logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100),
+
+      supabase
+        .from('friendships')
+        .select('*')
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`),
+    ]);
+
+    const notifications =
+      (notificationRows || []) as HimothyNotification[];
+
+    const friendships =
+      (friendshipRows || []) as Friendship[];
+
+    const acceptedFriendIds = new Set(
+      friendships
+        .filter((friendship) => friendship.status === 'accepted')
+        .map((friendship) =>
+          friendship.requester_id === user.id
+            ? friendship.addressee_id
+            : friendship.requester_id
+        )
+    );
+
+    /*
+      Friend-request notifications are actionable notifications, not history.
+
+      If the friendship no longer exists, or it is already accepted/blocked,
+      the request has been resolved and should disappear.
+    */
+    const resolvedRequestIds = notifications
+      .filter((item) => {
+        if (item.type !== 'friend_request') return false;
+
+        /*
+          Strong cleanup rule:
+          if this sender is already an accepted friend,
+          their old request notification is resolved.
+        */
+        if (
+          item.actor_id &&
+          acceptedFriendIds.has(item.actor_id)
+        ) {
+          return true;
+        }
+
+        /*
+          Fall back to the specific friendship row when available.
+        */
+        if (!item.friendship_id) return true;
+
+        const friendship = friendships.find(
+          (entry) => entry.id === item.friendship_id
+        );
+
+        return !friendship || friendship.status !== 'pending';
+      })
+      .map((item) => item.id);
+
+    if (resolvedRequestIds.length) {
+      await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user.id)
+        .in('id', resolvedRequestIds);
+    }
+
+    const visible = notifications
+      .filter((item) => !resolvedRequestIds.includes(item.id))
+      .slice(0, 8);
+
+    setItems(visible);
     setProfiles((profileRows || []) as SocialProfile[]);
     setLogs((logRows || []) as FeedLog[]);
-    onUnreadChange(ns.filter((item) => !item.read_at).length);
     setLoading(false);
+
+    return visible;
+  }
+
+  async function markVisibleRead(notifications: HimothyNotification[]) {
+    if (!supabase) return;
+
+    const unreadIds = notifications
+      .filter((item) => !item.read_at)
+      .map((item) => item.id);
+
+    if (!unreadIds.length) {
+      onUnreadChange(0);
+      return;
+    }
+
+    const readAt = new Date().toISOString();
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read_at: readAt })
+      .eq('user_id', user.id)
+      .in('id', unreadIds);
+
+    if (!error) {
+      setItems((current) =>
+        current.map((item) =>
+          unreadIds.includes(item.id)
+            ? { ...item, read_at: readAt }
+            : item
+        )
+      );
+
+      onUnreadChange(0);
+    }
   }
 
   useEffect(() => {
-    refreshPanel();
+    let alive = true;
+
+    async function open() {
+      const visible = await refreshPanel();
+
+      if (!alive || !visible) return;
+
+      // Opening the bell means the user has seen the notifications.
+      await markVisibleRead(visible);
+    }
+
+    open();
+
+    return () => {
+      alive = false;
+    };
   }, [user.id]);
+
+  async function resolveFriendRequest(
+    item: HimothyNotification,
+    action: 'accept' | 'decline'
+  ) {
+    if (!supabase || !item.friendship_id) return;
+
+    setRequestBusy(item.id);
+
+    let error = null;
+
+    if (action === 'accept') {
+      const result = await supabase
+        .from('friendships')
+        .update({
+          status: 'accepted',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', item.friendship_id);
+
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from('friendships')
+        .delete()
+        .eq('id', item.friendship_id);
+
+      error = result.error;
+    }
+
+    if (!error) {
+      /*
+        Once handled, remove the notification itself.
+        This makes it disappear now AND after reload.
+      */
+      let notificationDelete = supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('type', 'friend_request');
+
+      if (item.actor_id) {
+        notificationDelete = notificationDelete.eq(
+          'actor_id',
+          item.actor_id
+        );
+      } else {
+        notificationDelete = notificationDelete.eq(
+          'id',
+          item.id
+        );
+      }
+
+      await notificationDelete;
+
+      setItems((current) =>
+        current.filter((entry) => entry.id !== item.id)
+      );
+
+      onUnreadChange(
+        items.filter(
+          (entry) =>
+            entry.id !== item.id &&
+            !entry.read_at
+        ).length
+      );
+    }
+
+    setRequestBusy(null);
+  }
 
   async function markRead(item: HimothyNotification) {
     if (!supabase || item.read_at) return;
-    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', item.id).eq('user_id', user.id);
+
+    const readAt = new Date().toISOString();
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read_at: readAt })
+      .eq('id', item.id)
+      .eq('user_id', user.id);
+
+    if (!error) {
+      setItems((current) =>
+        current.map((entry) =>
+          entry.id === item.id
+            ? { ...entry, read_at: readAt }
+            : entry
+        )
+      );
+    }
   }
 
   async function markAllRead() {
     if (!supabase) return;
-    await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('user_id', user.id).is('read_at', null);
-    await refreshPanel();
-  }
 
-  async function acceptRequest(item: HimothyNotification) {
-    if (!supabase || !item.friendship_id) return;
+    const readAt = new Date().toISOString();
 
     const { error } = await supabase
-      .from('friendships')
-      .update({ status: 'accepted' })
-      .eq('id', item.friendship_id);
+      .from('notifications')
+      .update({ read_at: readAt })
+      .eq('user_id', user.id)
+      .is('read_at', null);
 
     if (!error) {
-      setResolvedRequests((current) => ({
-        ...current,
-        [item.id]: 'accepted',
-      }));
-      await markRead(item);
-    }
-  }
+      setItems((current) =>
+        current.map((item) => ({
+          ...item,
+          read_at: item.read_at || readAt,
+        }))
+      );
 
-  async function declineRequest(item: HimothyNotification) {
-    if (!supabase || !item.friendship_id) return;
-
-    const { error } = await supabase
-      .from('friendships')
-      .delete()
-      .eq('id', item.friendship_id);
-
-    if (!error) {
-      setResolvedRequests((current) => ({
-        ...current,
-        [item.id]: 'declined',
-      }));
-      await markRead(item);
+      onUnreadChange(0);
     }
   }
 
   async function openItem(item: HimothyNotification) {
-    await markRead(item);
-    if (item.type === 'friend_request') onOpenFriends();
-    else onViewAll();
+    if (!supabase) return;
+
+    if (item.type === 'friend_request') {
+      await markRead(item);
+      onOpenFriends();
+      return;
+    }
+
+    /*
+      Comments/replies are actionable notifications.
+      Once opened, remove the notification itself so it
+      does not remain in the bell after the user has seen
+      the actual conversation.
+    */
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', item.id)
+      .eq('user_id', user.id);
+
+    if (!error) {
+      setItems((current) =>
+        current.filter((entry) => entry.id !== item.id)
+      );
+
+      const remainingUnread = items.filter(
+        (entry) =>
+          entry.id !== item.id &&
+          !entry.read_at
+      ).length;
+
+      onUnreadChange(remainingUnread);
+    }
+
+    if (item.log_id) {
+      sessionStorage.setItem(
+        'himothy.activityTargetLog',
+        item.log_id
+      );
+    }
+
+    onViewAll();
   }
 
   function actorName(id: string | null) {
-    const actor = profiles.find((profile) => profile.id === id);
-    return actor?.display_name || (actor?.username ? `@${actor.username}` : 'Someone');
+    const actor = profiles.find(
+      (profile) => profile.id === id
+    );
+
+    return (
+      actor?.display_name ||
+      (actor?.username ? `@${actor.username}` : 'Someone')
+    );
   }
 
   return (
-    <div className="notificationPanel card" onClick={(event) => event.stopPropagation()}>
+    <div
+      className="notificationPanel card"
+      onClick={(event) => event.stopPropagation()}
+    >
       <div className="notificationPanelHead">
         <div>
           <p className="eyebrow">NOTIFICATIONS</p>
@@ -2290,8 +2844,15 @@ function NotificationPanel({
         </div>
 
         <div className="notificationPanelActions">
-          {items.some((item) => !item.read_at) && <button onClick={markAllRead}>Mark all read</button>}
-          <button className="notificationPanelClose" onClick={onClose} aria-label="Close notifications">
+          {items.some((item) => !item.read_at) && (
+            <button onClick={markAllRead}>Mark all read</button>
+          )}
+
+          <button
+            className="notificationPanelClose"
+            onClick={onClose}
+            aria-label="Close notifications"
+          >
             <X size={15}/>
           </button>
         </div>
@@ -2299,7 +2860,10 @@ function NotificationPanel({
 
       <div className="notificationPanelList">
         {items.map((item) => {
-          const log = item.log_id ? logs.find((entry) => entry.id === item.log_id) : null;
+          const log = item.log_id
+            ? logs.find((entry) => entry.id === item.log_id)
+            : null;
+
           const label =
             item.type === 'friend_request'
               ? `${actorName(item.actor_id)} sent you a friend request`
@@ -2308,33 +2872,56 @@ function NotificationPanel({
                 : `${actorName(item.actor_id)} commented on your log`;
 
           return (
-            <div className={`notificationPanelRow ${item.read_at ? '' : 'unread'}`} key={item.id}>
-              <button className="notificationPanelMain" onClick={() => openItem(item)}>
+            <div
+              className={`notificationPanelRow ${
+                item.read_at ? '' : 'unread'
+              }`}
+              key={item.id}
+            >
+              <button
+                className="notificationPanelMain"
+                onClick={() => openItem(item)}
+              >
                 <span className="notificationMiniIcon">
-                  {item.type === 'friend_request' ? <Users size={15}/> : <MessageCircle size={15}/>}
+                  {item.type === 'friend_request'
+                    ? <Users size={15}/>
+                    : <MessageCircle size={15}/>}
                 </span>
+
                 <span className="notificationPanelCopy">
                   <strong>{label}</strong>
                   {log && <span>“{log.activity}”</span>}
                   <small>{timeAgo(item.created_at)}</small>
                 </span>
-                {!item.read_at && <i className="notificationUnreadDot"/>}
+
+                {!item.read_at && (
+                  <i className="notificationUnreadDot"/>
+                )}
               </button>
 
-              {item.type === 'friend_request' && item.friendship_id && (
-                <div className="notificationRequestActions">
-                  {resolvedRequests[item.id] === 'accepted' ? (
-                    <span className="requestAccepted">✓ Accepted</span>
-                  ) : resolvedRequests[item.id] === 'declined' ? (
-                    <span className="requestDeclined">Declined</span>
-                  ) : (
-                    <>
-                      <button className="accept" onClick={() => acceptRequest(item)}>Accept</button>
-                      <button onClick={() => declineRequest(item)}>Decline</button>
-                    </>
-                  )}
-                </div>
-              )}
+              {item.type === 'friend_request' &&
+                item.friendship_id && (
+                  <div className="notificationRequestActions">
+                    <button
+                      className="accept"
+                      disabled={requestBusy === item.id}
+                      onClick={() =>
+                        resolveFriendRequest(item, 'accept')
+                      }
+                    >
+                      Accept
+                    </button>
+
+                    <button
+                      disabled={requestBusy === item.id}
+                      onClick={() =>
+                        resolveFriendRequest(item, 'decline')
+                      }
+                    >
+                      Decline
+                    </button>
+                  </div>
+                )}
             </div>
           );
         })}
@@ -2348,7 +2935,10 @@ function NotificationPanel({
         )}
       </div>
 
-      <button className="notificationViewAll" onClick={onViewAll}>
+      <button
+        className="notificationViewAll"
+        onClick={onViewAll}
+      >
         View all activity <ChevronRight size={15}/>
       </button>
     </div>
@@ -2631,6 +3221,41 @@ function ActivityView({
     refreshActivity();
   }, [user.id]);
 
+  useEffect(() => {
+    if (loading) return;
+
+    const targetLogId = sessionStorage.getItem(
+      'himothy.activityTargetLog'
+    );
+
+    if (!targetLogId) return;
+
+    const timer = window.setTimeout(() => {
+      const target = document.querySelector(
+        `[data-activity-log-id="${targetLogId}"]`
+      );
+
+      if (!target) return;
+
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      target.classList.add('activityThreadTarget');
+
+      window.setTimeout(() => {
+        target.classList.remove('activityThreadTarget');
+      }, 1800);
+
+      sessionStorage.removeItem(
+        'himothy.activityTargetLog'
+      );
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [loading, visibleLogs, comments]);
+
   const profileFor = (id: string | null) =>
     profiles.find((profile) => profile.id === id);
 
@@ -2659,9 +3284,57 @@ function ActivityView({
     if (!error) await refreshActivity();
   }
 
-  async function openNotification(notification: HimothyNotification) {
-    await markNotificationRead(notification);
-    if (notification.type === 'friend_request') onOpenFriends();
+  async function openNotification(
+    notification: HimothyNotification
+  ) {
+    if (!supabase) return;
+
+    if (notification.type === 'friend_request') {
+      await markNotificationRead(notification);
+      onOpenFriends();
+      return;
+    }
+
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', notification.id)
+      .eq('user_id', user.id);
+
+    if (!error) {
+      setNotifications((current) =>
+        current.filter(
+          (item) => item.id !== notification.id
+        )
+      );
+
+      onUnreadChange(
+        notifications.filter(
+          (item) =>
+            item.id !== notification.id &&
+            !item.read_at
+        ).length
+      );
+    }
+
+    if (!notification.log_id) return;
+
+    const target = document.querySelector(
+      `[data-activity-log-id="${notification.log_id}"]`
+    );
+
+    if (target) {
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      target.classList.add('activityThreadTarget');
+
+      window.setTimeout(() => {
+        target.classList.remove('activityThreadTarget');
+      }, 1800);
+    }
   }
 
   async function markAllRead() {
@@ -2687,7 +3360,11 @@ function ActivityView({
     const threadComments = comments.filter((comment) => comment.log_id === log.id);
 
     return (
-      <article className="card activityThread" key={`${context}-${log.id}`}>
+      <article
+        className="card activityThread"
+        key={`${context}-${log.id}`}
+        data-activity-log-id={log.id}
+      >
         <div className="socialFeedTop">
           <div className="feedIcon">{cat.emoji}</div>
           <div>
@@ -2927,7 +3604,36 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
     setBusy(true); const { error } = await client.from('friendships').insert({ requester_id: user.id, addressee_id: id, status: 'pending' }); setBusy(false);
     setNotice(error ? (error.code === '23505' ? 'A friend connection already exists.' : error.message) : 'Friend request sent.'); if (!error) await refreshSocial();
   }
-  async function acceptRequest(friendship: Friendship) { if (!supabase) return; const client = supabase; const { error } = await client.from('friendships').update({ status:'accepted', updated_at:new Date().toISOString() }).eq('id',friendship.id); setNotice(error?.message || 'You are friends now.'); if (!error) await refreshSocial(); }
+  async function acceptRequest(friendship: Friendship) {
+    if (!supabase) return;
+
+    const client = supabase;
+
+    const { error } = await client
+      .from('friendships')
+      .update({
+        status: 'accepted',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', friendship.id);
+
+    if (error) {
+      setNotice(error.message);
+      return;
+    }
+
+    const requesterId = friendship.requester_id;
+
+    await client
+      .from('notifications')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('type', 'friend_request')
+      .eq('actor_id', requesterId);
+
+    setNotice('You are friends now.');
+    await refreshSocial();
+  }
   async function removeConnection(id: string) { if (!supabase) return; const client = supabase; const { error } = await client.from('friendships').delete().eq('id',id); setNotice(error?.message || 'Connection removed.'); if (!error) await refreshSocial(); }
 
   async function toggleReaction(logId: string, reaction: string) {
