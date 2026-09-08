@@ -6,6 +6,8 @@ import { supabase, supabaseConfigured } from '../lib/supabase';
 import onboardingStyles from './onboarding.module.css';
 import {
   BarChart3,
+  MessageCircle,
+  Bell,
   CalendarDays,
   Camera,
   Check,
@@ -407,7 +409,8 @@ export default function Home() {
     appearance: 'normal', fashion: 'maintenance', academics: 'critical', career: 'high', finance: 'normal',
     nutrition: 'high', social: 'maintenance', physical: 'high', mind: 'normal', spirituality: 'normal',
   });
-  const [tab, setTab] = useState<'dashboard' | 'history' | 'analytics' | 'friends'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'history' | 'activity' | 'analytics' | 'friends'>('dashboard');
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [quickCategory, setQuickCategory] = useState<Category | null>(null);
   const [composerCategory, setComposerCategory] = useState<CategoryKey>('academics');
   const [showComposer, setShowComposer] = useState(false);
@@ -564,6 +567,36 @@ export default function Home() {
     hydrateCloud();
     return () => { cancelled = true; };
   }, [user?.id]);
+
+  async function refreshUnreadNotifications() {
+    if (!supabase || !user) {
+      setUnreadNotifications(0);
+      return;
+    }
+
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .is('read_at', null);
+
+    if (!error) setUnreadNotifications(count || 0);
+  }
+
+  useEffect(() => {
+    if (!user) {
+      setUnreadNotifications(0);
+      return;
+    }
+
+    refreshUnreadNotifications();
+
+    const timer = window.setInterval(() => {
+      refreshUnreadNotifications();
+    }, 20000);
+
+    return () => window.clearInterval(timer);
+  }, [user?.id, tab]);
 
   useEffect(() => {
     if (!logs.length) return;
@@ -836,6 +869,22 @@ export default function Home() {
         </div>
         <div className="accountCluster">
           {supabaseConfigured && <span className={`cloudBadge ${cloudReady ? 'ready' : ''}`}><Cloud size={13}/> {cloudReady ? 'Cloud' : 'Syncing'}</span>}
+          {supabaseConfigured && user && (
+            <button
+              className="notificationBell"
+              aria-label="Activity"
+              title="Activity"
+              onClick={() => {
+                setAccountOpen(false);
+                setTab('activity');
+              }}
+            >
+              <Bell size={18}/>
+              {unreadNotifications > 0 && (
+                <span>{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>
+              )}
+            </button>
+          )}
           <button className="avatar" aria-label="Profile" onClick={() => setAccountOpen((value) => !value)}>{profileName.slice(0, 1).toUpperCase()}</button>
           {accountOpen && (
             <div className="accountMenu card">
@@ -866,6 +915,10 @@ export default function Home() {
       <nav className="tabs desktopTabs">
         <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}><BarChart3 size={17}/> Dashboard</button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}><CalendarDays size={17}/> History</button>
+        <button className={tab === 'activity' ? 'active' : ''} onClick={() => setTab('activity')}>
+          <MessageCircle size={17}/> Activity
+          {unreadNotifications > 0 && <span className="navBadge">{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>}
+        </button>
         <button className={tab === 'analytics' ? 'active' : ''} onClick={() => setTab('analytics')}><Sparkles size={17}/> Analytics</button>
         <button className={tab === 'friends' ? 'active' : ''} onClick={() => setTab('friends')}><Users size={17}/> Friends</button>
       </nav>
@@ -943,6 +996,13 @@ export default function Home() {
       )}
 
       {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog} onEdit={setEditingLog}/>}
+      {tab === 'activity' && user && (
+        <ActivityView
+          user={user}
+          onUnreadChange={setUnreadNotifications}
+          onOpenFriends={() => setTab('friends')}
+        />
+      )}
       {tab === 'analytics' && <AnalyticsView logs={logs}/>}
       {tab === 'friends' && user && <FriendsView user={user} profileName={profileName} onProfileName={setProfileName}/>}
 
@@ -950,7 +1010,13 @@ export default function Home() {
 
       <nav className="mobileNav">
         <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}><BarChart3 size={19}/><span>Build</span></button>
-        <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}><CalendarDays size={19}/><span>History</span></button>
+        <button className={tab === 'activity' ? 'active' : ''} onClick={() => setTab('activity')}>
+          <span className="mobileActivityIcon">
+            <MessageCircle size={19}/>
+            {unreadNotifications > 0 && <i>{unreadNotifications > 9 ? '9+' : unreadNotifications}</i>}
+          </span>
+          <span>Activity</span>
+        </button>
         <button className="mobilePlus" onClick={() => openComposer()}><Plus size={23}/></button>
         <button className={tab === 'friends' ? 'active' : ''} onClick={() => setTab('friends')}><Users size={19}/><span>Friends</span></button>
         <button className={tab === 'analytics' ? 'active' : ''} onClick={() => setTab('analytics')}><Sparkles size={19}/><span>Stats</span></button>
@@ -1992,6 +2058,408 @@ type Friendship = { id: string; requester_id: string; addressee_id: string; stat
 type SocialReaction = { id: string; log_id: string; user_id: string; reaction: string };
 type SocialComment = { id: string; log_id: string; user_id: string; body: string; created_at: string };
 type FeedLog = CloudLogRow;
+
+type HimothyNotification = {
+  id: string;
+  user_id: string;
+  actor_id: string | null;
+  type: 'friend_request' | 'comment';
+  log_id: string | null;
+  friendship_id: string | null;
+  read_at: string | null;
+  created_at: string;
+};
+
+
+function ActivityView({
+  user,
+  onUnreadChange,
+  onOpenFriends,
+}: {
+  user: User;
+  onUnreadChange: (count: number) => void;
+  onOpenFriends: () => void;
+}) {
+  const [profiles, setProfiles] = useState<SocialProfile[]>([]);
+  const [visibleLogs, setVisibleLogs] = useState<FeedLog[]>([]);
+  const [comments, setComments] = useState<SocialComment[]>([]);
+  const [notifications, setNotifications] = useState<HimothyNotification[]>([]);
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  async function refreshActivity() {
+    if (!supabase) return;
+
+    const client = supabase;
+    setLoading(true);
+
+    const [
+      { data: profileRows, error: profileError },
+      { data: logRows, error: logError },
+      { data: notificationRows, error: notificationError },
+    ] = await Promise.all([
+      client
+        .from('profiles')
+        .select('id,display_name,username,avatar_url')
+        .order('display_name'),
+
+      client
+        .from('logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100),
+
+      client
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50),
+    ]);
+
+    if (profileError || logError || notificationError) {
+      setNotice(
+        profileError?.message ||
+        logError?.message ||
+        notificationError?.message ||
+        'Could not load activity.'
+      );
+      setLoading(false);
+      return;
+    }
+
+    const logs = (logRows || []) as FeedLog[];
+    const ids = logs.map((log) => log.id);
+
+    let commentRows: SocialComment[] = [];
+
+    if (ids.length) {
+      const { data, error } = await client
+        .from('log_comments')
+        .select('*')
+        .in('log_id', ids)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        setNotice(error.message);
+      } else {
+        commentRows = (data || []) as SocialComment[];
+      }
+    }
+
+    const ns = (notificationRows || []) as HimothyNotification[];
+
+    setProfiles((profileRows || []) as SocialProfile[]);
+    setVisibleLogs(logs);
+    setComments(commentRows);
+    setNotifications(ns);
+    onUnreadChange(ns.filter((n) => !n.read_at).length);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    refreshActivity();
+  }, [user.id]);
+
+  const profileFor = (id: string | null) =>
+    profiles.find((profile) => profile.id === id);
+
+  const myLogsWithConversation = visibleLogs.filter((log) => {
+    if (log.user_id !== user.id) return false;
+    return comments.some((comment) => comment.log_id === log.id);
+  });
+
+  const commentedLogIds = new Set(
+    comments
+      .filter((comment) => comment.user_id === user.id)
+      .map((comment) => comment.log_id)
+  );
+
+  const myCommentedLogs = visibleLogs.filter(
+    (log) => log.user_id !== user.id && commentedLogIds.has(log.id)
+  );
+
+  async function addComment(logId: string) {
+    if (!supabase) return;
+
+    const body = (commentDrafts[logId] || '').trim();
+    if (!body) return;
+
+    const { error } = await supabase
+      .from('log_comments')
+      .insert({
+        log_id: logId,
+        user_id: user.id,
+        body,
+      });
+
+    if (error) {
+      setNotice(error.message);
+      return;
+    }
+
+    setCommentDrafts((current) => ({
+      ...current,
+      [logId]: '',
+    }));
+
+    await refreshActivity();
+  }
+
+  async function markNotificationRead(notification: HimothyNotification) {
+    if (!supabase || notification.read_at) return;
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read_at: new Date().toISOString() })
+      .eq('id', notification.id)
+      .eq('user_id', user.id);
+
+    if (!error) await refreshActivity();
+  }
+
+  async function openNotification(notification: HimothyNotification) {
+    await markNotificationRead(notification);
+
+    if (notification.type === 'friend_request') {
+      onOpenFriends();
+    }
+  }
+
+  async function markAllRead() {
+    if (!supabase) return;
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read_at: new Date().toISOString() })
+      .eq('user_id', user.id)
+      .is('read_at', null);
+
+    if (error) {
+      setNotice(error.message);
+      return;
+    }
+
+    await refreshActivity();
+  }
+
+  function renderThread(log: FeedLog, context: 'mine' | 'commented') {
+    const cat = categoryFor(log.category);
+    const owner = profileFor(log.user_id);
+    const threadComments = comments.filter((comment) => comment.log_id === log.id);
+
+    return (
+      <article className="card activityThread" key={`${context}-${log.id}`}>
+        <div className="socialFeedTop">
+          <div className="feedIcon">{cat.emoji}</div>
+          <div>
+            <div className="feedHeadline">
+              <strong>
+                {log.user_id === user.id
+                  ? 'You'
+                  : owner?.display_name || owner?.username || 'Friend'}
+              </strong>
+              <span>{cat.short}</span>
+            </div>
+            <small>{new Date(log.created_at).toLocaleString()}</small>
+          </div>
+        </div>
+
+        <h3>{log.activity}</h3>
+        {log.details && <p>{log.details}</p>}
+
+        <div className="activityCommentCount">
+          <MessageCircle size={14}/>
+          {threadComments.length} {threadComments.length === 1 ? 'comment' : 'comments'}
+        </div>
+
+        <div className="commentList activityComments">
+          {threadComments.map((comment) => {
+            const author = profileFor(comment.user_id);
+
+            return (
+              <div
+                key={comment.id}
+                className={comment.user_id === user.id ? 'myActivityComment' : ''}
+              >
+                <strong>
+                  {comment.user_id === user.id
+                    ? 'You'
+                    : author?.display_name || author?.username || 'Friend'}
+                </strong>
+                <span>{comment.body}</span>
+                <small>{new Date(comment.created_at).toLocaleString()}</small>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="commentComposer">
+          <input
+            className="textInput"
+            value={commentDrafts[log.id] || ''}
+            onChange={(event) =>
+              setCommentDrafts((current) => ({
+                ...current,
+                [log.id]: event.target.value,
+              }))
+            }
+            placeholder="Reply…"
+            maxLength={500}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') addComment(log.id);
+            }}
+          />
+          <button onClick={() => addComment(log.id)}>
+            <Send size={16}/>
+          </button>
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <section className="pageSection activityPage">
+      <div className="activityPageHead">
+        <div>
+          <p className="eyebrow">SOCIAL ACTIVITY</p>
+          <h2>Keep up with your circle.</h2>
+          <p className="subtitle">
+            Comments, conversations, and requests without digging through the feed.
+          </p>
+        </div>
+
+        <button className="textButton" onClick={refreshActivity}>
+          Refresh
+        </button>
+      </div>
+
+      {notice && (
+        <div className="socialNotice">
+          {notice}
+          <button onClick={() => setNotice(null)}>
+            <X size={14}/>
+          </button>
+        </div>
+      )}
+
+      <section className="activityNotifications">
+        <div className="sectionHead">
+          <div>
+            <p className="eyebrow">NOTIFICATIONS</p>
+            <h2>What needs your attention.</h2>
+          </div>
+
+          {notifications.some((n) => !n.read_at) && (
+            <button className="textButton" onClick={markAllRead}>
+              Mark all read
+            </button>
+          )}
+        </div>
+
+        <div className="notificationList">
+          {notifications.map((notification) => {
+            const actor = profileFor(notification.actor_id);
+            const actorName =
+              actor?.display_name ||
+              (actor?.username ? `@${actor.username}` : 'Someone');
+
+            const log = notification.log_id
+              ? visibleLogs.find((item) => item.id === notification.log_id)
+              : null;
+
+            return (
+              <button
+                key={notification.id}
+                className={`notificationRow ${notification.read_at ? '' : 'unread'}`}
+                onClick={() => openNotification(notification)}
+              >
+                <div className="notificationIcon">
+                  {notification.type === 'friend_request'
+                    ? <Users size={17}/>
+                    : <MessageCircle size={17}/>}
+                </div>
+
+                <div>
+                  <strong>
+                    {notification.type === 'friend_request'
+                      ? `${actorName} sent you a friend request`
+                      : `${actorName} commented on your log`}
+                  </strong>
+
+                  {notification.type === 'comment' && log && (
+                    <span>“{log.activity}”</span>
+                  )}
+
+                  <small>
+                    {new Date(notification.created_at).toLocaleString()}
+                  </small>
+                </div>
+
+                {!notification.read_at && <i/>}
+              </button>
+            );
+          })}
+
+          {!loading && !notifications.length && (
+            <div className="card emptyActivityState">
+              <Bell size={21}/>
+              <strong>Nothing new.</strong>
+              <span>You&apos;re caught up.</span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <div className="activityColumns">
+        <section>
+          <div className="sectionHead">
+            <div>
+              <p className="eyebrow">MY LOGS</p>
+              <h2>Conversations on your progress.</h2>
+              <p>Any of your logs that have comments.</p>
+            </div>
+          </div>
+
+          <div className="feed">
+            {myLogsWithConversation.map((log) => renderThread(log, 'mine'))}
+
+            {!loading && !myLogsWithConversation.length && (
+              <div className="card emptyActivityState">
+                <MessageCircle size={21}/>
+                <strong>No comments yet.</strong>
+                <span>Comments on your shared logs will show up here.</span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <div className="sectionHead">
+            <div>
+              <p className="eyebrow">MY COMMENTS</p>
+              <h2>Threads you joined.</h2>
+              <p>Jump back into logs you&apos;ve commented on.</p>
+            </div>
+          </div>
+
+          <div className="feed">
+            {myCommentedLogs.map((log) => renderThread(log, 'commented'))}
+
+            {!loading && !myCommentedLogs.length && (
+              <div className="card emptyActivityState">
+                <Send size={21}/>
+                <strong>No conversations yet.</strong>
+                <span>Comment on a friend&apos;s log and it will stay easy to find here.</span>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </section>
+  );
+}
 
 function FriendsView({ user, profileName, onProfileName }: { user: User; profileName: string; onProfileName: (name: string) => void }) {
   const [friendships, setFriendships] = useState<Friendship[]>([]);

@@ -322,3 +322,253 @@
     justify-content: center;
   }
 }
+
+
+/* v6.3 Activity + notifications */
+
+.notificationBell {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #171a1f;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.notificationBell:hover {
+  color: var(--text);
+  border-color: #464c56;
+}
+
+.notificationBell > span,
+.navBadge {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #d94747;
+  color: white;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.notificationBell > span {
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  border: 2px solid #101215;
+}
+
+.desktopTabs .navBadge {
+  margin-left: 2px;
+}
+
+.mobileActivityIcon {
+  position: relative;
+  display: inline-flex;
+}
+
+.mobileActivityIcon i {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #d94747;
+  border: 2px solid #111318;
+  color: white;
+  font-style: normal;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.activityPageHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.activityNotifications {
+  margin-top: 28px;
+}
+
+.notificationList {
+  display: grid;
+  gap: 8px;
+}
+
+.notificationRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 15px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #15181d;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.notificationRow:hover {
+  background: #191d22;
+}
+
+.notificationRow.unread {
+  border-color: rgba(205,255,57,.20);
+  background: rgba(205,255,57,.035);
+}
+
+.notificationIcon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #22262c;
+  color: var(--accent);
+}
+
+.notificationRow strong,
+.notificationRow span,
+.notificationRow small {
+  display: block;
+}
+
+.notificationRow strong {
+  font-size: 12px;
+}
+
+.notificationRow span {
+  margin-top: 3px;
+  color: #c5c8cd;
+  font-size: 11px;
+}
+
+.notificationRow small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.notificationRow > i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d94747;
+}
+
+.activityColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-top: 34px;
+}
+
+.activityColumns > section {
+  min-width: 0;
+}
+
+.activityThread {
+  padding: 18px;
+}
+
+.activityThread > h3 {
+  margin: 14px 0 5px;
+}
+
+.activityThread > p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.activityCommentCount {
+  margin-top: 14px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.activityComments > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 7px;
+}
+
+.activityComments > div small {
+  grid-column: 2;
+  display: block;
+  margin-top: 3px;
+  color: #70757d;
+  font-size: 8px;
+}
+
+.activityComments .myActivityComment {
+  border-left: 2px solid rgba(205,255,57,.35);
+}
+
+.emptyActivityState {
+  padding: 28px;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  color: var(--muted);
+}
+
+.emptyActivityState svg {
+  margin-bottom: 9px;
+  color: var(--accent);
+}
+
+.emptyActivityState strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.emptyActivityState span {
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+@media(max-width:900px) {
+  .activityColumns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media(max-width:600px) {
+  .activityPageHead {
+    display: block;
+  }
+
+  .activityPageHead > button {
+    margin-top: 12px;
+  }
+
+  .notificationRow {
+    padding: 12px;
+  }
+
+  .activityThread {
+    padding: 15px;
+  }
+}
