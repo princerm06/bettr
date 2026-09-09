@@ -2179,3 +2179,140 @@
 .startTimeInput::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
+
+/* ======================================================
+   Phase 0: threaded comment layout correction
+   ====================================================== */
+
+/* Posted comment images use this class too, so override the
+   old 38x38 composer-upload-button dimensions when inside a comment. */
+.threadCommentBody .commentPhotoButton {
+  display: block;
+  width: fit-content;
+  height: auto;
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: inherit;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.threadCommentBody .commentPhotoButton .commentPhoto {
+  display: block;
+  width: min(260px, 100%);
+  height: auto;
+  max-height: 240px;
+  margin: 0;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+}
+
+/* Keep actions below text/photo instead of competing with them */
+.commentActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 7px;
+  clear: both;
+}
+
+.commentActions .replyButton,
+.commentActions .commentDeleteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  margin: 0;
+  padding: 3px 7px;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.commentActions .replyButton {
+  border: 1px solid var(--line);
+  background: #1b1f1b;
+  color: #c7cbc2;
+}
+
+.commentActions .commentDeleteButton {
+  border: 1px solid rgba(255, 100, 100, 0.18);
+  background: rgba(255, 100, 100, 0.04);
+  color: #b98f8f;
+  opacity: 1;
+}
+
+.commentActions .commentDeleteButton:hover {
+  border-color: rgba(255, 100, 100, 0.4);
+  background: rgba(255, 100, 100, 0.09);
+  color: #e2a2a2;
+}
+
+/* Give nested replies predictable spacing */
+.threadCommentBody > .threadReply {
+  margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .threadCommentBody .commentPhotoButton .commentPhoto {
+    width: min(220px, 100%);
+    max-height: 220px;
+  }
+
+  .commentActions .replyButton,
+  .commentActions .commentDeleteButton {
+    min-height: 26px;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+}
+
+/* Keep Activity notification history contained */
+.activityPage .notificationList {
+  max-height: 420px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #3b4138 transparent;
+}
+
+.activityPage .notificationList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.activityPage .notificationList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.activityPage .notificationList::-webkit-scrollbar-thumb {
+  background: #3b4138;
+  border-radius: 999px;
+}
+
+@media (max-width: 600px) {
+  .activityPage .notificationList {
+    max-height: 320px;
+    padding-right: 4px;
+  }
+}
+
+/* Mobile Friends: show circle/requests before the activity feed */
+@media (max-width: 800px) {
+  .friendsSidebar {
+    grid-row: 1;
+  }
+
+  .friendsActivityColumn {
+    grid-row: 2;
+  }
+}

@@ -566,7 +566,21 @@ export default function Home() {
           table: 'notifications',
           filter: `user_id=eq.${userId}`,
         },
-        () => {
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const inserted = payload.new as HimothyNotification;
+
+            if (!inserted.read_at) {
+              setUnreadNotifications((current) => current + 1);
+            }
+
+            window.setTimeout(() => {
+              refreshUnreadNotifications();
+            }, 750);
+
+            return;
+          }
+
           refreshUnreadNotifications();
         }
       )
@@ -2059,6 +2073,9 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
               type="time"
               value={startTime}
               onChange={(event) => setStartTime(event.target.value)}
+              onClick={(event) => {
+                event.currentTarget.showPicker?.();
+              }}
               aria-label="Start time"
             />
           </div>
