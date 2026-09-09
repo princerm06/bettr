@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json(
-        { error: 'That email is already connected to another Himothy account.' },
+        { error: 'That email is already connected to another Bettr account.' },
         { status: 409 }
       );
     }

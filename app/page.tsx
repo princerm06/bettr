@@ -342,7 +342,7 @@ function validateLogQuality(categoryKeys: CategoryKey[], activity: string, detai
     }
   }
 
-  return { status: 'questionable', rewardRatio: 0, matchedCategories: matched, unsupportedCategories: unsupported, message: 'This entry doesn’t clearly describe meaningful progress yet. Add what you actually did or what improved so Himothy can score it fairly.' };
+  return { status: 'questionable', rewardRatio: 0, matchedCategories: matched, unsupportedCategories: unsupported, message: 'This entry doesn’t clearly describe meaningful progress yet. Add what you actually did or what improved so Bettr can score it fairly.' };
 }
 
 function calculateLogPoints(categoryKeys: CategoryKey[], activity: string, details: string, hasImage: boolean) {
@@ -664,7 +664,7 @@ export default function Home() {
       setRecoveryEmail(profileRow?.recovery_email || '');
       setRecoveryEmailVerified(Boolean(profileRow?.recovery_email_verified));
       if (typeof profileRow?.onboarding_completed === 'boolean') setOnboardingComplete(profileRow.onboarding_completed);
-      else setProfileName(account.user_metadata?.display_name || account.email?.split('@')[0] || 'Himothy');
+      else setProfileName(account.user_metadata?.display_name || account.email?.split('@')[0] || 'Bettr');
       if (priorityRow?.priorities) setPriorities(priorityRow.priorities as Record<CategoryKey, Priority>);
 
       if (remoteLogs?.length) {
@@ -1163,8 +1163,8 @@ export default function Home() {
       <header className="topbar">
         <div>
           <p className="eyebrow">PRIVATE BETA</p>
-          <h1>HIMOTHY</h1>
-          <p className="subtitle">Become more capable. Together.</p>
+          <h1>BETTR</h1>
+          <p className="subtitle">Get Bettr. Together.</p>
         </div>
         <div className="accountCluster">
           {supabaseConfigured && <span className={`cloudBadge ${cloudReady ? 'ready' : ''}`}><Cloud size={13}/> {cloudReady ? 'Cloud' : 'Syncing'}</span>}
@@ -1203,7 +1203,7 @@ export default function Home() {
           {accountOpen && (
             <div className="accountMenu card">
               <strong>{profileName}</strong>
-              <small>Himothy account</small>
+              <small>Bettr account</small>
               {supabaseConfigured ? (
                 <>
                   <button onClick={() => {
@@ -1241,7 +1241,7 @@ export default function Home() {
         <>
           <section className="hero card">
             <div className="heroCopy">
-              <p className="eyebrow">YOUR HIMOTHY</p>
+              <p className="eyebrow">YOUR BETTR</p>
               <div className="levelRow">
                 <span className="level">LEVEL {level}</span>
                 <span className="streak"><Flame size={16}/> {activeDays} active days</span>
@@ -1304,7 +1304,7 @@ export default function Home() {
           </div>
 
           <section className="card priorityCard">
-            <div><p className="eyebrow">PRIORITY MODE</p><h2>Discipline follows context.</h2><p>Finals week can be Academics-heavy. Recruiting season can be Career-heavy. Himothy scores whether your effort matches what you said matters.</p></div>
+            <div><p className="eyebrow">PRIORITY MODE</p><h2>Discipline follows context.</h2><p>Finals week can be Academics-heavy. Recruiting season can be Career-heavy. Bettr scores whether your effort matches what you said matters.</p></div>
             <div className="priorityStack">
               {categories.filter((category) => priorities[category.key] === 'critical' || priorities[category.key] === 'high').map((category) => (
                 <span key={category.key} className={priorities[category.key]}>{category.emoji} {category.short} · {priorities[category.key]}</span>
@@ -1448,7 +1448,7 @@ export default function Home() {
             <p className="eyebrow">ACCOUNT SETTINGS</p>
             <h2>Security</h2>
             <p className="accountSettingsIntro">
-              Your username and password are your primary Himothy login. Add an email for account recovery and stronger sign-in security later.
+              Your username and password are your primary Bettr login. Add an email for account recovery and stronger sign-in security later.
             </p>
 
             <section className="securitySettingCard">
@@ -1456,7 +1456,7 @@ export default function Home() {
                 <div>
                   <strong>Recovery email</strong>
                   <p>
-                    Optional. This email is never required to use Himothy.
+                    Optional. This email is never required to use Bettr.
                   </p>
                 </div>
 
@@ -1529,7 +1529,7 @@ export default function Home() {
                 <div className="verificationNotice">
                   <strong>Verification isn&apos;t active yet.</strong>
                   <p>
-                    Your email has been saved, but Himothy will not mark it verified until email delivery is connected.
+                    Your email has been saved, but Bettr will not mark it verified until email delivery is connected.
                   </p>
                 </div>
               )}
@@ -1552,7 +1552,7 @@ export default function Home() {
                 <span>DANGER ZONE</span>
                 <strong>Delete account</strong>
                 <p>
-                  Permanently delete your Himothy profile, logs, friendships, photos, and account data.
+                  Permanently delete your Bettr profile, logs, friendships, photos, and account data.
                 </p>
               </div>
 
@@ -1578,7 +1578,7 @@ export default function Home() {
           <div className="modal" onClick={(event) => event.stopPropagation()}>
             <button className="close" disabled={deletingAccount} onClick={() => setShowDeleteAccount(false)}><X/></button>
             <p className="eyebrow">ACCOUNT</p>
-            <h2>Delete your Himothy account?</h2>
+            <h2>Delete your Bettr account?</h2>
             <p>This permanently deletes your profile, logs, priorities, friendships, reactions, comments, and uploaded log photos. This cannot be undone.</p>
             <label style={{ display: 'grid', gap: 8, marginTop: 18 }}>
               <span>Type <strong>DELETE</strong> to confirm.</span>
@@ -1605,8 +1605,8 @@ function CloudBoot() {
   return (
     <main className="authShell">
       <div className="authCard card cloudBoot">
-        <div className="authMark">H</div>
-        <p className="eyebrow">HIMOTHY CLOUD</p>
+        <div className="authMark">B</div>
+        <p className="eyebrow">BETTR CLOUD</p>
         <h1>Getting your account ready.</h1>
         <p>Checking your session and syncing your progress.</p>
         <div className="syncPulse"><i/><i/><i/></div>
@@ -1647,7 +1647,7 @@ function OnboardingFlow({ profileName, initialPriorities, onFinish }: {
     <main className={onboardingStyles.shell}>
       <div className={onboardingStyles.frame}>
         <header className={onboardingStyles.header}>
-          <div><span className={onboardingStyles.mark}>H</span><strong>HIMOTHY</strong></div>
+          <div><span className={onboardingStyles.mark}>B</span><strong>BETTR</strong></div>
           <span>{Math.min(step + 1, totalSteps)} / {totalSteps}</span>
         </header>
         <div className={onboardingStyles.progress}><i style={{ width: `${((step + 1) / totalSteps) * 100}%` }}/></div>
@@ -1655,7 +1655,7 @@ function OnboardingFlow({ profileName, initialPriorities, onFinish }: {
         {step === 0 && <section className={onboardingStyles.panel}>
           <p className={onboardingStyles.kicker}>WELCOME, {firstName.toUpperCase()}</p>
           <h1>Keep track of the work<br/>you&apos;re already doing.</h1>
-          <p className={onboardingStyles.lead}>Himothy helps you log the things you do to improve, see the progress add up, and build alongside people close to you.</p>
+          <p className={onboardingStyles.lead}>Bettr helps you log the things you do to improve, see the progress add up, and build alongside people close to you.</p>
           <div className={onboardingStyles.promiseCard}>
             <div className={onboardingStyles.promiseCopy}>
               <strong>Build momentum you can actually see.</strong>
@@ -1706,7 +1706,7 @@ function OnboardingFlow({ profileName, initialPriorities, onFinish }: {
         {step === 2 && <section className={onboardingStyles.panel}>
           <p className={onboardingStyles.kicker}>PRIORITY MODE</p>
           <h1>What matters most right now?</h1>
-          <p className={onboardingStyles.lead}>Choose one main focus. Himothy&apos;s Discipline score rewards consistency with what you said matters—not trying to do everything every day.</p>
+          <p className={onboardingStyles.lead}>Choose one main focus. Bettr&apos;s Discipline score rewards consistency with what you said matters—not trying to do everything every day.</p>
           <div className={onboardingStyles.missionList}>{focus.map((key) => { const category = categoryFor(key); return <button key={key} className={`${onboardingStyles.mission} ${mission === key ? onboardingStyles.selected : ''}`} onClick={() => setMission(key)}><span>{category.emoji}</span><div><strong>{category.label}</strong><small>{mission === key ? 'Critical priority' : 'Make this my main focus'}</small></div>{mission === key && <Check size={18}/>}</button>; })}</div>
           <div className={onboardingStyles.note}><strong>How scoring works</strong><p>Your main focus becomes Critical, your other selected areas become High, and everything else stays in Maintenance. One activity has one total reward—even if it legitimately belongs to multiple categories.</p></div>
           <div className={onboardingStyles.actions}><button className={onboardingStyles.back} onClick={() => setStep(1)}>Back</button><button className={onboardingStyles.primary} disabled={!mission} onClick={() => setStep(3)}>Continue <ChevronRight size={17}/></button></div>
@@ -1827,8 +1827,8 @@ function AuthScreen() {
     <main className="authShell">
       <section className="authBrand">
         <p className="eyebrow">PRIVATE BETA</p>
-        <h1>HIMOTHY</h1>
-        <h2>Become more capable.<br/><span>Together.</span></h2>
+        <h1>BETTR</h1>
+        <h2>Get Bettr.<br/><span>Together.</span></h2>
         <p>Your progress, priorities, photos, and history now follow you across devices.</p>
         <div className="authPromises">
           <span><Check size={15}/> Private account</span>
@@ -1837,8 +1837,8 @@ function AuthScreen() {
         </div>
       </section>
       <form className="authCard card" onSubmit={submit}>
-        <div className="authMark">H</div>
-        <p className="eyebrow">{mode === 'signin' ? 'WELCOME BACK' : 'JOIN HIMOTHY'}</p>
+        <div className="authMark">B</div>
+        <p className="eyebrow">{mode === 'signin' ? 'WELCOME BACK' : 'JOIN BETTR'}</p>
         <h2>{mode === 'signin' ? 'Lock back in.' : 'Create your profile.'}</h2>
         <p>{mode === 'signin' ? 'Sign in with your username and password.' : 'Pick the name and unique @username your friends will know you by.'}</p>
         {mode === 'signup' && (
@@ -4458,7 +4458,7 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
         </article>
         <article className="card socialPanel"><p className="eyebrow">FIND FRIENDS</p><h3>Build your circle</h3>
           <input className="textInput" value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Search name or @username"/>
-          <div className="peopleList">{results.map((p) => { const rel=relationByUser(p.id); return <div className="personRow" key={p.id}><div className="friendAvatar">{(p.display_name||p.username||'?')[0].toUpperCase()}</div><div><strong>{p.display_name||'Himothy user'}</strong><small>{p.username ? `@${p.username}` : 'No username yet'}</small></div>{!rel ? <button onClick={()=>sendRequest(p.id)} disabled={busy}><Plus size={15}/> Add</button> : <span className="relationTag">{rel.status === 'accepted' ? 'Friends' : rel.requester_id === user.id ? 'Sent' : 'Requested you'}</span>}</div>})}{query.trim().length>=2 && !results.length && <p className="emptySocial">No users found.</p>}</div>
+          <div className="peopleList">{results.map((p) => { const rel=relationByUser(p.id); return <div className="personRow" key={p.id}><div className="friendAvatar">{(p.display_name||p.username||'?')[0].toUpperCase()}</div><div><strong>{p.display_name||'Bettr user'}</strong><small>{p.username ? `@${p.username}` : 'No username yet'}</small></div>{!rel ? <button onClick={()=>sendRequest(p.id)} disabled={busy}><Plus size={15}/> Add</button> : <span className="relationTag">{rel.status === 'accepted' ? 'Friends' : rel.requester_id === user.id ? 'Sent' : 'Requested you'}</span>}</div>})}{query.trim().length>=2 && !results.length && <p className="emptySocial">No users found.</p>}</div>
         </article>
       </div>
 
@@ -4650,7 +4650,7 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
                         <div>
                           <strong>
                             {profile?.display_name ||
-                              'Himothy user'}
+                              'Bettr user'}
                           </strong>
 
                           <small>
