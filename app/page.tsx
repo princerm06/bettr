@@ -534,6 +534,50 @@ export default function Home() {
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(supabaseConfigured ? null : true);
 
   useEffect(() => {
+    if (!supabase || !user) {
+      setUnreadNotifications(0);
+      return;
+    }
+
+    const client = supabase;
+    const userId = user.id;
+
+    async function refreshUnreadNotifications() {
+      const { count, error } = await client
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .is('read_at', null);
+
+      if (!error) {
+        setUnreadNotifications(count ?? 0);
+      }
+    }
+
+    refreshUnreadNotifications();
+
+    const channel = client
+      .channel(`global-notifications-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          refreshUnreadNotifications();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
     // Local prototype data is only hydrated directly when cloud mode is off.
     // In cloud mode, legacy local data is offered to exactly one signed-in account
     // during the migration step below so another account on the same browser can
@@ -1074,6 +1118,25 @@ export default function Home() {
     }
   }
 
+  async function openActivity() {
+    setNotificationPanelOpen(false);
+    setTab('activity');
+
+    if (!supabase || !user) return;
+
+    const readAt = new Date().toISOString();
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read_at: readAt })
+      .eq('user_id', user.id)
+      .is('read_at', null);
+
+    if (!error) {
+      setUnreadNotifications(0);
+    }
+  }
+
   if (supabaseConfigured && !authReady) return <CloudBoot/>;
   if (supabaseConfigured && authReady && !user) return <AuthScreen/>;
   if (supabaseConfigured && user && (!cloudReady || onboardingComplete === null)) return <CloudBoot/>;
@@ -1113,10 +1176,7 @@ export default function Home() {
                   user={user}
                   onUnreadChange={setUnreadNotifications}
                   onClose={() => setNotificationPanelOpen(false)}
-                  onViewAll={() => {
-                    setNotificationPanelOpen(false);
-                    setTab('activity');
-                  }}
+                  onViewAll={openActivity}
                   onOpenFriends={() => {
                     setNotificationPanelOpen(false);
                     setTab('friends');
@@ -1155,7 +1215,7 @@ export default function Home() {
       <nav className="tabs desktopTabs">
         <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}><BarChart3 size={17}/> Dashboard</button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}><CalendarDays size={17}/> History</button>
-        <button className={tab === 'activity' ? 'active' : ''} onClick={() => setTab('activity')}>
+        <button className={tab === 'activity' ? 'active' : ''} onClick={openActivity}>
           <MessageCircle size={17}/> Activity
           {unreadNotifications > 0 && <span className="navBadge">{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>}
         </button>
@@ -1271,7 +1331,7 @@ export default function Home() {
           <CalendarDays size={19}/>
           <span>History</span>
         </button>
-        <button className={tab === 'activity' ? 'active' : ''} onClick={() => setTab('activity')}>
+        <button className={tab === 'activity' ? 'active' : ''} onClick={openActivity}>
           <span className="mobileActivityIcon">
             <MessageCircle size={19}/>
             {unreadNotifications > 0 && <i>{unreadNotifications > 9 ? '9+' : unreadNotifications}</i>}
@@ -1859,12 +1919,8 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
   const [activity, setActivity] = useState(existing?.activity || '');
   const [details, setDetails] = useState(existing?.details || '');
   const [date, setDate] = useState(existing?.date || todayISO());
-  const initialStartTime = existing?.startTime?.slice(0, 5) || '';
-  const [startHour, setStartHour] = useState(
-    initialStartTime ? initialStartTime.slice(0, 2) : ''
-  );
-  const [startMinute, setStartMinute] = useState(
-    initialStartTime ? initialStartTime.slice(3, 5) : ''
+  const [startTime, setStartTime] = useState(
+    existing?.startTime?.slice(0, 5) || ''
   );
   const [durationHours, setDurationHours] = useState(
     existing?.durationMinutes ? String(Math.floor(existing.durationMinutes / 60) || '') : ''
@@ -1920,21 +1976,12 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
       (Math.max(0, Number(durationHours) || 0) * 60) +
       Math.max(0, Number(durationMinutes) || 0);
 
-    let normalizedStartTime: string | undefined;
-    if (startHour && startMinute !== '') {
-      const hour24 = Math.min(23, Math.max(0, Number(startHour)));
-      const minute = Math.min(59, Math.max(0, Number(startMinute)));
-
-      normalizedStartTime =
-        `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-    }
-
     onSave({
       category: selectedCategories[0], categories: selectedCategories, activity: cleanActivity, details: details.trim(), image,
       imagePath: existing?.imagePath,
       aiInsight: analyze ? prototypeInsight(selectedCategories, cleanActivity, details, Boolean(image)) : undefined,
       date,
-      startTime: normalizedStartTime,
+      startTime: startTime || undefined,
       durationMinutes: totalDurationMinutes > 0 ? totalDurationMinutes : undefined,
       points,
       custom: true,
@@ -2006,43 +2053,14 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
             <label className="fieldLabel" htmlFor="logStartTime">
               Start time <span>optional</span>
             </label>
-            <div id="logStartTime" className="customTimePicker">
-              <select
-                className="textInput"
-                value={startHour}
-                onChange={(event) => setStartHour(event.target.value)}
-                aria-label="Start hour"
-              >
-                <option value="">Hour</option>
-                {Array.from({ length: 24 }, (_, hour) => {
-                  const value = String(hour).padStart(2, '0');
-                  const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-                  const period = hour < 12 ? 'AM' : 'PM';
-
-                  return (
-                    <option key={hour} value={value}>
-                      {displayHour} {period}
-                    </option>
-                  );
-                })}
-              </select>
-
-              <span className="timeSeparator">:</span>
-
-              <select
-                className="textInput"
-                value={startMinute}
-                onChange={(event) => setStartMinute(event.target.value)}
-                aria-label="Start minute"
-              >
-                <option value="">Minute</option>
-                {Array.from({ length: 60 }, (_, minute) => (
-                  <option key={minute} value={String(minute).padStart(2, '0')}>
-                    {String(minute).padStart(2, '0')}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <input
+              id="logStartTime"
+              className="textInput startTimeInput"
+              type="time"
+              value={startTime}
+              onChange={(event) => setStartTime(event.target.value)}
+              aria-label="Start time"
+            />
           </div>
 
           <div className="durationField">
@@ -2984,8 +3002,9 @@ type HimothyNotification = {
   id: string;
   user_id: string;
   actor_id: string | null;
-  type: 'friend_request' | 'comment' | 'reply';
+  type: 'friend_request' | 'friend_accept' | 'comment' | 'reply';
   log_id: string | null;
+  comment_id: string | null;
   friendship_id: string | null;
   read_at: string | null;
   created_at: string;
@@ -3042,6 +3061,7 @@ function NotificationPanel({
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
+        .is('read_at', null)
         .order('created_at', { ascending: false })
         .limit(20),
 
@@ -3166,22 +3186,7 @@ function NotificationPanel({
   }
 
   useEffect(() => {
-    let alive = true;
-
-    async function open() {
-      const visible = await refreshPanel();
-
-      if (!alive || !visible) return;
-
-      // Opening the bell means the user has seen the notifications.
-      await markVisibleRead(visible);
-    }
-
-    open();
-
-    return () => {
-      alive = false;
-    };
+    refreshPanel();
   }, [user.id]);
 
   async function resolveFriendRequest(
@@ -3266,12 +3271,14 @@ function NotificationPanel({
       .eq('user_id', user.id);
 
     if (!error) {
+      // The bell is an unread inbox, so read items disappear here.
+      // The database row remains for Activity history.
       setItems((current) =>
-        current.map((entry) =>
-          entry.id === item.id
-            ? { ...entry, read_at: readAt }
-            : entry
-        )
+        current.filter((entry) => entry.id !== item.id)
+      );
+
+      onUnreadChange(
+        Math.max(0, items.filter((entry) => !entry.read_at).length - 1)
       );
     }
   }
@@ -3288,13 +3295,7 @@ function NotificationPanel({
       .is('read_at', null);
 
     if (!error) {
-      setItems((current) =>
-        current.map((item) => ({
-          ...item,
-          read_at: item.read_at || readAt,
-        }))
-      );
-
+      setItems([]);
       onUnreadChange(0);
     }
   }
@@ -3302,7 +3303,10 @@ function NotificationPanel({
   async function openItem(item: HimothyNotification) {
     if (!supabase) return;
 
-    if (item.type === 'friend_request') {
+    if (
+      item.type === 'friend_request' ||
+      item.type === 'friend_accept'
+    ) {
       await markRead(item);
       onOpenFriends();
       return;
@@ -3318,6 +3322,13 @@ function NotificationPanel({
       sessionStorage.setItem(
         'himothy.activityTargetLog',
         item.log_id
+      );
+    }
+
+    if (item.comment_id) {
+      sessionStorage.setItem(
+        'himothy.activityTargetComment',
+        item.comment_id
       );
     }
 
@@ -3370,9 +3381,11 @@ function NotificationPanel({
           const label =
             item.type === 'friend_request'
               ? `${actorName(item.actor_id)} sent you a friend request`
-              : item.type === 'reply'
-                ? `${actorName(item.actor_id)} replied to your comment`
-                : `${actorName(item.actor_id)} commented on your log`;
+              : item.type === 'friend_accept'
+                ? `${actorName(item.actor_id)} accepted your friend request`
+                : item.type === 'reply'
+                  ? `${actorName(item.actor_id)} replied to your comment`
+                  : `${actorName(item.actor_id)} commented on your log`;
 
           return (
             <div
@@ -3386,7 +3399,8 @@ function NotificationPanel({
                 onClick={() => openItem(item)}
               >
                 <span className="notificationMiniIcon">
-                  {item.type === 'friend_request'
+                  {item.type === 'friend_request' ||
+                  item.type === 'friend_accept'
                     ? <Users size={15}/>
                     : <MessageCircle size={15}/>}
                 </span>
@@ -3450,32 +3464,99 @@ function NotificationPanel({
 
 function SignedCommentImage({ path }: { path: string }) {
   const [src, setSrc] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
 
     async function load() {
       if (!supabase) return;
-      const { data } = await supabase.storage.from('comment-images').createSignedUrl(path, 60 * 30);
+      const { data } = await supabase.storage
+        .from('comment-images')
+        .createSignedUrl(path, 60 * 30);
+
       if (alive) setSrc(data?.signedUrl || null);
     }
 
     load();
-    return () => { alive = false; };
+
+    return () => {
+      alive = false;
+    };
   }, [path]);
 
-  if (!src) return <div className="commentImageLoading">Loading photo…</div>;
-  return <img className="commentPhoto" src={src} alt="Comment attachment"/>;
+  useEffect(() => {
+    if (!open) return;
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setOpen(false);
+    }
+
+    window.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [open]);
+
+  if (!src) {
+    return <div className="commentImageLoading">Loading photo…</div>;
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className="commentPhotoButton"
+        onClick={() => setOpen(true)}
+        aria-label="Open full image"
+      >
+        <img
+          className="commentPhoto"
+          src={src}
+          alt="Comment attachment"
+        />
+      </button>
+
+      {open && (
+        <div
+          className="commentImageLightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Comment image"
+          onClick={() => setOpen(false)}
+        >
+          <button
+            type="button"
+            className="commentImageLightboxClose"
+            aria-label="Close image"
+            onClick={() => setOpen(false)}
+          >
+            <X size={24}/>
+          </button>
+
+          <img
+            className="commentImageLightboxPhoto"
+            src={src}
+            alt="Comment attachment full size"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>
+      )}
+    </>
+  );
 }
 
 function ThreadedComments({
   logId,
+  logOwnerId,
   user,
   profiles,
   comments,
   onRefresh,
 }: {
   logId: string;
+  logOwnerId: string;
   user: User;
   profiles: SocialProfile[];
   comments: SocialComment[];
@@ -3497,6 +3578,57 @@ function ThreadedComments({
 
   function childrenOf(parentId: string) {
     return comments.filter((comment) => comment.parent_comment_id === parentId);
+  }
+
+  async function deleteComment(comment: SocialComment) {
+    if (!supabase) return;
+
+    const canDelete =
+      comment.user_id === user.id ||
+      logOwnerId === user.id;
+
+    if (!canDelete) return;
+
+    const confirmed = window.confirm(
+      childrenOf(comment.id).length
+        ? 'Delete this comment and its replies?'
+        : 'Delete this comment?'
+    );
+
+    if (!confirmed) return;
+
+    const commentsToDelete = [
+      comment,
+      ...comments.filter(
+        (item) => item.parent_comment_id === comment.id
+      ),
+    ];
+
+    const imagePaths = commentsToDelete
+      .map((item) => item.image_path)
+      .filter((path): path is string => Boolean(path));
+
+    const { error } = await supabase
+      .from('log_comments')
+      .delete()
+      .eq('id', comment.id);
+
+    if (error) {
+      window.alert(error.message || 'Could not delete comment.');
+      return;
+    }
+
+    if (imagePaths.length) {
+      await supabase.storage
+        .from('comment-images')
+        .remove(imagePaths);
+    }
+
+    if (replyTo?.id === comment.id) {
+      setReplyTo(null);
+    }
+
+    await onRefresh();
   }
 
   async function submit() {
@@ -3561,7 +3693,11 @@ function ThreadedComments({
 
   function renderComment(comment: SocialComment, nested = false) {
     return (
-      <div className={`threadComment ${nested ? 'threadReply' : ''}`} key={comment.id}>
+      <div
+        className={`threadComment ${nested ? 'threadReply' : ''}`}
+        key={comment.id}
+        data-comment-id={comment.id}
+      >
         <div className="commentAvatar">
           {(profileName(comment.user_id).replace('@', '').slice(0, 1) || '?').toUpperCase()}
         </div>
@@ -3575,15 +3711,26 @@ function ThreadedComments({
           {comment.body && <p>{comment.body}</p>}
           {comment.image_path && <SignedCommentImage path={comment.image_path}/>}
 
-          <button
-            className="replyButton"
-            onClick={() => {
-              setReplyTo(comment);
-              commentInputRef.current?.focus();
-            }}
-          >
-            Reply
-          </button>
+          <div className="commentActions">
+            <button
+              className="replyButton"
+              onClick={() => {
+                setReplyTo(comment);
+                commentInputRef.current?.focus();
+              }}
+            >
+              Reply
+            </button>
+
+            {(comment.user_id === user.id || logOwnerId === user.id) && (
+              <button
+                className="commentDeleteButton"
+                onClick={() => deleteComment(comment)}
+              >
+                Delete
+              </button>
+            )}
+          </div>
 
           {childrenOf(comment.id).map((child) => renderComment(child, true))}
         </div>
@@ -3781,12 +3928,26 @@ function ActivityView({
       'himothy.activityTargetLog'
     );
 
-    if (!targetLogId) return;
+    const targetCommentId = sessionStorage.getItem(
+      'himothy.activityTargetComment'
+    );
+
+    if (!targetLogId && !targetCommentId) return;
 
     const timer = window.setTimeout(() => {
-      const target = document.querySelector(
-        `[data-activity-log-id="${targetLogId}"]`
-      );
+      let target: Element | null = null;
+
+      if (targetCommentId) {
+        target = document.querySelector(
+          `[data-comment-id="${targetCommentId}"]`
+        );
+      }
+
+      if (!target && targetLogId) {
+        target = document.querySelector(
+          `[data-activity-log-id="${targetLogId}"]`
+        );
+      }
 
       if (!target) return;
 
@@ -3795,16 +3956,19 @@ function ActivityView({
         block: 'center',
       });
 
-      target.classList.add('activityThreadTarget');
+      const highlightClass = targetCommentId
+        ? 'commentNotificationTarget'
+        : 'activityThreadTarget';
+
+      target.classList.add(highlightClass);
 
       window.setTimeout(() => {
-        target.classList.remove('activityThreadTarget');
+        target?.classList.remove(highlightClass);
       }, 1800);
 
-      sessionStorage.removeItem(
-        'himothy.activityTargetLog'
-      );
-    }, 120);
+      sessionStorage.removeItem('himothy.activityTargetLog');
+      sessionStorage.removeItem('himothy.activityTargetComment');
+    }, 150);
 
     return () => window.clearTimeout(timer);
   }, [loading, visibleLogs, comments]);
@@ -3842,7 +4006,10 @@ function ActivityView({
   ) {
     if (!supabase) return;
 
-    if (notification.type === 'friend_request') {
+    if (
+      notification.type === 'friend_request' ||
+      notification.type === 'friend_accept'
+    ) {
       await markNotificationRead(notification);
       onOpenFriends();
       return;
@@ -3850,11 +4017,21 @@ function ActivityView({
 
     await markNotificationRead(notification);
 
-    if (!notification.log_id) return;
+    if (!notification.log_id && !notification.comment_id) return;
 
-    const target = document.querySelector(
-      `[data-activity-log-id="${notification.log_id}"]`
-    );
+    let target: Element | null = null;
+
+    if (notification.comment_id) {
+      target = document.querySelector(
+        `[data-comment-id="${notification.comment_id}"]`
+      );
+    }
+
+    if (!target && notification.log_id) {
+      target = document.querySelector(
+        `[data-activity-log-id="${notification.log_id}"]`
+      );
+    }
 
     if (target) {
       target.scrollIntoView({
@@ -3862,10 +4039,14 @@ function ActivityView({
         block: 'center',
       });
 
-      target.classList.add('activityThreadTarget');
+      const highlightClass = notification.comment_id
+        ? 'commentNotificationTarget'
+        : 'activityThreadTarget';
+
+      target.classList.add(highlightClass);
 
       window.setTimeout(() => {
-        target.classList.remove('activityThreadTarget');
+        target?.classList.remove(highlightClass);
       }, 1800);
     }
   }
@@ -3918,6 +4099,7 @@ function ActivityView({
 
         <ThreadedComments
           logId={log.id}
+          logOwnerId={log.user_id}
           user={user}
           profiles={profiles}
           comments={threadComments}
@@ -3980,9 +4162,11 @@ function ActivityView({
             const label =
               notification.type === 'friend_request'
                 ? `${actorName} sent you a friend request`
-                : notification.type === 'reply'
-                  ? `${actorName} replied to your comment`
-                  : `${actorName} commented on your log`;
+                : notification.type === 'friend_accept'
+                  ? `${actorName} accepted your friend request`
+                  : notification.type === 'reply'
+                    ? `${actorName} replied to your comment`
+                    : `${actorName} commented on your log`;
 
             return (
               <button
@@ -3991,7 +4175,8 @@ function ActivityView({
                 onClick={() => openNotification(notification)}
               >
                 <div className="notificationIcon">
-                  {notification.type === 'friend_request'
+                  {notification.type === 'friend_request' ||
+                  notification.type === 'friend_accept'
                     ? <Users size={17}/>
                     : <MessageCircle size={17}/>}
                 </div>
@@ -4337,6 +4522,7 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
 
                   <ThreadedComments
                     logId={entry.id}
+                    logOwnerId={entry.user_id}
                     user={user}
                     profiles={profiles}
                     comments={logComments}
