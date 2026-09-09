@@ -12,6 +12,6 @@
   },
   "include": [
     "benchmarks/semantic/**/*.ts",
-    "lib/evaluation/legacyEvaluator.ts"
+    "lib/evaluation/**/*.ts"
   ]
 }

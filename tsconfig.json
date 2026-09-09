@@ -16,5 +16,5 @@
     "plugins": [{ "name": "next" }]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "benchmarks/semantic/.compiled"]
+  "exclude": ["node_modules", "benchmarks", "lib/evaluation/semantic", "benchmarks/semantic/.compiled"]
 }
