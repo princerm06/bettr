@@ -1938,3 +1938,101 @@
     font-size: 10px;
   }
 }
+
+/* Keep Friend Activity threads compact */
+.socialFeedItem .threadCommentList {
+  max-height: 220px;
+}
+
+@media (max-width: 600px) {
+  .socialFeedItem .threadCommentList {
+    max-height: 180px;
+  }
+}
+
+/* Compact Friend Activity conversations */
+.socialFeedItem .threadCommentList {
+  max-height: 185px;
+  overflow-y: auto;
+}
+
+@media (max-width: 600px) {
+  .socialFeedItem .threadCommentList {
+    max-height: 165px;
+  }
+}
+
+/* Phase 0: Friends social workspace */
+.friendsWorkspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 28px;
+  align-items: start;
+  margin-top: 30px;
+}
+
+.friendsActivityColumn {
+  min-width: 0;
+}
+
+.friendsActivityColumn .feed {
+  width: 100%;
+  max-width: none;
+}
+
+.friendsSidebar {
+  min-width: 0;
+  display: grid;
+  gap: 26px;
+}
+
+.friendsSidebar .socialHead {
+  max-width: none;
+  margin-bottom: 12px;
+}
+
+.friendsSidebar .socialHead h2 {
+  font-size: 20px;
+}
+
+.friendsSidebar .friendStrip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+}
+
+.friendsSidebar .friendChip {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.friendsSidebar .requestPanel {
+  margin: 0;
+}
+
+.friendsSidebar .personRow {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.friendsSidebar .requestActions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1050px) {
+  .friendsWorkspace {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 800px) {
+  .friendsWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .friendsSidebar {
+    grid-row: auto;
+  }
+}

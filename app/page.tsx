@@ -4260,24 +4260,231 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
         </article>
       </div>
 
-      {incoming.length > 0 && <article className="card requestPanel"><div><p className="eyebrow">REQUESTS</p><h3>People who want in your circle</h3></div><div className="peopleList">{incoming.map((f)=>{const p=profiles.find((x)=>x.id===f.requester_id);return <div className="personRow" key={f.id}><div className="friendAvatar">{(p?.display_name||'?')[0].toUpperCase()}</div><div><strong>{p?.display_name||'Himothy user'}</strong><small>{p?.username?`@${p.username}`:'Friend request'}</small></div><div className="requestActions"><button className="accept" onClick={()=>acceptRequest(f)}><Check size={15}/> Accept</button><button onClick={()=>removeConnection(f.id)}><X size={15}/></button></div></div>})}</div></article>}
+      <div className="friendsWorkspace">
+        <main className="friendsActivityColumn">
+          <div className="sectionHead socialHead">
+            <div>
+              <p className="eyebrow">FRIEND ACTIVITY</p>
+              <h2>What your circle is doing.</h2>
+            </div>
+          </div>
 
-      <div className="sectionHead socialHead"><div><p className="eyebrow">FRIENDS · {friends.length}</p><h2>Your people.</h2></div></div>
-      {friends.length ? <div className="friendStrip">{friends.map((p)=>{const f=relationByUser(p.id)!;return <div className="friendChip card" key={p.id}><div className="friendAvatar">{(p.display_name||'?')[0].toUpperCase()}</div><div><strong>{p.display_name}</strong><small>{p.username?`@${p.username}`:'Friend'}</small></div><button title="Remove friend" onClick={()=>removeConnection(f.id)}><X size={14}/></button></div>})}</div> : <div className="card emptyFriendState"><Users/><h3>Your circle starts here.</h3><p>Search for your best friend above and send the first request.</p></div>}
+          <div className="feed">
+            {feed.map((entry) => {
+              const cat = categoryFor(entry.category);
+              const owner = profiles.find(
+                (p) => p.id === entry.user_id
+              );
+              const logReactions = reactions.filter(
+                (r) => r.log_id === entry.id
+              );
+              const logComments = comments.filter(
+                (c) => c.log_id === entry.id
+              );
 
-      <div className="sectionHead socialHead"><div><p className="eyebrow">FRIEND ACTIVITY</p><h2>What your circle is doing.</h2></div></div>
-      <div className="feed">{feed.map((entry)=>{const cat=categoryFor(entry.category);const owner=profiles.find((p)=>p.id===entry.user_id);const logReactions=reactions.filter((r)=>r.log_id===entry.id);const logComments=comments.filter((c)=>c.log_id===entry.id);return <article className="card socialFeedItem" key={entry.id}>
-        <div className="socialFeedTop"><div className="feedIcon">{cat.emoji}</div><div><div className="feedHeadline"><strong>{owner?.display_name||'Friend'}</strong><span>{cat.short}</span></div><small>{new Date(entry.created_at).toLocaleString()}</small></div></div>
-        <h3>{entry.activity}</h3>{entry.details&&<p>{entry.details}</p>}
-        <div className="reactions">{['🔥','W','💪'].map((emoji)=>{const count=logReactions.filter((r)=>r.reaction===emoji).length;const mine=logReactions.some((r)=>r.reaction===emoji&&r.user_id===user.id);return <button className={mine?'mine':''} key={emoji} onClick={()=>toggleReaction(entry.id,emoji)}>{emoji}{count>0&&<sup>{count}</sup>}</button>})}</div>
-        <ThreadedComments
-          logId={entry.id}
-          user={user}
-          profiles={profiles}
-          comments={logComments}
-          onRefresh={refreshSocial}
-        />
-      </article>})}{friends.length>0&&!feed.length&&<div className="card emptyFriendState"><Flame/><h3>No shared activity yet.</h3><p>When a friend logs something with Friends visibility, it appears here.</p></div>}</div>
+              return (
+                <article
+                  className="card socialFeedItem"
+                  key={entry.id}
+                >
+                  <div className="socialFeedTop">
+                    <div className="feedIcon">{cat.emoji}</div>
+
+                    <div>
+                      <div className="feedHeadline">
+                        <strong>
+                          {owner?.display_name || 'Friend'}
+                        </strong>
+                        <span>{cat.short}</span>
+                      </div>
+
+                      <small>
+                        {new Date(entry.created_at).toLocaleString()}
+                      </small>
+                    </div>
+                  </div>
+
+                  <h3>{entry.activity}</h3>
+
+                  {entry.details && <p>{entry.details}</p>}
+
+                  <div className="reactions">
+                    {['🔥', 'W', '💪'].map((emoji) => {
+                      const count = logReactions.filter(
+                        (r) => r.reaction === emoji
+                      ).length;
+
+                      const mine = logReactions.some(
+                        (r) =>
+                          r.reaction === emoji &&
+                          r.user_id === user.id
+                      );
+
+                      return (
+                        <button
+                          className={mine ? 'mine' : ''}
+                          key={emoji}
+                          onClick={() =>
+                            toggleReaction(entry.id, emoji)
+                          }
+                        >
+                          {emoji}
+                          {count > 0 && <sup>{count}</sup>}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <ThreadedComments
+                    logId={entry.id}
+                    user={user}
+                    profiles={profiles}
+                    comments={logComments}
+                    onRefresh={refreshSocial}
+                  />
+                </article>
+              );
+            })}
+
+            {friends.length > 0 && !feed.length && (
+              <div className="card emptyFriendState">
+                <Flame />
+                <h3>No shared activity yet.</h3>
+                <p>
+                  When a friend logs something with Friends
+                  visibility, it appears here.
+                </p>
+              </div>
+            )}
+          </div>
+        </main>
+
+        <aside className="friendsSidebar">
+          <div className="friendsSidebarSection">
+            <div className="sectionHead socialHead">
+              <div>
+                <p className="eyebrow">
+                  FRIENDS · {friends.length}
+                </p>
+                <h2>Your people.</h2>
+              </div>
+            </div>
+
+            {friends.length ? (
+              <div className="friendStrip">
+                {friends.map((p) => {
+                  const f = relationByUser(p.id)!;
+
+                  return (
+                    <div
+                      className="friendChip card"
+                      key={p.id}
+                    >
+                      <div className="friendAvatar">
+                        {(p.display_name || '?')[0].toUpperCase()}
+                      </div>
+
+                      <div>
+                        <strong>{p.display_name}</strong>
+                        <small>
+                          {p.username
+                            ? `@${p.username}`
+                            : 'Friend'}
+                        </small>
+                      </div>
+
+                      <button
+                        title="Remove friend"
+                        onClick={() =>
+                          removeConnection(f.id)
+                        }
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="card emptyFriendState">
+                <Users />
+                <h3>Your circle starts here.</h3>
+                <p>
+                  Search for your best friend above and send
+                  the first request.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {incoming.length > 0 && (
+            <div className="friendsSidebarSection">
+              <div className="sectionHead socialHead">
+                <div>
+                  <p className="eyebrow">
+                    REQUESTS · {incoming.length}
+                  </p>
+                  <h2>Waiting on you.</h2>
+                </div>
+              </div>
+
+              <article className="card requestPanel">
+                <div className="peopleList">
+                  {incoming.map((f) => {
+                    const profile = profiles.find(
+                      (x) => x.id === f.requester_id
+                    );
+
+                    return (
+                      <div
+                        className="personRow"
+                        key={f.id}
+                      >
+                        <div className="friendAvatar">
+                          {(profile?.display_name || '?')[0].toUpperCase()}
+                        </div>
+
+                        <div>
+                          <strong>
+                            {profile?.display_name ||
+                              'Himothy user'}
+                          </strong>
+
+                          <small>
+                            {profile?.username
+                              ? `@${profile.username}`
+                              : 'Friend request'}
+                          </small>
+                        </div>
+
+                        <div className="requestActions">
+                          <button
+                            className="accept"
+                            onClick={() =>
+                              acceptRequest(f)
+                            }
+                          >
+                            <Check size={15} />
+                            Accept
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              removeConnection(f.id)
+                            }
+                          >
+                            <X size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </article>
+            </div>
+          )}
+        </aside>
+      </div>
     </section>
   );
 }
