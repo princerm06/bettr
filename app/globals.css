@@ -1833,3 +1833,108 @@
   -webkit-text-fill-color: #f5f7fa !important;
   caret-color: #f5f7fa !important;
 }
+
+/* Prevent iOS Safari from zooming when focusing comment/reply composer */
+@media (max-width: 768px) {
+  .commentComposer .textInput {
+    font-size: 16px;
+  }
+}
+
+/* Keep threaded comment composer at normal scale on iOS Safari */
+@media (max-width: 768px) {
+  .threadComposer .textInput {
+    font-size: 16px;
+  }
+}
+
+
+/* Prevent iOS Safari zoom in threaded comment/reply composer */
+@media (max-width: 768px) {
+  .threadComposer .textInput {
+    font-size: 16px;
+  }
+}
+
+/* Phase 0 final: clearer, scrollable comment threads */
+.threadCommentList {
+  max-height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #3b4138 transparent;
+}
+
+.threadCommentList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.threadCommentList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.threadCommentList::-webkit-scrollbar-thumb {
+  background: #3b4138;
+  border-radius: 999px;
+}
+
+.replyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 7px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #1b1f1b;
+  color: #c7cbc2;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.replyButton:hover {
+  border-color: #596648;
+  background: #20261e;
+  color: var(--accent);
+}
+
+.replyButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .threadCommentList {
+    max-height: 280px;
+    padding-right: 4px;
+  }
+
+  .replyButton {
+    min-height: 28px;
+    padding: 5px 9px;
+    font-size: 11px;
+  }
+}
+
+/* Refine Reply action sizing */
+.replyButton {
+  margin-top: 6px;
+  padding: 3px 7px;
+  font-size: 9px;
+}
+
+@media (max-width: 600px) {
+  .replyButton {
+    min-height: 24px;
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+}

@@ -1860,15 +1860,11 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
   const [details, setDetails] = useState(existing?.details || '');
   const [date, setDate] = useState(existing?.date || todayISO());
   const initialStartTime = existing?.startTime?.slice(0, 5) || '';
-  const initialHour24 = initialStartTime ? Number(initialStartTime.slice(0, 2)) : 12;
   const [startHour, setStartHour] = useState(
-    initialStartTime ? String(((initialHour24 + 11) % 12) + 1) : ''
+    initialStartTime ? initialStartTime.slice(0, 2) : ''
   );
   const [startMinute, setStartMinute] = useState(
     initialStartTime ? initialStartTime.slice(3, 5) : ''
-  );
-  const [startPeriod, setStartPeriod] = useState<'AM' | 'PM' | null>(
-    initialStartTime ? (initialHour24 >= 12 ? 'PM' : 'AM') : null
   );
   const [durationHours, setDurationHours] = useState(
     existing?.durationMinutes ? String(Math.floor(existing.durationMinutes / 60) || '') : ''
@@ -1925,11 +1921,9 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
       Math.max(0, Number(durationMinutes) || 0);
 
     let normalizedStartTime: string | undefined;
-    if (startHour && startMinute !== '' && startPeriod) {
-      const hour12 = Math.min(12, Math.max(1, Number(startHour)));
+    if (startHour && startMinute !== '') {
+      const hour24 = Math.min(23, Math.max(0, Number(startHour)));
       const minute = Math.min(59, Math.max(0, Number(startMinute)));
-      let hour24 = hour12 % 12;
-      if (startPeriod === 'PM') hour24 += 12;
 
       normalizedStartTime =
         `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
@@ -2019,10 +2013,18 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
                 onChange={(event) => setStartHour(event.target.value)}
                 aria-label="Start hour"
               >
-                <option value="">--</option>
-                {Array.from({ length: 12 }, (_, index) => index + 1).map((hour) => (
-                  <option key={hour} value={hour}>{hour}</option>
-                ))}
+                <option value="">Hour</option>
+                {Array.from({ length: 24 }, (_, hour) => {
+                  const value = String(hour).padStart(2, '0');
+                  const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+                  const period = hour < 12 ? 'AM' : 'PM';
+
+                  return (
+                    <option key={hour} value={value}>
+                      {displayHour} {period}
+                    </option>
+                  );
+                })}
               </select>
 
               <span className="timeSeparator">:</span>
@@ -2033,30 +2035,13 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
                 onChange={(event) => setStartMinute(event.target.value)}
                 aria-label="Start minute"
               >
-                <option value="">--</option>
+                <option value="">Minute</option>
                 {Array.from({ length: 60 }, (_, minute) => (
                   <option key={minute} value={String(minute).padStart(2, '0')}>
                     {String(minute).padStart(2, '0')}
                   </option>
                 ))}
               </select>
-
-              <div className="periodToggle">
-                <button
-                  type="button"
-                  className={startPeriod === 'AM' ? 'selected' : ''}
-                  onClick={() => setStartPeriod('AM')}
-                >
-                  AM
-                </button>
-                <button
-                  type="button"
-                  className={startPeriod === 'PM' ? 'selected' : ''}
-                  onClick={() => setStartPeriod('PM')}
-                >
-                  PM
-                </button>
-              </div>
             </div>
           </div>
 
@@ -3324,30 +3309,10 @@ function NotificationPanel({
     }
 
     /*
-      Comments/replies are actionable notifications.
-      Once opened, remove the notification itself so it
-      does not remain in the bell after the user has seen
-      the actual conversation.
+      Opening a comment/reply marks it as read, but keeps
+      it in notification history so Activity remains useful.
     */
-    const { error } = await supabase
-      .from('notifications')
-      .delete()
-      .eq('id', item.id)
-      .eq('user_id', user.id);
-
-    if (!error) {
-      setItems((current) =>
-        current.filter((entry) => entry.id !== item.id)
-      );
-
-      const remainingUnread = items.filter(
-        (entry) =>
-          entry.id !== item.id &&
-          !entry.read_at
-      ).length;
-
-      onUnreadChange(remainingUnread);
-    }
+    await markRead(item);
 
     if (item.log_id) {
       sessionStorage.setItem(
@@ -3518,6 +3483,7 @@ function ThreadedComments({
 }) {
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<SocialComment | null>(null);
+  const commentInputRef = useRef<HTMLInputElement>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [posting, setPosting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -3609,7 +3575,15 @@ function ThreadedComments({
           {comment.body && <p>{comment.body}</p>}
           {comment.image_path && <SignedCommentImage path={comment.image_path}/>}
 
-          <button className="replyButton" onClick={() => setReplyTo(comment)}>Reply</button>
+          <button
+            className="replyButton"
+            onClick={() => {
+              setReplyTo(comment);
+              commentInputRef.current?.focus();
+            }}
+          >
+            Reply
+          </button>
 
           {childrenOf(comment.id).map((child) => renderComment(child, true))}
         </div>
@@ -3665,6 +3639,7 @@ function ThreadedComments({
         </button>
 
         <input
+          ref={commentInputRef}
           className="textInput"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
@@ -3759,6 +3734,46 @@ function ActivityView({
     refreshActivity();
   }, [user.id]);
 
+  // Keep social activity in sync without polling.
+  // Notifications are scoped to the current user, while comment
+  // changes refresh visible conversation threads.
+  useEffect(() => {
+    if (!supabase) return;
+
+    const client = supabase;
+
+    const channel = client
+      .channel(`activity-live-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          refreshActivity();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'log_comments',
+        },
+        () => {
+          refreshActivity();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, [user.id]);
+
   useEffect(() => {
     if (loading) return;
 
@@ -3833,27 +3848,7 @@ function ActivityView({
       return;
     }
 
-    const { error } = await supabase
-      .from('notifications')
-      .delete()
-      .eq('id', notification.id)
-      .eq('user_id', user.id);
-
-    if (!error) {
-      setNotifications((current) =>
-        current.filter(
-          (item) => item.id !== notification.id
-        )
-      );
-
-      onUnreadChange(
-        notifications.filter(
-          (item) =>
-            item.id !== notification.id &&
-            !item.read_at
-        ).length
-      );
-    }
+    await markNotificationRead(notification);
 
     if (!notification.log_id) return;
 
@@ -4119,6 +4114,66 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
 
   useEffect(() => { refreshSocial(); }, [user.id]);
 
+  // Keep friendships, shared logs, reactions, and comments live.
+  // Manual refresh should not be necessary during normal use.
+  useEffect(() => {
+    if (!supabase) return;
+
+    const client = supabase;
+
+    const channel = client
+      .channel(`friends-live-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'friendships',
+        },
+        () => {
+          refreshSocial();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'logs',
+        },
+        () => {
+          refreshSocial();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'log_reactions',
+        },
+        () => {
+          refreshSocial();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'log_comments',
+        },
+        () => {
+          refreshSocial();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, [user.id]);
+
   const relationByUser = (id: string) => friendships.find((f) => f.requester_id === id || f.addressee_id === id);
   const friends = friendships.filter((f) => f.status === 'accepted').map((f) => profiles.find((p) => p.id === (f.requester_id === user.id ? f.addressee_id : f.requester_id))).filter(Boolean) as SocialProfile[];
   const incoming = friendships.filter((f) => f.status === 'pending' && f.addressee_id === user.id);
@@ -4210,7 +4265,7 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
       <div className="sectionHead socialHead"><div><p className="eyebrow">FRIENDS · {friends.length}</p><h2>Your people.</h2></div></div>
       {friends.length ? <div className="friendStrip">{friends.map((p)=>{const f=relationByUser(p.id)!;return <div className="friendChip card" key={p.id}><div className="friendAvatar">{(p.display_name||'?')[0].toUpperCase()}</div><div><strong>{p.display_name}</strong><small>{p.username?`@${p.username}`:'Friend'}</small></div><button title="Remove friend" onClick={()=>removeConnection(f.id)}><X size={14}/></button></div>})}</div> : <div className="card emptyFriendState"><Users/><h3>Your circle starts here.</h3><p>Search for your best friend above and send the first request.</p></div>}
 
-      <div className="sectionHead socialHead"><div><p className="eyebrow">FRIEND ACTIVITY</p><h2>What your circle is doing.</h2></div><button className="textButton" onClick={refreshSocial}>Refresh</button></div>
+      <div className="sectionHead socialHead"><div><p className="eyebrow">FRIEND ACTIVITY</p><h2>What your circle is doing.</h2></div></div>
       <div className="feed">{feed.map((entry)=>{const cat=categoryFor(entry.category);const owner=profiles.find((p)=>p.id===entry.user_id);const logReactions=reactions.filter((r)=>r.log_id===entry.id);const logComments=comments.filter((c)=>c.log_id===entry.id);return <article className="card socialFeedItem" key={entry.id}>
         <div className="socialFeedTop"><div className="feedIcon">{cat.emoji}</div><div><div className="feedHeadline"><strong>{owner?.display_name||'Friend'}</strong><span>{cat.short}</span></div><small>{new Date(entry.created_at).toLocaleString()}</small></div></div>
         <h3>{entry.activity}</h3>{entry.details&&<p>{entry.details}</p>}
