@@ -1,0 +1,374 @@
+{
+  "evaluator": "candidate-developmental-5a",
+  "pass": "train-family-cv-locked-triplet-projection",
+  "generatedAt": "2026-09-10T22:57:18.059Z",
+  "locked": {
+    "encoder": "Xenova/all-MiniLM-L6-v2",
+    "projection": "linear 384→64 + bias, L2 normalize, no nonlinearity",
+    "dim": 64,
+    "margin": 0.2,
+    "lambdaAttraction": 0,
+    "projL2": 0.01,
+    "projLr": 0.05,
+    "epochs": 80,
+    "batchSize": 24,
+    "maxPairsPerFamily": 8,
+    "seed": 42,
+    "probe": {
+      "l2": 0.01,
+      "learningRate": 0.4,
+      "epochs": 400,
+      "threshold": 0.5
+    }
+  },
+  "gate": {
+    "bothSides": 0.565,
+    "familyBa": 0.859,
+    "bothSidesFloorForBaPath": 0.465
+  },
+  "dataset": {
+    "trainRows": 405,
+    "note": "3A.2 train freeze. 92-row val not loaded. v1 not loaded."
+  },
+  "foldSource": "/Users/princem/Downloads/himothy-app/benchmarks/semantic/results/developmental-candidate-3a.3-cv.json",
+  "controlMiniLmLinear": {
+    "meanBothSides": 0.4645,
+    "meanFamilyBalancedAccuracy": 0.8086
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "nTrain": 324,
+      "nHoldout": 81,
+      "uniqueTrainFamilies": 48,
+      "uniqueHardOppositePairs": 521,
+      "directedPairsAfterCap": 360,
+      "tripletsPerEpoch": 360,
+      "skippedNoPos": 0,
+      "note": "tripletsPerEpoch is sampled relationships, not independent sample size",
+      "geometry": {
+        "trainBefore": {
+          "nInFamilyOpposite": 521,
+          "nCrossFamilySameLabel": 25664,
+          "meanInFamilyOpposite": 0.2062,
+          "meanCrossFamilySameLabel": 0.1524,
+          "gap": -0.0539
+        },
+        "trainAfter": {
+          "nInFamilyOpposite": 521,
+          "nCrossFamilySameLabel": 25664,
+          "meanInFamilyOpposite": -0.0212,
+          "meanCrossFamilySameLabel": 0.3941,
+          "gap": 0.4153
+        },
+        "holdoutBefore": {
+          "nInFamilyOpposite": 109,
+          "nCrossFamilySameLabel": 1503,
+          "meanInFamilyOpposite": 0.2112,
+          "meanCrossFamilySameLabel": 0.1428,
+          "gap": -0.0684
+        },
+        "holdoutAfter": {
+          "nInFamilyOpposite": 109,
+          "nCrossFamilySameLabel": 1503,
+          "meanInFamilyOpposite": 0.2759,
+          "meanCrossFamilySameLabel": 0.396,
+          "gap": 0.1201
+        }
+      },
+      "row": {
+        "n": 81,
+        "accuracy": 0.9012,
+        "balancedAccuracy": 0.9096,
+        "precision": 0.8293,
+        "recall": 0.9714,
+        "f1": 0.8947,
+        "macroF1": 0.9009,
+        "confusion": {
+          "tp": 34,
+          "tn": 39,
+          "fp": 7,
+          "fn": 1
+        }
+      },
+      "meanFamilyBalancedAccuracy": 0.8212,
+      "bothSidesRate": 0.5,
+      "bothSidesN": 10,
+      "bothSidesCorrectCount": 5,
+      "holdoutNll": 0.375,
+      "meanPDev": 0.7313,
+      "meanPNon": 0.2766
+    },
+    {
+      "fold": 1,
+      "nTrain": 324,
+      "nHoldout": 81,
+      "uniqueTrainFamilies": 48,
+      "uniqueHardOppositePairs": 510,
+      "directedPairsAfterCap": 360,
+      "tripletsPerEpoch": 360,
+      "skippedNoPos": 0,
+      "note": "tripletsPerEpoch is sampled relationships, not independent sample size",
+      "geometry": {
+        "trainBefore": {
+          "nInFamilyOpposite": 510,
+          "nCrossFamilySameLabel": 25662,
+          "meanInFamilyOpposite": 0.2186,
+          "meanCrossFamilySameLabel": 0.1527,
+          "gap": -0.0658
+        },
+        "trainAfter": {
+          "nInFamilyOpposite": 510,
+          "nCrossFamilySameLabel": 25662,
+          "meanInFamilyOpposite": 0.1818,
+          "meanCrossFamilySameLabel": 0.4969,
+          "gap": 0.315
+        },
+        "holdoutBefore": {
+          "nInFamilyOpposite": 120,
+          "nCrossFamilySameLabel": 1502,
+          "meanInFamilyOpposite": 0.1584,
+          "meanCrossFamilySameLabel": 0.1556,
+          "gap": -0.0028
+        },
+        "holdoutAfter": {
+          "nInFamilyOpposite": 120,
+          "nCrossFamilySameLabel": 1502,
+          "meanInFamilyOpposite": 0.4086,
+          "meanCrossFamilySameLabel": 0.4718,
+          "gap": 0.0632
+        }
+      },
+      "row": {
+        "n": 81,
+        "accuracy": 0.8272,
+        "balancedAccuracy": 0.8306,
+        "precision": 0.775,
+        "recall": 0.8611,
+        "f1": 0.8158,
+        "macroF1": 0.8265,
+        "confusion": {
+          "tp": 31,
+          "tn": 36,
+          "fp": 9,
+          "fn": 5
+        }
+      },
+      "meanFamilyBalancedAccuracy": 0.7595,
+      "bothSidesRate": 0.5,
+      "bothSidesN": 10,
+      "bothSidesCorrectCount": 5,
+      "holdoutNll": 0.441,
+      "meanPDev": 0.7049,
+      "meanPNon": 0.3143
+    },
+    {
+      "fold": 2,
+      "nTrain": 324,
+      "nHoldout": 81,
+      "uniqueTrainFamilies": 48,
+      "uniqueHardOppositePairs": 492,
+      "directedPairsAfterCap": 344,
+      "tripletsPerEpoch": 344,
+      "skippedNoPos": 0,
+      "note": "tripletsPerEpoch is sampled relationships, not independent sample size",
+      "geometry": {
+        "trainBefore": {
+          "nInFamilyOpposite": 492,
+          "nCrossFamilySameLabel": 25727,
+          "meanInFamilyOpposite": 0.2045,
+          "meanCrossFamilySameLabel": 0.1526,
+          "gap": -0.0519
+        },
+        "trainAfter": {
+          "nInFamilyOpposite": 492,
+          "nCrossFamilySameLabel": 25727,
+          "meanInFamilyOpposite": 0.0587,
+          "meanCrossFamilySameLabel": 0.3934,
+          "gap": 0.3347
+        },
+        "holdoutBefore": {
+          "nInFamilyOpposite": 138,
+          "nCrossFamilySameLabel": 1503,
+          "meanInFamilyOpposite": 0.2164,
+          "meanCrossFamilySameLabel": 0.1449,
+          "gap": -0.0715
+        },
+        "holdoutAfter": {
+          "nInFamilyOpposite": 138,
+          "nCrossFamilySameLabel": 1503,
+          "meanInFamilyOpposite": 0.3408,
+          "meanCrossFamilySameLabel": 0.4066,
+          "gap": 0.0658
+        }
+      },
+      "row": {
+        "n": 81,
+        "accuracy": 0.8148,
+        "balancedAccuracy": 0.8196,
+        "precision": 0.9355,
+        "recall": 0.6905,
+        "f1": 0.7945,
+        "macroF1": 0.813,
+        "confusion": {
+          "tp": 29,
+          "tn": 37,
+          "fp": 2,
+          "fn": 13
+        }
+      },
+      "meanFamilyBalancedAccuracy": 0.8229,
+      "bothSidesRate": 0.25,
+      "bothSidesN": 12,
+      "bothSidesCorrectCount": 3,
+      "holdoutNll": 0.4314,
+      "meanPDev": 0.617,
+      "meanPNon": 0.2287
+    },
+    {
+      "fold": 3,
+      "nTrain": 324,
+      "nHoldout": 81,
+      "uniqueTrainFamilies": 48,
+      "uniqueHardOppositePairs": 492,
+      "directedPairsAfterCap": 344,
+      "tripletsPerEpoch": 344,
+      "skippedNoPos": 0,
+      "note": "tripletsPerEpoch is sampled relationships, not independent sample size",
+      "geometry": {
+        "trainBefore": {
+          "nInFamilyOpposite": 492,
+          "nCrossFamilySameLabel": 25727,
+          "meanInFamilyOpposite": 0.2111,
+          "meanCrossFamilySameLabel": 0.1499,
+          "gap": -0.0613
+        },
+        "trainAfter": {
+          "nInFamilyOpposite": 492,
+          "nCrossFamilySameLabel": 25727,
+          "meanInFamilyOpposite": 0.0605,
+          "meanCrossFamilySameLabel": 0.4139,
+          "gap": 0.3535
+        },
+        "holdoutBefore": {
+          "nInFamilyOpposite": 138,
+          "nCrossFamilySameLabel": 1503,
+          "meanInFamilyOpposite": 0.1927,
+          "meanCrossFamilySameLabel": 0.1548,
+          "gap": -0.0379
+        },
+        "holdoutAfter": {
+          "nInFamilyOpposite": 138,
+          "nCrossFamilySameLabel": 1503,
+          "meanInFamilyOpposite": 0.2367,
+          "meanCrossFamilySameLabel": 0.4193,
+          "gap": 0.1825
+        }
+      },
+      "row": {
+        "n": 81,
+        "accuracy": 0.8642,
+        "balancedAccuracy": 0.8626,
+        "precision": 0.8444,
+        "recall": 0.9048,
+        "f1": 0.8736,
+        "macroF1": 0.8634,
+        "confusion": {
+          "tp": 38,
+          "tn": 32,
+          "fp": 7,
+          "fn": 4
+        }
+      },
+      "meanFamilyBalancedAccuracy": 0.8611,
+      "bothSidesRate": 0.5833,
+      "bothSidesN": 12,
+      "bothSidesCorrectCount": 7,
+      "holdoutNll": 0.3445,
+      "meanPDev": 0.7363,
+      "meanPNon": 0.2385
+    },
+    {
+      "fold": 4,
+      "nTrain": 324,
+      "nHoldout": 81,
+      "uniqueTrainFamilies": 48,
+      "uniqueHardOppositePairs": 505,
+      "directedPairsAfterCap": 352,
+      "tripletsPerEpoch": 352,
+      "skippedNoPos": 0,
+      "note": "tripletsPerEpoch is sampled relationships, not independent sample size",
+      "geometry": {
+        "trainBefore": {
+          "nInFamilyOpposite": 505,
+          "nCrossFamilySameLabel": 25688,
+          "meanInFamilyOpposite": 0.195,
+          "meanCrossFamilySameLabel": 0.1506,
+          "gap": -0.0444
+        },
+        "trainAfter": {
+          "nInFamilyOpposite": 505,
+          "nCrossFamilySameLabel": 25688,
+          "meanInFamilyOpposite": 0.0652,
+          "meanCrossFamilySameLabel": 0.3771,
+          "gap": 0.3119
+        },
+        "holdoutBefore": {
+          "nInFamilyOpposite": 125,
+          "nCrossFamilySameLabel": 1491,
+          "meanInFamilyOpposite": 0.256,
+          "meanCrossFamilySameLabel": 0.1478,
+          "gap": -0.1082
+        },
+        "holdoutAfter": {
+          "nInFamilyOpposite": 125,
+          "nCrossFamilySameLabel": 1491,
+          "meanInFamilyOpposite": 0.3522,
+          "meanCrossFamilySameLabel": 0.3674,
+          "gap": 0.0152
+        }
+      },
+      "row": {
+        "n": 81,
+        "accuracy": 0.8025,
+        "balancedAccuracy": 0.7995,
+        "precision": 0.8485,
+        "recall": 0.7179,
+        "f1": 0.7778,
+        "macroF1": 0.8,
+        "confusion": {
+          "tp": 28,
+          "tn": 37,
+          "fp": 5,
+          "fn": 11
+        }
+      },
+      "meanFamilyBalancedAccuracy": 0.7683,
+      "bothSidesRate": 0.0909,
+      "bothSidesN": 11,
+      "bothSidesCorrectCount": 1,
+      "holdoutNll": 0.3952,
+      "meanPDev": 0.6631,
+      "meanPNon": 0.2623
+    }
+  ],
+  "meanBothSides": 0.3848,
+  "stdBothSides": 0.2065,
+  "meanFamilyBalancedAccuracy": 0.8066,
+  "stdFamilyBalancedAccuracy": 0.0422,
+  "meanMacroF1": 0.8408,
+  "meanRowAccuracy": 0.842,
+  "meanHoldoutNll": 0.3974,
+  "meanPDev": 0.6905,
+  "meanPNon": 0.2641,
+  "geometryTransfer": {
+    "meanTrainGapLift": 0.4015,
+    "meanHoldoutGapLift": 0.1471
+  },
+  "gateResult": {
+    "pathA": false,
+    "pathB": false,
+    "success": false,
+    "interpretation": "NULL_OBJECTIVE"
+  }
+}
