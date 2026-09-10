@@ -1,0 +1,1226 @@
+{
+  "evaluator": "candidate-developmental-4a",
+  "pass": "train-family-cv-representation-bakeoff",
+  "generatedAt": "2026-09-10T22:47:50.899Z",
+  "dataset": {
+    "path": "benchmarks/semantic/datasets/developmental-v1/developmental-v1.jsonl",
+    "trainRows": 405,
+    "note": "3A.2 train freeze. 92-row val not loaded. v1 not loaded."
+  },
+  "trainConfig": {
+    "seed": 42,
+    "l2": 0.01,
+    "learningRate": 0.4,
+    "epochs": 400,
+    "binaryThreshold": 0.5
+  },
+  "foldSource": "/Users/princem/Downloads/himothy-app/benchmarks/semantic/results/developmental-candidate-3a.3-cv.json",
+  "foldConstruction": {
+    "k": 5,
+    "seed": 42,
+    "algorithm": "Seeded shuffle of families (mulberry32, seed 42), then greedy placement largest-first into the fold with fewest families, then fewest rows, then smaller |DEV-NON| imbalance, then fewer copies of that domain. Entire family stays in one fold.",
+    "folds": [
+      {
+        "fold": 0,
+        "familyIds": [
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.writing_center_vs_inbox_glance",
+          "career.informational_call_vs_meme_channel",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.sink_washer_vs_new_faucet",
+          "fashion.color_practice_vs_mall_look",
+          "nutrition.proof_dough_vs_cereal_box",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "wellbeing.named_sensations_vs_floor_scroll"
+        ],
+        "n": 81,
+        "nDev": 35,
+        "nNon": 46,
+        "bothSidesFamilies": 10,
+        "domainCounts": {
+          "Academics": 2,
+          "Career": 1,
+          "Fashion & Style": 1,
+          "Finance": 1,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 2,
+          "Nutrition & Cooking": 1,
+          "Ordinary / none": 1,
+          "Physical Prowess": 2
+        },
+        "families": [
+          {
+            "familyId": "academics.lemma_own_words_vs_stack_packet",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "academics.writing_center_vs_inbox_glance",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.informational_call_vs_meme_channel",
+            "domain": "Career",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.piano_hands_vs_buy_metronome",
+            "domain": "Mind & Craft",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.sink_washer_vs_new_faucet",
+            "domain": "Mind & Craft",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "fashion.color_practice_vs_mall_look",
+            "domain": "Fashion & Style",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.proof_dough_vs_cereal_box",
+            "domain": "Nutrition & Cooking",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "ordinary.invoice_admin",
+            "domain": "Finance",
+            "n": 7,
+            "nDev": 0,
+            "nNon": 7,
+            "bothSides": false
+          },
+          {
+            "familyId": "ordinary.status_check",
+            "domain": "Ordinary / none",
+            "n": 8,
+            "nDev": 0,
+            "nNon": 8,
+            "bothSides": false
+          },
+          {
+            "familyId": "physical.prescribed_rehab_vs_idle_sore",
+            "domain": "Physical Prowess",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "physical.sport_drill_vs_commute",
+            "domain": "Physical Prowess",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.named_sensations_vs_floor_scroll",
+            "domain": "Inner Wellbeing",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      },
+      {
+        "fold": 1,
+        "familyIds": [
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.chess_motif_vs_phone_bed",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "nutrition.new_method_vs_grocery",
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.travel_logistics",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood"
+        ],
+        "n": 81,
+        "nDev": 36,
+        "nNon": 45,
+        "bothSidesFamilies": 10,
+        "domainCounts": {
+          "Career": 2,
+          "Finance": 3,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 1,
+          "Nutrition & Cooking": 1,
+          "Ordinary / none": 2,
+          "Spirituality": 2
+        },
+        "families": [
+          {
+            "familyId": "career.shadow_ticket_vs_bus",
+            "domain": "Career",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.star_rehearsal_vs_forward_invite",
+            "domain": "Career",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.chess_motif_vs_phone_bed",
+            "domain": "Mind & Craft",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.debt_order_vs_wallet_glance",
+            "domain": "Finance",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.payment_plan_vs_refund",
+            "domain": "Finance",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.plan_compare_vs_pay_bill",
+            "domain": "Finance",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.new_method_vs_grocery",
+            "domain": "Nutrition & Cooking",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "ordinary.detailed_errand_hardneg",
+            "domain": "Ordinary / none",
+            "n": 5,
+            "nDev": 0,
+            "nNon": 5,
+            "bothSides": false
+          },
+          {
+            "familyId": "ordinary.travel_logistics",
+            "domain": "Ordinary / none",
+            "n": 7,
+            "nDev": 0,
+            "nNon": 7,
+            "bothSides": false
+          },
+          {
+            "familyId": "spiritual.prayer_vs_calendar",
+            "domain": "Spirituality",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "spiritual.verse_sit_vs_buy_object",
+            "domain": "Spirituality",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.after_action_vs_mood",
+            "domain": "Inner Wellbeing",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      },
+      {
+        "fold": 2,
+        "familyIds": [
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.project_walkthrough_vs_payroll",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.still_life_vs_buy_pad",
+          "fashion.layer_test_vs_browse",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.rice_consistency_vs_microwave",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "wellbeing.paced_walk_vs_doomscroll"
+        ],
+        "n": 81,
+        "nDev": 42,
+        "nNon": 39,
+        "bothSidesFamilies": 12,
+        "domainCounts": {
+          "Appearance & Self-Care": 2,
+          "Career": 1,
+          "Fashion & Style": 1,
+          "Finance": 1,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 2,
+          "Nutrition & Cooking": 2,
+          "Social": 2
+        },
+        "families": [
+          {
+            "familyId": "appearance.haircut_vs_book_slot",
+            "domain": "Appearance & Self-Care",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "appearance.posture_vs_try_on",
+            "domain": "Appearance & Self-Care",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.project_walkthrough_vs_payroll",
+            "domain": "Career",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.ram_reseat_vs_buy_laptop",
+            "domain": "Mind & Craft",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.still_life_vs_buy_pad",
+            "domain": "Mind & Craft",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "fashion.layer_test_vs_browse",
+            "domain": "Fashion & Style",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.service_packages_vs_paypal_glance",
+            "domain": "Finance",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.log_adjust_vs_candy",
+            "domain": "Nutrition & Cooking",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.rice_consistency_vs_microwave",
+            "domain": "Nutrition & Cooking",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "social.facilitate_vs_errand",
+            "domain": "Social",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "social.lead_icebreakers_vs_rsvp",
+            "domain": "Social",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.paced_walk_vs_doomscroll",
+            "domain": "Inner Wellbeing",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      },
+      {
+        "fold": 3,
+        "familyIds": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.tutor_explain_vs_library_phone",
+          "appearance.groom_vs_mirror",
+          "career.club_demo_vs_sit_meetup",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.knife_skill_vs_reheat",
+          "physical.finishing_vs_bleachers_practiced",
+          "social.boundary_talk_vs_like",
+          "spiritual.examen_vs_click",
+          "spiritual.study_prep_vs_ride",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n": 81,
+        "nDev": 42,
+        "nNon": 39,
+        "bothSidesFamilies": 12,
+        "domainCounts": {
+          "Academics": 2,
+          "Appearance & Self-Care": 1,
+          "Career": 1,
+          "Finance": 1,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 1,
+          "Nutrition & Cooking": 1,
+          "Physical Prowess": 1,
+          "Social": 1,
+          "Spirituality": 2
+        },
+        "families": [
+          {
+            "familyId": "academics.essay_outline_vs_bookmark",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "academics.tutor_explain_vs_library_phone",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "appearance.groom_vs_mirror",
+            "domain": "Appearance & Self-Care",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.club_demo_vs_sit_meetup",
+            "domain": "Career",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.bike_drivetrain_vs_shop_drop",
+            "domain": "Mind & Craft",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.scope_hours_vs_deposit_ping",
+            "domain": "Finance",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.knife_skill_vs_reheat",
+            "domain": "Nutrition & Cooking",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "physical.finishing_vs_bleachers_practiced",
+            "domain": "Physical Prowess",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "social.boundary_talk_vs_like",
+            "domain": "Social",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "spiritual.examen_vs_click",
+            "domain": "Spirituality",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "spiritual.study_prep_vs_ride",
+            "domain": "Spirituality",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.worry_schedule_vs_nap",
+            "domain": "Inner Wellbeing",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      },
+      {
+        "fold": 4,
+        "familyIds": [
+          "academics.notes_vs_print",
+          "appearance.washday_vs_buy_product",
+          "career.opener_used_vs_star_post",
+          "craft.dictation_vs_app_open",
+          "craft.short_snare_vs_unopened_sticks",
+          "fashion.alter_vs_unbox",
+          "fashion.repair_vs_replace",
+          "finance.savings_bucket_vs_swipe",
+          "ordinary.home_admin",
+          "physical.climb_session_vs_spectate",
+          "social.listen_question_vs_group_show",
+          "wellbeing.wind_down_vs_pass_out"
+        ],
+        "n": 81,
+        "nDev": 39,
+        "nNon": 42,
+        "bothSidesFamilies": 11,
+        "domainCounts": {
+          "Academics": 1,
+          "Appearance & Self-Care": 1,
+          "Career": 1,
+          "Fashion & Style": 2,
+          "Finance": 1,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 2,
+          "Ordinary / none": 1,
+          "Physical Prowess": 1,
+          "Social": 1
+        },
+        "families": [
+          {
+            "familyId": "academics.notes_vs_print",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "appearance.washday_vs_buy_product",
+            "domain": "Appearance & Self-Care",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.opener_used_vs_star_post",
+            "domain": "Career",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.dictation_vs_app_open",
+            "domain": "Mind & Craft",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.short_snare_vs_unopened_sticks",
+            "domain": "Mind & Craft",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "fashion.alter_vs_unbox",
+            "domain": "Fashion & Style",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "fashion.repair_vs_replace",
+            "domain": "Fashion & Style",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.savings_bucket_vs_swipe",
+            "domain": "Finance",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "ordinary.home_admin",
+            "domain": "Ordinary / none",
+            "n": 7,
+            "nDev": 0,
+            "nNon": 7,
+            "bothSides": false
+          },
+          {
+            "familyId": "physical.climb_session_vs_spectate",
+            "domain": "Physical Prowess",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "social.listen_question_vs_group_show",
+            "domain": "Social",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.wind_down_vs_pass_out",
+            "domain": "Inner Wellbeing",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      }
+    ]
+  },
+  "materialityGate": {
+    "bothSidesAbsolute": 0.1,
+    "familyBaAbsolute": 0.05,
+    "rule": "Challenger wins if mean CV both-sides >= MiniLM + 0.10, OR family BA >= MiniLM + 0.05 AND both-sides is not worse."
+  },
+  "backbones": [
+    {
+      "id": "minilm",
+      "loaded": {
+        "runtimeModelId": "Xenova/all-MiniLM-L6-v2",
+        "sourceModelId": "sentence-transformers/all-MiniLM-L6-v2",
+        "license": "Apache-2.0",
+        "pooling": "mean",
+        "normalize": true,
+        "queryPrefix": null,
+        "quantized": true,
+        "quantization": "int8-onnx",
+        "embeddingDim": 384,
+        "smokeL2": 1,
+        "coldLoadMs": 362,
+        "smokeEmbedMs": 5,
+        "cacheDir": "/Users/princem/Downloads/himothy-app/.cache/transformers/Xenova/all-MiniLM-L6-v2",
+        "cacheBytes": 23685047,
+        "cacheMb": 22.59,
+        "onnxFiles": [
+          "model_quantized.onnx (22434 KB)"
+        ]
+      },
+      "latency": {
+        "n": 405,
+        "medianMs": 2,
+        "p95Ms": 4,
+        "meanMs": 2.29
+      },
+      "meanBothSides": 0.4645,
+      "stdBothSides": 0.231,
+      "meanFamilyBalancedAccuracy": 0.8086,
+      "stdFamilyBalancedAccuracy": 0.0293,
+      "meanMacroF1": 0.8423,
+      "stdMacroF1": 0.0536,
+      "meanRowAccuracy": 0.8444,
+      "stdRowAccuracy": 0.0521,
+      "meanHoldoutNll": 0.5463,
+      "meanPDev": 0.5658,
+      "meanPNon": 0.3932,
+      "folds": [
+        {
+          "fold": 0,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.9012,
+            "balancedAccuracy": 0.8994,
+            "precision": 0.8857,
+            "recall": 0.8857,
+            "f1": 0.8857,
+            "macroF1": 0.8994,
+            "confusion": {
+              "tp": 31,
+              "tn": 42,
+              "fp": 4,
+              "fn": 4
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.8246,
+          "bothSidesRate": 0.7,
+          "bothSidesN": 10,
+          "bothSidesCorrectCount": 7,
+          "holdoutNll": 0.5402,
+          "meanPDev": 0.5849,
+          "meanPNon": 0.4083
+        },
+        {
+          "fold": 1,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8765,
+            "balancedAccuracy": 0.8778,
+            "precision": 0.8421,
+            "recall": 0.8889,
+            "f1": 0.8649,
+            "macroF1": 0.8756,
+            "confusion": {
+              "tp": 32,
+              "tn": 39,
+              "fp": 6,
+              "fn": 4
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.8016,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10,
+          "bothSidesCorrectCount": 6,
+          "holdoutNll": 0.5421,
+          "meanPDev": 0.5868,
+          "meanPNon": 0.41
+        },
+        {
+          "fold": 2,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7654,
+            "balancedAccuracy": 0.772,
+            "precision": 0.9259,
+            "recall": 0.5952,
+            "f1": 0.7246,
+            "macroF1": 0.7602,
+            "confusion": {
+              "tp": 25,
+              "tn": 37,
+              "fp": 2,
+              "fn": 17
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.7778,
+          "bothSidesRate": 0.1667,
+          "bothSidesN": 12,
+          "bothSidesCorrectCount": 2,
+          "holdoutNll": 0.5659,
+          "meanPDev": 0.5223,
+          "meanPNon": 0.3636
+        },
+        {
+          "fold": 3,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8507,
+            "precision": 0.8409,
+            "recall": 0.881,
+            "f1": 0.8605,
+            "macroF1": 0.8513,
+            "confusion": {
+              "tp": 37,
+              "tn": 32,
+              "fp": 7,
+              "fn": 5
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.8507,
+          "bothSidesRate": 0.5833,
+          "bothSidesN": 12,
+          "bothSidesCorrectCount": 7,
+          "holdoutNll": 0.5335,
+          "meanPDev": 0.5759,
+          "meanPNon": 0.3879
+        },
+        {
+          "fold": 4,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8272,
+            "balancedAccuracy": 0.8242,
+            "precision": 0.8788,
+            "recall": 0.7436,
+            "f1": 0.8056,
+            "macroF1": 0.825,
+            "confusion": {
+              "tp": 29,
+              "tn": 38,
+              "fp": 4,
+              "fn": 10
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.7882,
+          "bothSidesRate": 0.2727,
+          "bothSidesN": 11,
+          "bothSidesCorrectCount": 3,
+          "holdoutNll": 0.5498,
+          "meanPDev": 0.5591,
+          "meanPNon": 0.3962
+        }
+      ]
+    },
+    {
+      "id": "bge",
+      "loaded": {
+        "runtimeModelId": "Xenova/bge-small-en-v1.5",
+        "sourceModelId": "BAAI/bge-small-en-v1.5",
+        "license": "MIT",
+        "pooling": "cls",
+        "normalize": true,
+        "queryPrefix": null,
+        "quantized": true,
+        "quantization": "int8-onnx",
+        "embeddingDim": 384,
+        "smokeL2": 1,
+        "coldLoadMs": 2602,
+        "smokeEmbedMs": 4,
+        "cacheDir": "/Users/princem/Downloads/himothy-app/.cache/transformers/Xenova/bge-small-en-v1.5",
+        "cacheBytes": 34726871,
+        "cacheMb": 33.12,
+        "onnxFiles": [
+          "model_quantized.onnx (33217 KB)"
+        ]
+      },
+      "latency": {
+        "n": 405,
+        "medianMs": 3,
+        "p95Ms": 4,
+        "meanMs": 2.88
+      },
+      "meanBothSides": 0.4927,
+      "stdBothSides": 0.1448,
+      "meanFamilyBalancedAccuracy": 0.8314,
+      "stdFamilyBalancedAccuracy": 0.0302,
+      "meanMacroF1": 0.8653,
+      "stdMacroF1": 0.0412,
+      "meanRowAccuracy": 0.8667,
+      "stdRowAccuracy": 0.0413,
+      "meanHoldoutNll": 0.5605,
+      "meanPDev": 0.5565,
+      "meanPNon": 0.4067,
+      "folds": [
+        {
+          "fold": 0,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.9012,
+            "balancedAccuracy": 0.8994,
+            "precision": 0.8857,
+            "recall": 0.8857,
+            "f1": 0.8857,
+            "macroF1": 0.8994,
+            "confusion": {
+              "tp": 31,
+              "tn": 42,
+              "fp": 4,
+              "fn": 4
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.8368,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10,
+          "bothSidesCorrectCount": 6,
+          "holdoutNll": 0.5478,
+          "meanPDev": 0.5718,
+          "meanPNon": 0.4114
+        },
+        {
+          "fold": 1,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.9012,
+            "balancedAccuracy": 0.8972,
+            "precision": 0.9118,
+            "recall": 0.8611,
+            "f1": 0.8857,
+            "macroF1": 0.8994,
+            "confusion": {
+              "tp": 31,
+              "tn": 42,
+              "fp": 3,
+              "fn": 5
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.817,
+          "bothSidesRate": 0.5,
+          "bothSidesN": 10,
+          "bothSidesCorrectCount": 5,
+          "holdoutNll": 0.5597,
+          "meanPDev": 0.5526,
+          "meanPNon": 0.4062
+        },
+        {
+          "fold": 2,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8025,
+            "balancedAccuracy": 0.8068,
+            "precision": 0.9063,
+            "recall": 0.6905,
+            "f1": 0.7838,
+            "macroF1": 0.801,
+            "confusion": {
+              "tp": 29,
+              "tn": 36,
+              "fp": 3,
+              "fn": 13
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.8125,
+          "bothSidesRate": 0.3333,
+          "bothSidesN": 12,
+          "bothSidesCorrectCount": 4,
+          "holdoutNll": 0.5842,
+          "meanPDev": 0.5209,
+          "meanPNon": 0.3895
+        },
+        {
+          "fold": 3,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8765,
+            "balancedAccuracy": 0.8755,
+            "precision": 0.8636,
+            "recall": 0.9048,
+            "f1": 0.8837,
+            "macroF1": 0.8761,
+            "confusion": {
+              "tp": 38,
+              "tn": 33,
+              "fp": 6,
+              "fn": 4
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.8819,
+          "bothSidesRate": 0.6667,
+          "bothSidesN": 12,
+          "bothSidesCorrectCount": 8,
+          "holdoutNll": 0.5478,
+          "meanPDev": 0.5741,
+          "meanPNon": 0.4091
+        },
+        {
+          "fold": 4,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8498,
+            "precision": 0.8857,
+            "recall": 0.7949,
+            "f1": 0.8378,
+            "macroF1": 0.8507,
+            "confusion": {
+              "tp": 31,
+              "tn": 38,
+              "fp": 4,
+              "fn": 8
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.809,
+          "bothSidesRate": 0.3636,
+          "bothSidesN": 11,
+          "bothSidesCorrectCount": 4,
+          "holdoutNll": 0.5632,
+          "meanPDev": 0.563,
+          "meanPNon": 0.4173
+        }
+      ]
+    },
+    {
+      "id": "arctic",
+      "loaded": {
+        "runtimeModelId": "Snowflake/snowflake-arctic-embed-xs",
+        "sourceModelId": "Snowflake/snowflake-arctic-embed-xs",
+        "license": "Apache-2.0",
+        "pooling": "cls",
+        "normalize": true,
+        "queryPrefix": null,
+        "quantized": true,
+        "quantization": "int8-onnx",
+        "embeddingDim": 384,
+        "smokeL2": 1,
+        "coldLoadMs": 2156,
+        "smokeEmbedMs": 2,
+        "cacheDir": "/Users/princem/Downloads/himothy-app/.cache/transformers/Snowflake/snowflake-arctic-embed-xs",
+        "cacheBytes": 23686811,
+        "cacheMb": 22.59,
+        "onnxFiles": [
+          "model_quantized.onnx (22435 KB)"
+        ]
+      },
+      "latency": {
+        "n": 405,
+        "medianMs": 1,
+        "p95Ms": 3,
+        "meanMs": 1.61
+      },
+      "meanBothSides": 0.3145,
+      "stdBothSides": 0.1583,
+      "meanFamilyBalancedAccuracy": 0.7639,
+      "stdFamilyBalancedAccuracy": 0.0615,
+      "meanMacroF1": 0.784,
+      "stdMacroF1": 0.0944,
+      "meanRowAccuracy": 0.7951,
+      "stdRowAccuracy": 0.0803,
+      "meanHoldoutNll": 0.64,
+      "meanPDev": 0.5082,
+      "meanPNon": 0.4515,
+      "folds": [
+        {
+          "fold": 0,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8457,
+            "precision": 0.8485,
+            "recall": 0.8,
+            "f1": 0.8235,
+            "macroF1": 0.8479,
+            "confusion": {
+              "tp": 28,
+              "tn": 41,
+              "fp": 5,
+              "fn": 7
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.784,
+          "bothSidesRate": 0.5,
+          "bothSidesN": 10,
+          "bothSidesCorrectCount": 5,
+          "holdoutNll": 0.6386,
+          "meanPDev": 0.5225,
+          "meanPNon": 0.4665
+        },
+        {
+          "fold": 1,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8148,
+            "balancedAccuracy": 0.8,
+            "precision": 0.8889,
+            "recall": 0.6667,
+            "f1": 0.7619,
+            "macroF1": 0.8052,
+            "confusion": {
+              "tp": 24,
+              "tn": 42,
+              "fp": 3,
+              "fn": 12
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.7371,
+          "bothSidesRate": 0.3,
+          "bothSidesN": 10,
+          "bothSidesCorrectCount": 3,
+          "holdoutNll": 0.6346,
+          "meanPDev": 0.5149,
+          "meanPNon": 0.456
+        },
+        {
+          "fold": 2,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.6543,
+            "balancedAccuracy": 0.6667,
+            "precision": 1,
+            "recall": 0.3333,
+            "f1": 0.5,
+            "macroF1": 0.6179,
+            "confusion": {
+              "tp": 14,
+              "tn": 39,
+              "fp": 0,
+              "fn": 28
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.6701,
+          "bothSidesRate": 0.0833,
+          "bothSidesN": 12,
+          "bothSidesCorrectCount": 1,
+          "holdoutNll": 0.6473,
+          "meanPDev": 0.4854,
+          "meanPNon": 0.4304
+        },
+        {
+          "fold": 3,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8148,
+            "balancedAccuracy": 0.8196,
+            "precision": 0.9355,
+            "recall": 0.6905,
+            "f1": 0.7945,
+            "macroF1": 0.813,
+            "confusion": {
+              "tp": 29,
+              "tn": 37,
+              "fp": 2,
+              "fn": 13
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.8229,
+          "bothSidesRate": 0.4167,
+          "bothSidesN": 12,
+          "bothSidesCorrectCount": 5,
+          "holdoutNll": 0.6388,
+          "meanPDev": 0.5089,
+          "meanPNon": 0.4494
+        },
+        {
+          "fold": 4,
+          "nHoldout": 81,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8395,
+            "balancedAccuracy": 0.8352,
+            "precision": 0.9333,
+            "recall": 0.7179,
+            "f1": 0.8116,
+            "macroF1": 0.8359,
+            "confusion": {
+              "tp": 28,
+              "tn": 40,
+              "fp": 2,
+              "fn": 11
+            }
+          },
+          "meanFamilyBalancedAccuracy": 0.8056,
+          "bothSidesRate": 0.2727,
+          "bothSidesN": 11,
+          "bothSidesCorrectCount": 3,
+          "holdoutNll": 0.6409,
+          "meanPDev": 0.5093,
+          "meanPNon": 0.4553
+        }
+      ]
+    }
+  ],
+  "comparison": {
+    "minilm": {
+      "meanBothSides": 0.4645,
+      "meanFamilyBalancedAccuracy": 0.8086,
+      "meanMacroF1": 0.8423,
+      "meanRowAccuracy": 0.8444
+    },
+    "arctic": {
+      "meanBothSides": 0.3145,
+      "deltaBothSidesVsMiniLM": -0.15,
+      "meanFamilyBalancedAccuracy": 0.7639,
+      "deltaFamilyBaVsMiniLM": -0.0447,
+      "meanMacroF1": 0.784,
+      "meanRowAccuracy": 0.7951
+    },
+    "bge": {
+      "meanBothSides": 0.4927,
+      "deltaBothSidesVsMiniLM": 0.0282,
+      "meanFamilyBalancedAccuracy": 0.8314,
+      "deltaFamilyBaVsMiniLM": 0.0228,
+      "meanMacroF1": 0.8653,
+      "meanRowAccuracy": 0.8667
+    }
+  },
+  "gate": {
+    "decision": "NULL_BAKEOFF",
+    "winner": null,
+    "reason": "No challenger cleared the predeclared gate (both-sides +0.10 vs MiniLM, or family BA +0.05 with both-sides not worse)."
+  }
+}
