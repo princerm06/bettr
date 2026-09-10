@@ -1,0 +1,992 @@
+{
+  "evaluator": "candidate-developmental-3b",
+  "pass": "external-val-after-locked-cv",
+  "generatedAt": "2026-09-10T22:27:49.661Z",
+  "trainConfig": {
+    "id": "h32_relu_l2=0.01_drop=0_lr=0.4_ep=400",
+    "hidden": 32,
+    "activation": "relu",
+    "l2": 0.01,
+    "dropout": 0,
+    "learningRate": 0.4,
+    "epochs": 400,
+    "seed": 42,
+    "binaryThreshold": 0.5,
+    "paramCount": 12353
+  },
+  "counts": {
+    "train": 405,
+    "trainDev": 194,
+    "trainNon": 211,
+    "val": 92
+  },
+  "cvFile": "/Users/princem/Downloads/himothy-app/benchmarks/semantic/results/developmental-candidate-3b-cv.json",
+  "binaryValidation": {
+    "n": 92,
+    "accuracy": 0.8804,
+    "balancedAccuracy": 0.8843,
+    "precision": 0.8298,
+    "recall": 0.9286,
+    "f1": 0.8764,
+    "macroF1": 0.8803,
+    "confusion": {
+      "tp": 39,
+      "tn": 42,
+      "fp": 8,
+      "fn": 3
+    },
+    "devAccuracy": 0.9286,
+    "nonDevAccuracy": 0.84
+  },
+  "domainMetrics": {
+    "Physical Prowess": {
+      "n": 8,
+      "accuracy": 1,
+      "balancedAccuracy": 1,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "macroF1": 1,
+      "confusion": {
+        "tp": 4,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0
+      },
+      "devAccuracy": 1,
+      "nonDevAccuracy": 1
+    },
+    "Fashion & Style": {
+      "n": 8,
+      "accuracy": 0.875,
+      "balancedAccuracy": 0.875,
+      "precision": 1,
+      "recall": 0.75,
+      "f1": 0.8571,
+      "macroF1": 0.873,
+      "confusion": {
+        "tp": 3,
+        "tn": 4,
+        "fp": 0,
+        "fn": 1
+      },
+      "devAccuracy": 0.75,
+      "nonDevAccuracy": 1
+    },
+    "Appearance & Self-Care": {
+      "n": 6,
+      "accuracy": 0.8333,
+      "balancedAccuracy": 0.8333,
+      "precision": 0.75,
+      "recall": 1,
+      "f1": 0.8571,
+      "macroF1": 0.8286,
+      "confusion": {
+        "tp": 3,
+        "tn": 2,
+        "fp": 1,
+        "fn": 0
+      },
+      "devAccuracy": 1,
+      "nonDevAccuracy": 0.6667
+    },
+    "Academics": {
+      "n": 8,
+      "accuracy": 0.875,
+      "balancedAccuracy": 0.875,
+      "precision": 1,
+      "recall": 0.75,
+      "f1": 0.8571,
+      "macroF1": 0.873,
+      "confusion": {
+        "tp": 3,
+        "tn": 4,
+        "fp": 0,
+        "fn": 1
+      },
+      "devAccuracy": 0.75,
+      "nonDevAccuracy": 1
+    },
+    "Career": {
+      "n": 8,
+      "accuracy": 0.875,
+      "balancedAccuracy": 0.875,
+      "precision": 0.8,
+      "recall": 1,
+      "f1": 0.8889,
+      "macroF1": 0.873,
+      "confusion": {
+        "tp": 4,
+        "tn": 3,
+        "fp": 1,
+        "fn": 0
+      },
+      "devAccuracy": 1,
+      "nonDevAccuracy": 0.75
+    },
+    "Finance": {
+      "n": 8,
+      "accuracy": 0.75,
+      "balancedAccuracy": 0.75,
+      "precision": 0.6667,
+      "recall": 1,
+      "f1": 0.8,
+      "macroF1": 0.7333,
+      "confusion": {
+        "tp": 4,
+        "tn": 2,
+        "fp": 2,
+        "fn": 0
+      },
+      "devAccuracy": 1,
+      "nonDevAccuracy": 0.5
+    },
+    "Nutrition & Cooking": {
+      "n": 8,
+      "accuracy": 1,
+      "balancedAccuracy": 1,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "macroF1": 1,
+      "confusion": {
+        "tp": 4,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0
+      },
+      "devAccuracy": 1,
+      "nonDevAccuracy": 1
+    },
+    "Social": {
+      "n": 8,
+      "accuracy": 1,
+      "balancedAccuracy": 1,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "macroF1": 1,
+      "confusion": {
+        "tp": 4,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0
+      },
+      "devAccuracy": 1,
+      "nonDevAccuracy": 1
+    },
+    "Mind & Craft": {
+      "n": 8,
+      "accuracy": 0.875,
+      "balancedAccuracy": 0.875,
+      "precision": 0.8,
+      "recall": 1,
+      "f1": 0.8889,
+      "macroF1": 0.873,
+      "confusion": {
+        "tp": 4,
+        "tn": 3,
+        "fp": 1,
+        "fn": 0
+      },
+      "devAccuracy": 1,
+      "nonDevAccuracy": 0.75
+    },
+    "Inner Wellbeing": {
+      "n": 7,
+      "accuracy": 0.7143,
+      "balancedAccuracy": 0.7083,
+      "precision": 0.75,
+      "recall": 0.75,
+      "f1": 0.75,
+      "macroF1": 0.7083,
+      "confusion": {
+        "tp": 3,
+        "tn": 2,
+        "fp": 1,
+        "fn": 1
+      },
+      "devAccuracy": 0.75,
+      "nonDevAccuracy": 0.6667
+    },
+    "Spirituality": {
+      "n": 6,
+      "accuracy": 1,
+      "balancedAccuracy": 1,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "macroF1": 1,
+      "confusion": {
+        "tp": 3,
+        "tn": 3,
+        "fp": 0,
+        "fn": 0
+      },
+      "devAccuracy": 1,
+      "nonDevAccuracy": 1
+    },
+    "Ordinary / none": {
+      "n": 9,
+      "accuracy": 0.7778,
+      "balancedAccuracy": 0.3889,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0,
+      "macroF1": 0.4375,
+      "confusion": {
+        "tp": 0,
+        "tn": 7,
+        "fp": 2,
+        "fn": 0
+      },
+      "devAccuracy": 0,
+      "nonDevAccuracy": 0.7778
+    }
+  },
+  "familyAccuracy": [
+    {
+      "familyId": "physical.swim_set_vs_soak",
+      "contrastGroup": "physical.session_vs_adjacent_idle",
+      "n": 8,
+      "accuracy": 1,
+      "bothSides": true,
+      "bothSidesCorrect": true
+    },
+    {
+      "familyId": "fashion.drape_experiment_vs_impulse_buy",
+      "contrastGroup": "fashion.expression_vs_acquisition",
+      "n": 8,
+      "accuracy": 0.875,
+      "bothSides": true,
+      "bothSidesCorrect": false
+    },
+    {
+      "familyId": "appearance.hygiene_closeout_vs_splash",
+      "contrastGroup": "appearance.maintenance_vs_ordinary",
+      "n": 6,
+      "accuracy": 0.8333,
+      "bothSides": true,
+      "bothSidesCorrect": false
+    },
+    {
+      "familyId": "academics.flashcards_vs_background_tv",
+      "contrastGroup": "academics.active_vs_passive_noise",
+      "n": 8,
+      "accuracy": 0.875,
+      "bothSides": true,
+      "bothSidesCorrect": false
+    },
+    {
+      "familyId": "career.feedback_session_vs_job_board_refresh",
+      "contrastGroup": "career.skill_vs_browse",
+      "n": 8,
+      "accuracy": 0.875,
+      "bothSides": true,
+      "bothSidesCorrect": false
+    },
+    {
+      "familyId": "finance.quote_rate_vs_found_cash",
+      "contrastGroup": "finance.create_income_vs_receive",
+      "n": 8,
+      "accuracy": 0.75,
+      "bothSides": true,
+      "bothSidesCorrect": false
+    },
+    {
+      "familyId": "nutrition.technique_drill_vs_eat_bar",
+      "contrastGroup": "nutrition.skill_vs_consume",
+      "n": 8,
+      "accuracy": 1,
+      "bothSides": true,
+      "bothSidesCorrect": true
+    },
+    {
+      "familyId": "social.feedback_pref_vs_background_stream",
+      "contrastGroup": "social.skill_vs_passive",
+      "n": 8,
+      "accuracy": 1,
+      "bothSides": true,
+      "bothSidesCorrect": true
+    },
+    {
+      "familyId": "craft.solder_repair_vs_buy_earbuds",
+      "contrastGroup": "craft.make_vs_buy",
+      "n": 8,
+      "accuracy": 0.875,
+      "bothSides": true,
+      "bothSidesCorrect": false
+    },
+    {
+      "familyId": "wellbeing.box_breathing_vs_stare",
+      "contrastGroup": "wellbeing.practice_vs_idle",
+      "n": 7,
+      "accuracy": 0.7143,
+      "bothSides": true,
+      "bothSidesCorrect": false
+    },
+    {
+      "familyId": "spiritual.intention_fast_vs_lobby",
+      "contrastGroup": "spiritual.practice_vs_attend",
+      "n": 6,
+      "accuracy": 1,
+      "bothSides": true,
+      "bothSidesCorrect": true
+    },
+    {
+      "familyId": "ordinary.errands",
+      "contrastGroup": "ordinary.errands",
+      "n": 9,
+      "accuracy": 0.7778,
+      "bothSides": false,
+      "bothSidesCorrect": false
+    }
+  ],
+  "nearPairBothSidesCorrect": 0.3636,
+  "nearPairFamilyCount": 11,
+  "errors": [
+    {
+      "id": "DV-0033",
+      "text": "figured out how this old shirt actually sits on me",
+      "expected": "DEVELOPMENTAL",
+      "predicted": "NON_DEVELOPMENTAL",
+      "pDevelopmental": 0.1347,
+      "familyId": "fashion.drape_experiment_vs_impulse_buy",
+      "domain": "Fashion & Style"
+    },
+    {
+      "id": "DV-0096",
+      "text": "Wet my hands, wiped my face, out the door",
+      "expected": "NON_DEVELOPMENTAL",
+      "predicted": "DEVELOPMENTAL",
+      "pDevelopmental": 0.5726,
+      "familyId": "appearance.hygiene_closeout_vs_splash",
+      "domain": "Appearance & Self-Care"
+    },
+    {
+      "id": "DV-0098",
+      "text": "anki for anatomy until i stopped peeking at the back",
+      "expected": "DEVELOPMENTAL",
+      "predicted": "NON_DEVELOPMENTAL",
+      "pDevelopmental": 0.1444,
+      "familyId": "academics.flashcards_vs_background_tv",
+      "domain": "Academics"
+    },
+    {
+      "id": "DV-0140",
+      "text": "Looked at postings and decided later, then did not",
+      "expected": "NON_DEVELOPMENTAL",
+      "predicted": "DEVELOPMENTAL",
+      "pDevelopmental": 0.5741,
+      "familyId": "career.feedback_session_vs_job_board_refresh",
+      "domain": "Career"
+    },
+    {
+      "id": "DV-0190",
+      "text": "Laundry money in a jacket",
+      "expected": "NON_DEVELOPMENTAL",
+      "predicted": "DEVELOPMENTAL",
+      "pDevelopmental": 0.5956,
+      "familyId": "finance.quote_rate_vs_found_cash",
+      "domain": "Finance"
+    },
+    {
+      "id": "DV-0191",
+      "text": "A twenty fell out of last winter’s coat",
+      "expected": "NON_DEVELOPMENTAL",
+      "predicted": "DEVELOPMENTAL",
+      "pDevelopmental": 0.6383,
+      "familyId": "finance.quote_rate_vs_found_cash",
+      "domain": "Finance"
+    },
+    {
+      "id": "DV-0288",
+      "text": "Ordered another pair instead of fixing them",
+      "expected": "NON_DEVELOPMENTAL",
+      "predicted": "DEVELOPMENTAL",
+      "pDevelopmental": 0.8432,
+      "familyId": "craft.solder_repair_vs_buy_earbuds",
+      "domain": "Mind & Craft"
+    },
+    {
+      "id": "DV-0319",
+      "text": "Sat down and did paced breathing until my chest unclenched",
+      "expected": "DEVELOPMENTAL",
+      "predicted": "NON_DEVELOPMENTAL",
+      "pDevelopmental": 0.4117,
+      "familyId": "wellbeing.box_breathing_vs_stare",
+      "domain": "Inner Wellbeing"
+    },
+    {
+      "id": "DV-0323",
+      "text": "Lay there doing nothing",
+      "expected": "NON_DEVELOPMENTAL",
+      "predicted": "DEVELOPMENTAL",
+      "pDevelopmental": 0.7002,
+      "familyId": "wellbeing.box_breathing_vs_stare",
+      "domain": "Inner Wellbeing"
+    },
+    {
+      "id": "DV-0380",
+      "text": "Wiped the kitchen counters after dinner",
+      "expected": "NON_DEVELOPMENTAL",
+      "predicted": "DEVELOPMENTAL",
+      "pDevelopmental": 0.5405,
+      "familyId": "ordinary.errands",
+      "domain": "Ordinary / none"
+    },
+    {
+      "id": "DV-0387",
+      "text": "Counters, then the stovetop, nothing fancy",
+      "expected": "NON_DEVELOPMENTAL",
+      "predicted": "DEVELOPMENTAL",
+      "pDevelopmental": 0.6461,
+      "familyId": "ordinary.errands",
+      "domain": "Ordinary / none"
+    }
+  ],
+  "calibration": {
+    "meanPDev": 0.7624,
+    "meanPNon": 0.2911,
+    "brier": 0.1143,
+    "fracWithin010OfHalf": 0.2174,
+    "minP": 0.0244,
+    "maxP": 0.9872
+  },
+  "comparison": {
+    "3a.1": {
+      "binaryValidation": {
+        "n": 92,
+        "accuracy": 0.8478,
+        "balancedAccuracy": 0.8429,
+        "precision": 0.8684,
+        "recall": 0.7857,
+        "f1": 0.825,
+        "confusion": {
+          "tp": 33,
+          "tn": 45,
+          "fp": 5,
+          "fn": 9
+        },
+        "devAccuracy": 0.7857,
+        "nonDevAccuracy": 0.9
+      },
+      "nearPairBothSidesCorrect": 0.3636,
+      "domainAccuracy": {
+        "Physical Prowess": 0.875,
+        "Fashion & Style": 0.875,
+        "Appearance & Self-Care": 1,
+        "Academics": 0.875,
+        "Career": 1,
+        "Finance": 0.625,
+        "Nutrition & Cooking": 0.875,
+        "Social": 1,
+        "Mind & Craft": 0.375,
+        "Inner Wellbeing": 0.8571,
+        "Spirituality": 1,
+        "Ordinary / none": 0.8889
+      },
+      "familyAccuracy": [
+        {
+          "familyId": "physical.swim_set_vs_soak",
+          "contrastGroup": "physical.session_vs_adjacent_idle",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "fashion.drape_experiment_vs_impulse_buy",
+          "contrastGroup": "fashion.expression_vs_acquisition",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "appearance.hygiene_closeout_vs_splash",
+          "contrastGroup": "appearance.maintenance_vs_ordinary",
+          "n": 6,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "academics.flashcards_vs_background_tv",
+          "contrastGroup": "academics.active_vs_passive_noise",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "career.feedback_session_vs_job_board_refresh",
+          "contrastGroup": "career.skill_vs_browse",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "finance.quote_rate_vs_found_cash",
+          "contrastGroup": "finance.create_income_vs_receive",
+          "n": 8,
+          "accuracy": 0.625,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "nutrition.technique_drill_vs_eat_bar",
+          "contrastGroup": "nutrition.skill_vs_consume",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "social.feedback_pref_vs_background_stream",
+          "contrastGroup": "social.skill_vs_passive",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "craft.solder_repair_vs_buy_earbuds",
+          "contrastGroup": "craft.make_vs_buy",
+          "n": 8,
+          "accuracy": 0.375,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "wellbeing.box_breathing_vs_stare",
+          "contrastGroup": "wellbeing.practice_vs_idle",
+          "n": 7,
+          "accuracy": 0.8571,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "spiritual.intention_fast_vs_lobby",
+          "contrastGroup": "spiritual.practice_vs_attend",
+          "n": 6,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "ordinary.errands",
+          "contrastGroup": "ordinary.errands",
+          "n": 9,
+          "accuracy": 0.8889,
+          "bothSides": false,
+          "bothSidesCorrect": false
+        }
+      ]
+    },
+    "3a.2": {
+      "binaryValidation": {
+        "n": 92,
+        "accuracy": 0.837,
+        "balancedAccuracy": 0.8329,
+        "precision": 0.8462,
+        "recall": 0.7857,
+        "f1": 0.8148,
+        "confusion": {
+          "tp": 33,
+          "tn": 44,
+          "fp": 6,
+          "fn": 9
+        },
+        "devAccuracy": 0.7857,
+        "nonDevAccuracy": 0.88
+      },
+      "nearPairBothSidesCorrect": 0.3636,
+      "domainAccuracy": {
+        "Physical Prowess": 0.875,
+        "Fashion & Style": 0.875,
+        "Appearance & Self-Care": 1,
+        "Academics": 0.875,
+        "Career": 1,
+        "Finance": 0.5,
+        "Nutrition & Cooking": 0.875,
+        "Social": 1,
+        "Mind & Craft": 0.625,
+        "Inner Wellbeing": 0.5714,
+        "Spirituality": 1,
+        "Ordinary / none": 0.8889
+      },
+      "familyAccuracy": [
+        {
+          "familyId": "physical.swim_set_vs_soak",
+          "contrastGroup": "physical.session_vs_adjacent_idle",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "fashion.drape_experiment_vs_impulse_buy",
+          "contrastGroup": "fashion.expression_vs_acquisition",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "appearance.hygiene_closeout_vs_splash",
+          "contrastGroup": "appearance.maintenance_vs_ordinary",
+          "n": 6,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "academics.flashcards_vs_background_tv",
+          "contrastGroup": "academics.active_vs_passive_noise",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "career.feedback_session_vs_job_board_refresh",
+          "contrastGroup": "career.skill_vs_browse",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "finance.quote_rate_vs_found_cash",
+          "contrastGroup": "finance.create_income_vs_receive",
+          "n": 8,
+          "accuracy": 0.5,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "nutrition.technique_drill_vs_eat_bar",
+          "contrastGroup": "nutrition.skill_vs_consume",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "social.feedback_pref_vs_background_stream",
+          "contrastGroup": "social.skill_vs_passive",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "craft.solder_repair_vs_buy_earbuds",
+          "contrastGroup": "craft.make_vs_buy",
+          "n": 8,
+          "accuracy": 0.625,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "wellbeing.box_breathing_vs_stare",
+          "contrastGroup": "wellbeing.practice_vs_idle",
+          "n": 7,
+          "accuracy": 0.5714,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "spiritual.intention_fast_vs_lobby",
+          "contrastGroup": "spiritual.practice_vs_attend",
+          "n": 6,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "ordinary.errands",
+          "contrastGroup": "ordinary.errands",
+          "n": 9,
+          "accuracy": 0.8889,
+          "bothSides": false,
+          "bothSidesCorrect": false
+        }
+      ]
+    },
+    "3a.3": {
+      "binaryValidation": {
+        "n": 92,
+        "accuracy": 0.837,
+        "balancedAccuracy": 0.8329,
+        "precision": 0.8462,
+        "recall": 0.7857,
+        "f1": 0.8148,
+        "macroF1": 0.8346,
+        "confusion": {
+          "tp": 33,
+          "tn": 44,
+          "fp": 6,
+          "fn": 9
+        },
+        "devAccuracy": 0.7857,
+        "nonDevAccuracy": 0.88
+      },
+      "nearPairBothSidesCorrect": 0.3636,
+      "domainAccuracy": {
+        "Physical Prowess": 0.875,
+        "Fashion & Style": 0.875,
+        "Appearance & Self-Care": 1,
+        "Academics": 0.875,
+        "Career": 1,
+        "Finance": 0.5,
+        "Nutrition & Cooking": 0.875,
+        "Social": 1,
+        "Mind & Craft": 0.625,
+        "Inner Wellbeing": 0.5714,
+        "Spirituality": 1,
+        "Ordinary / none": 0.8889
+      },
+      "familyAccuracy": [
+        {
+          "familyId": "physical.swim_set_vs_soak",
+          "contrastGroup": "physical.session_vs_adjacent_idle",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "fashion.drape_experiment_vs_impulse_buy",
+          "contrastGroup": "fashion.expression_vs_acquisition",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "appearance.hygiene_closeout_vs_splash",
+          "contrastGroup": "appearance.maintenance_vs_ordinary",
+          "n": 6,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "academics.flashcards_vs_background_tv",
+          "contrastGroup": "academics.active_vs_passive_noise",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "career.feedback_session_vs_job_board_refresh",
+          "contrastGroup": "career.skill_vs_browse",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "finance.quote_rate_vs_found_cash",
+          "contrastGroup": "finance.create_income_vs_receive",
+          "n": 8,
+          "accuracy": 0.5,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "nutrition.technique_drill_vs_eat_bar",
+          "contrastGroup": "nutrition.skill_vs_consume",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "social.feedback_pref_vs_background_stream",
+          "contrastGroup": "social.skill_vs_passive",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "craft.solder_repair_vs_buy_earbuds",
+          "contrastGroup": "craft.make_vs_buy",
+          "n": 8,
+          "accuracy": 0.625,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "wellbeing.box_breathing_vs_stare",
+          "contrastGroup": "wellbeing.practice_vs_idle",
+          "n": 7,
+          "accuracy": 0.5714,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "spiritual.intention_fast_vs_lobby",
+          "contrastGroup": "spiritual.practice_vs_attend",
+          "n": 6,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "ordinary.errands",
+          "contrastGroup": "ordinary.errands",
+          "n": 9,
+          "accuracy": 0.8889,
+          "bothSides": false,
+          "bothSidesCorrect": false
+        }
+      ]
+    },
+    "3b": {
+      "binaryValidation": {
+        "n": 92,
+        "accuracy": 0.8804,
+        "balancedAccuracy": 0.8843,
+        "precision": 0.8298,
+        "recall": 0.9286,
+        "f1": 0.8764,
+        "macroF1": 0.8803,
+        "confusion": {
+          "tp": 39,
+          "tn": 42,
+          "fp": 8,
+          "fn": 3
+        },
+        "devAccuracy": 0.9286,
+        "nonDevAccuracy": 0.84
+      },
+      "nearPairBothSidesCorrect": 0.3636,
+      "domainAccuracy": {
+        "Physical Prowess": 1,
+        "Fashion & Style": 0.875,
+        "Appearance & Self-Care": 0.8333,
+        "Academics": 0.875,
+        "Career": 0.875,
+        "Finance": 0.75,
+        "Nutrition & Cooking": 1,
+        "Social": 1,
+        "Mind & Craft": 0.875,
+        "Inner Wellbeing": 0.7143,
+        "Spirituality": 1,
+        "Ordinary / none": 0.7778
+      },
+      "familyAccuracy": [
+        {
+          "familyId": "physical.swim_set_vs_soak",
+          "contrastGroup": "physical.session_vs_adjacent_idle",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "fashion.drape_experiment_vs_impulse_buy",
+          "contrastGroup": "fashion.expression_vs_acquisition",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "appearance.hygiene_closeout_vs_splash",
+          "contrastGroup": "appearance.maintenance_vs_ordinary",
+          "n": 6,
+          "accuracy": 0.8333,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "academics.flashcards_vs_background_tv",
+          "contrastGroup": "academics.active_vs_passive_noise",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "career.feedback_session_vs_job_board_refresh",
+          "contrastGroup": "career.skill_vs_browse",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "finance.quote_rate_vs_found_cash",
+          "contrastGroup": "finance.create_income_vs_receive",
+          "n": 8,
+          "accuracy": 0.75,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "nutrition.technique_drill_vs_eat_bar",
+          "contrastGroup": "nutrition.skill_vs_consume",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "social.feedback_pref_vs_background_stream",
+          "contrastGroup": "social.skill_vs_passive",
+          "n": 8,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "craft.solder_repair_vs_buy_earbuds",
+          "contrastGroup": "craft.make_vs_buy",
+          "n": 8,
+          "accuracy": 0.875,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "wellbeing.box_breathing_vs_stare",
+          "contrastGroup": "wellbeing.practice_vs_idle",
+          "n": 7,
+          "accuracy": 0.7143,
+          "bothSides": true,
+          "bothSidesCorrect": false
+        },
+        {
+          "familyId": "spiritual.intention_fast_vs_lobby",
+          "contrastGroup": "spiritual.practice_vs_attend",
+          "n": 6,
+          "accuracy": 1,
+          "bothSides": true,
+          "bothSidesCorrect": true
+        },
+        {
+          "familyId": "ordinary.errands",
+          "contrastGroup": "ordinary.errands",
+          "n": 9,
+          "accuracy": 0.7778,
+          "bothSides": false,
+          "bothSidesCorrect": false
+        }
+      ],
+      "calibration": {
+        "meanPDev": 0.7624,
+        "meanPNon": 0.2911,
+        "brier": 0.1143,
+        "fracWithin010OfHalf": 0.2174,
+        "minP": 0.0244,
+        "maxP": 0.9872
+      }
+    }
+  }
+}

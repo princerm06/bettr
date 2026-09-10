@@ -1,0 +1,361 @@
+import type { DevelopmentalLabel, DatasetDomain, DatasetRole } from './schema';
+
+export type ExampleBundle = {
+  familyId: string;
+  contrastGroup: string;
+  domain: DatasetDomain;
+  role: DatasetRole;
+  label: DevelopmentalLabel;
+  texts: string[];
+};
+
+export const CORE_BUNDLES: ExampleBundle[] = [
+  {
+    familyId: 'physical.swim_set_vs_soak',
+    contrastGroup: 'physical.session_vs_adjacent_idle',
+    domain: 'Physical Prowess',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Completed a timed 10x100 swim set and logged the splits',
+      'did my swim intervals today, felt ugly but i finished the set',
+      'Pool work: 8 x 50 kick on 1:00, actually hit the send-offs',
+      '200 free then cool-down drills'
+    ],
+  },
+  {
+    familyId: 'physical.swim_set_vs_soak',
+    contrastGroup: 'physical.session_vs_adjacent_idle',
+    domain: 'Physical Prowess',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Sat in the hot tub while other people actually practiced',
+      'hung at the pool but just soaked and talked',
+      'Went to the aquatic center and talked to friends from the deck',
+      'I was at the pool for an hour. Did not get in a lane.',
+    ],
+  },
+  {
+    familyId: 'physical.sport_drill_vs_commute',
+    contrastGroup: 'physical.skill_vs_logistics',
+    domain: 'Physical Prowess',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Worked a soccer first-touch wall drill for 20 minutes',
+      'wall passes till my first touch stopped bouncing away',
+      'Cone dribbling in the backyard, weak foot only',
+      'Stayed after pickup and did shooting form against the fence',
+    ],
+  },
+  {
+    familyId: 'physical.sport_drill_vs_commute',
+    contrastGroup: 'physical.skill_vs_logistics',
+    domain: 'Physical Prowess',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Rode over to the fields and left without practicing',
+      'biked to the fields, nobody was there so i left',
+      'Drove to the rec fields, sat in the lot, drove home',
+    ],
+  },
+  {
+    familyId: 'physical.prescribed_rehab_vs_idle_sore',
+    contrastGroup: 'physical.maintenance_vs_idle',
+    domain: 'Physical Prowess',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Did my prescribed rotator-cuff band work',
+      'pt band work, 3 sets, the boring ones',
+      'Did the hip mobility circuit my trainer wrote down',
+      'Ankle band walks and calf raises like the sheet says',
+    ],
+  },
+  {
+    familyId: 'physical.prescribed_rehab_vs_idle_sore',
+    contrastGroup: 'physical.maintenance_vs_idle',
+    domain: 'Physical Prowess',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Sat on the couch because my shoulder felt tight',
+      'shoulder was cranky so i just sat there',
+      'Skipped the band work and watched tv with ice on it',
+    ],
+  },
+  {
+    familyId: 'physical.climb_session_vs_spectate',
+    contrastGroup: 'physical.session_vs_adjacent_idle',
+    domain: 'Physical Prowess',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Worked three indoor climbing problems I had been stuck on',
+      'finally sent that orange V3 after projecting it',
+      'Bouldering session, focused on footwork on the slab',
+      'Lead practice on the auto-belay, 4 routes, rested between',
+    ],
+  },
+  {
+    familyId: 'physical.climb_session_vs_spectate',
+    contrastGroup: 'physical.session_vs_adjacent_idle',
+    domain: 'Physical Prowess',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Watched other people climb from the benches',
+      'went to the gym just to watch my roommate climb',
+      'Sat on the crash pads scrolling while they climbed',
+    ],
+  },
+  {
+    familyId: 'fashion.drape_experiment_vs_impulse_buy',
+    contrastGroup: 'fashion.expression_vs_acquisition',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Draped one shirt three ways and kept the version that actually fit my shape',
+      'tried tucking vs half-tuck vs open over a tank. kept the half-tuck',
+      'Pinned a wrap on a dress I already own until the line looked clean',
+      'figured out how this old shirt actually sits on me'
+    ],
+  },
+  {
+    familyId: 'fashion.drape_experiment_vs_impulse_buy',
+    contrastGroup: 'fashion.expression_vs_acquisition',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Bought a hoodie because it was on sale',
+      'impulse hoodie. 30% off. didnt even try it in daylight',
+      'Grabbed a graphic tee at checkout without thinking',
+      'Added a jacket to cart and checked out on my phone',
+    ],
+  },
+  {
+    familyId: 'fashion.layer_test_vs_browse',
+    contrastGroup: 'fashion.expression_vs_acquisition',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Tested which of my jackets actually layer over the shirts I already own',
+      'tried four jacket+shirt combos i already have. two looked huge, one worked',
+      'Lined up my coats and checked sleeve length over a sweater',
+      'Took photos of layering tests so I remember what actually fits',
+    ],
+  },
+  {
+    familyId: 'fashion.layer_test_vs_browse',
+    contrastGroup: 'fashion.expression_vs_acquisition',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Scrolled clothing sites for an hour',
+      'zoned out on a clothing site, bought nothing',
+      'Browsed sale racks online till my thumb hurt',
+      'Looked at outfits on my phone and closed the tab',
+    ],
+  },
+  {
+    familyId: 'fashion.alter_vs_unbox',
+    contrastGroup: 'fashion.skill_vs_package',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Hemmed two pairs of trousers to fit',
+      'took up the cuffs on my navy pants so they break right',
+      'Sewed a missing button and took in a waistband a little',
+    ],
+  },
+  {
+    familyId: 'fashion.alter_vs_unbox',
+    contrastGroup: 'fashion.skill_vs_package',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Unboxed a clothing order',
+      'package came. dumped it on the bed',
+      'Opened a shipping bag of clothes and left the pile there',
+    ],
+  },
+  {
+    familyId: 'fashion.color_practice_vs_mall_look',
+    contrastGroup: 'fashion.expression_vs_acquisition',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Practiced pairing belts and shoes I already own until two combinations looked intentional',
+      'matched a brown belt to the only shoes that didnt clash',
+      'Laid out accessories I already have and picked a quieter combo',
+    ],
+  },
+  {
+    familyId: 'fashion.color_practice_vs_mall_look',
+    contrastGroup: 'fashion.expression_vs_acquisition',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Walked through the mall looking at clothes',
+      'walked the mall, didnt try anything on',
+      'Window-shopped the second floor and left',
+    ],
+  },
+  {
+    familyId: 'fashion.repair_vs_replace',
+    contrastGroup: 'fashion.skill_vs_package',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Resoled a scuff and reshaped a collar on a shirt I already wear',
+      'cleaned and reshaped the collar on my white shirt',
+      'Fixed a pulled thread and steamed the front so it hangs straight',
+    ],
+  },
+  {
+    familyId: 'fashion.repair_vs_replace',
+    contrastGroup: 'fashion.skill_vs_package',
+    domain: 'Fashion & Style',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Ordered a replacement shirt in the same size',
+      'just reordered the same shirt',
+      'Clicked buy again on the one that ripped',
+    ],
+  },
+  {
+    familyId: 'appearance.washday_vs_buy_product',
+    contrastGroup: 'appearance.practice_vs_product',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Did wash day: washed, conditioned, and heat-protected my hair',
+      'wash day. detangled, conditioner, leave-in, then air dry',
+      'Washed my hair and actually used the heat protectant before styling',
+      'Deep conditioned and combed it out in sections',
+    ],
+  },
+  {
+    familyId: 'appearance.washday_vs_buy_product',
+    contrastGroup: 'appearance.practice_vs_product',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Bought a new shampoo and left it under the sink',
+      'grabbed shampoo on sale, still in the bag',
+      'Picked up a hair oil I have not opened',
+      'Bought a second conditioner because the bottle looked nice',
+    ],
+  },
+  {
+    familyId: 'appearance.groom_vs_mirror',
+    contrastGroup: 'appearance.practice_vs_looking',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Cut and filed my nails and cleaned up my beard',
+      'trimmed the beard and cleaned up the neckline',
+      'Nails, brows, and a quick shave so it looks intentional',
+      'Lined up my beard with a guard I actually measured',
+    ],
+  },
+  {
+    familyId: 'appearance.groom_vs_mirror',
+    contrastGroup: 'appearance.practice_vs_looking',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Looked in the mirror for a while',
+      'just stared at my face lol',
+      'Stood in the bathroom checking my phone in the mirror',
+    ],
+  },
+  {
+    familyId: 'appearance.haircut_vs_book_slot',
+    contrastGroup: 'appearance.practice_vs_logistics',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Got a haircut and asked for a shape I can maintain',
+      'barber today. asked him to keep the top longer so i can style it',
+      'Sat for a cut and showed a photo of the fade I can actually keep up',
+    ],
+  },
+  {
+    familyId: 'appearance.haircut_vs_book_slot',
+    contrastGroup: 'appearance.practice_vs_logistics',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Booked a salon appointment for next month',
+      'put a haircut on the calendar for later',
+      'Texted the shop to hold a Saturday slot',
+    ],
+  },
+  {
+    familyId: 'appearance.posture_vs_try_on',
+    contrastGroup: 'appearance.practice_vs_shopping',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Practiced posture and walking in shoes I already have',
+      'walked laps in my dress shoes so i stop clomping',
+      'Shoulders-back practice in the hallway with the shoes I already own',
+    ],
+  },
+  {
+    familyId: 'appearance.posture_vs_try_on',
+    contrastGroup: 'appearance.practice_vs_shopping',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Tried on shoes at the store and left',
+      'tried on like 6 pairs, bought none',
+      'Walked around the shoe store and put everything back',
+    ],
+  },
+  {
+    familyId: 'appearance.hygiene_closeout_vs_splash',
+    contrastGroup: 'appearance.maintenance_vs_ordinary',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'DEVELOPMENTAL',
+    texts: [
+      'Flossed, brushed, and cleaned my night guard as a close-out',
+      'full close-out: floss, brush, rinse the guard',
+      'Night hygiene: tongue scrape, floss, then the guard in its case',
+    ],
+  },
+  {
+    familyId: 'appearance.hygiene_closeout_vs_splash',
+    contrastGroup: 'appearance.maintenance_vs_ordinary',
+    domain: 'Appearance & Self-Care',
+    role: 'core_trainable',
+    label: 'NON_DEVELOPMENTAL',
+    texts: [
+      'Splashed water on my face and left',
+      'rinsed my face real quick',
+      'Wet my hands, wiped my face, out the door',
+    ],
+  },
+];

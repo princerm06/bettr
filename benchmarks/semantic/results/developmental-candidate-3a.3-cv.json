@@ -1,0 +1,2264 @@
+{
+  "evaluator": "candidate-developmental-3a.3",
+  "pass": "train-only-family-grouped-cv",
+  "generatedAt": "2026-09-10T22:12:30.799Z",
+  "dataset": {
+    "path": "benchmarks/semantic/datasets/developmental-v1/developmental-v1.jsonl",
+    "trainRows": 405,
+    "trainFamilies": 60,
+    "note": "3A.2 freeze. No example add/remove/edit. External val unused for selection."
+  },
+  "foldConstruction": {
+    "k": 5,
+    "seed": 42,
+    "algorithm": "Seeded shuffle of families (mulberry32, seed 42), then greedy placement largest-first into the fold with fewest families, then fewest rows, then smaller |DEV-NON| imbalance, then fewer copies of that domain. Entire family stays in one fold.",
+    "folds": [
+      {
+        "fold": 0,
+        "familyIds": [
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.writing_center_vs_inbox_glance",
+          "career.informational_call_vs_meme_channel",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.sink_washer_vs_new_faucet",
+          "fashion.color_practice_vs_mall_look",
+          "nutrition.proof_dough_vs_cereal_box",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "wellbeing.named_sensations_vs_floor_scroll"
+        ],
+        "n": 81,
+        "nDev": 35,
+        "nNon": 46,
+        "bothSidesFamilies": 10,
+        "domainCounts": {
+          "Academics": 2,
+          "Career": 1,
+          "Fashion & Style": 1,
+          "Finance": 1,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 2,
+          "Nutrition & Cooking": 1,
+          "Ordinary / none": 1,
+          "Physical Prowess": 2
+        },
+        "families": [
+          {
+            "familyId": "academics.lemma_own_words_vs_stack_packet",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "academics.writing_center_vs_inbox_glance",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.informational_call_vs_meme_channel",
+            "domain": "Career",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.piano_hands_vs_buy_metronome",
+            "domain": "Mind & Craft",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.sink_washer_vs_new_faucet",
+            "domain": "Mind & Craft",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "fashion.color_practice_vs_mall_look",
+            "domain": "Fashion & Style",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.proof_dough_vs_cereal_box",
+            "domain": "Nutrition & Cooking",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "ordinary.invoice_admin",
+            "domain": "Finance",
+            "n": 7,
+            "nDev": 0,
+            "nNon": 7,
+            "bothSides": false
+          },
+          {
+            "familyId": "ordinary.status_check",
+            "domain": "Ordinary / none",
+            "n": 8,
+            "nDev": 0,
+            "nNon": 8,
+            "bothSides": false
+          },
+          {
+            "familyId": "physical.prescribed_rehab_vs_idle_sore",
+            "domain": "Physical Prowess",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "physical.sport_drill_vs_commute",
+            "domain": "Physical Prowess",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.named_sensations_vs_floor_scroll",
+            "domain": "Inner Wellbeing",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      },
+      {
+        "fold": 1,
+        "familyIds": [
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.chess_motif_vs_phone_bed",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "nutrition.new_method_vs_grocery",
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.travel_logistics",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood"
+        ],
+        "n": 81,
+        "nDev": 36,
+        "nNon": 45,
+        "bothSidesFamilies": 10,
+        "domainCounts": {
+          "Career": 2,
+          "Finance": 3,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 1,
+          "Nutrition & Cooking": 1,
+          "Ordinary / none": 2,
+          "Spirituality": 2
+        },
+        "families": [
+          {
+            "familyId": "career.shadow_ticket_vs_bus",
+            "domain": "Career",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.star_rehearsal_vs_forward_invite",
+            "domain": "Career",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.chess_motif_vs_phone_bed",
+            "domain": "Mind & Craft",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.debt_order_vs_wallet_glance",
+            "domain": "Finance",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.payment_plan_vs_refund",
+            "domain": "Finance",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.plan_compare_vs_pay_bill",
+            "domain": "Finance",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.new_method_vs_grocery",
+            "domain": "Nutrition & Cooking",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "ordinary.detailed_errand_hardneg",
+            "domain": "Ordinary / none",
+            "n": 5,
+            "nDev": 0,
+            "nNon": 5,
+            "bothSides": false
+          },
+          {
+            "familyId": "ordinary.travel_logistics",
+            "domain": "Ordinary / none",
+            "n": 7,
+            "nDev": 0,
+            "nNon": 7,
+            "bothSides": false
+          },
+          {
+            "familyId": "spiritual.prayer_vs_calendar",
+            "domain": "Spirituality",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "spiritual.verse_sit_vs_buy_object",
+            "domain": "Spirituality",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.after_action_vs_mood",
+            "domain": "Inner Wellbeing",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      },
+      {
+        "fold": 2,
+        "familyIds": [
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.project_walkthrough_vs_payroll",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.still_life_vs_buy_pad",
+          "fashion.layer_test_vs_browse",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.rice_consistency_vs_microwave",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "wellbeing.paced_walk_vs_doomscroll"
+        ],
+        "n": 81,
+        "nDev": 42,
+        "nNon": 39,
+        "bothSidesFamilies": 12,
+        "domainCounts": {
+          "Appearance & Self-Care": 2,
+          "Career": 1,
+          "Fashion & Style": 1,
+          "Finance": 1,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 2,
+          "Nutrition & Cooking": 2,
+          "Social": 2
+        },
+        "families": [
+          {
+            "familyId": "appearance.haircut_vs_book_slot",
+            "domain": "Appearance & Self-Care",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "appearance.posture_vs_try_on",
+            "domain": "Appearance & Self-Care",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.project_walkthrough_vs_payroll",
+            "domain": "Career",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.ram_reseat_vs_buy_laptop",
+            "domain": "Mind & Craft",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.still_life_vs_buy_pad",
+            "domain": "Mind & Craft",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "fashion.layer_test_vs_browse",
+            "domain": "Fashion & Style",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.service_packages_vs_paypal_glance",
+            "domain": "Finance",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.log_adjust_vs_candy",
+            "domain": "Nutrition & Cooking",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.rice_consistency_vs_microwave",
+            "domain": "Nutrition & Cooking",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "social.facilitate_vs_errand",
+            "domain": "Social",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "social.lead_icebreakers_vs_rsvp",
+            "domain": "Social",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.paced_walk_vs_doomscroll",
+            "domain": "Inner Wellbeing",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      },
+      {
+        "fold": 3,
+        "familyIds": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.tutor_explain_vs_library_phone",
+          "appearance.groom_vs_mirror",
+          "career.club_demo_vs_sit_meetup",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.knife_skill_vs_reheat",
+          "physical.finishing_vs_bleachers_practiced",
+          "social.boundary_talk_vs_like",
+          "spiritual.examen_vs_click",
+          "spiritual.study_prep_vs_ride",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n": 81,
+        "nDev": 42,
+        "nNon": 39,
+        "bothSidesFamilies": 12,
+        "domainCounts": {
+          "Academics": 2,
+          "Appearance & Self-Care": 1,
+          "Career": 1,
+          "Finance": 1,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 1,
+          "Nutrition & Cooking": 1,
+          "Physical Prowess": 1,
+          "Social": 1,
+          "Spirituality": 2
+        },
+        "families": [
+          {
+            "familyId": "academics.essay_outline_vs_bookmark",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "academics.tutor_explain_vs_library_phone",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "appearance.groom_vs_mirror",
+            "domain": "Appearance & Self-Care",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.club_demo_vs_sit_meetup",
+            "domain": "Career",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.bike_drivetrain_vs_shop_drop",
+            "domain": "Mind & Craft",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.scope_hours_vs_deposit_ping",
+            "domain": "Finance",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "nutrition.knife_skill_vs_reheat",
+            "domain": "Nutrition & Cooking",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "physical.finishing_vs_bleachers_practiced",
+            "domain": "Physical Prowess",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "social.boundary_talk_vs_like",
+            "domain": "Social",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "spiritual.examen_vs_click",
+            "domain": "Spirituality",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "spiritual.study_prep_vs_ride",
+            "domain": "Spirituality",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.worry_schedule_vs_nap",
+            "domain": "Inner Wellbeing",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      },
+      {
+        "fold": 4,
+        "familyIds": [
+          "academics.notes_vs_print",
+          "appearance.washday_vs_buy_product",
+          "career.opener_used_vs_star_post",
+          "craft.dictation_vs_app_open",
+          "craft.short_snare_vs_unopened_sticks",
+          "fashion.alter_vs_unbox",
+          "fashion.repair_vs_replace",
+          "finance.savings_bucket_vs_swipe",
+          "ordinary.home_admin",
+          "physical.climb_session_vs_spectate",
+          "social.listen_question_vs_group_show",
+          "wellbeing.wind_down_vs_pass_out"
+        ],
+        "n": 81,
+        "nDev": 39,
+        "nNon": 42,
+        "bothSidesFamilies": 11,
+        "domainCounts": {
+          "Academics": 1,
+          "Appearance & Self-Care": 1,
+          "Career": 1,
+          "Fashion & Style": 2,
+          "Finance": 1,
+          "Inner Wellbeing": 1,
+          "Mind & Craft": 2,
+          "Ordinary / none": 1,
+          "Physical Prowess": 1,
+          "Social": 1
+        },
+        "families": [
+          {
+            "familyId": "academics.notes_vs_print",
+            "domain": "Academics",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "appearance.washday_vs_buy_product",
+            "domain": "Appearance & Self-Care",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "career.opener_used_vs_star_post",
+            "domain": "Career",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.dictation_vs_app_open",
+            "domain": "Mind & Craft",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "craft.short_snare_vs_unopened_sticks",
+            "domain": "Mind & Craft",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "fashion.alter_vs_unbox",
+            "domain": "Fashion & Style",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "fashion.repair_vs_replace",
+            "domain": "Fashion & Style",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "finance.savings_bucket_vs_swipe",
+            "domain": "Finance",
+            "n": 8,
+            "nDev": 4,
+            "nNon": 4,
+            "bothSides": true
+          },
+          {
+            "familyId": "ordinary.home_admin",
+            "domain": "Ordinary / none",
+            "n": 7,
+            "nDev": 0,
+            "nNon": 7,
+            "bothSides": false
+          },
+          {
+            "familyId": "physical.climb_session_vs_spectate",
+            "domain": "Physical Prowess",
+            "n": 7,
+            "nDev": 4,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "social.listen_question_vs_group_show",
+            "domain": "Social",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          },
+          {
+            "familyId": "wellbeing.wind_down_vs_pass_out",
+            "domain": "Inner Wellbeing",
+            "n": 6,
+            "nDev": 3,
+            "nNon": 3,
+            "bothSides": true
+          }
+        ]
+      }
+    ]
+  },
+  "grid": [
+    {
+      "id": "l2=0_lr=0.4_ep=400",
+      "l2": 0,
+      "learningRate": 0.4,
+      "epochs": 400
+    },
+    {
+      "id": "l2=0.001_lr=0.4_ep=400",
+      "l2": 0.001,
+      "learningRate": 0.4,
+      "epochs": 400
+    },
+    {
+      "id": "l2=0.01_lr=0.4_ep=400",
+      "l2": 0.01,
+      "learningRate": 0.4,
+      "epochs": 400
+    },
+    {
+      "id": "l2=0.1_lr=0.4_ep=400",
+      "l2": 0.1,
+      "learningRate": 0.4,
+      "epochs": 400
+    },
+    {
+      "id": "l2=1_lr=0.4_ep=400",
+      "l2": 1,
+      "learningRate": 0.4,
+      "epochs": 400
+    },
+    {
+      "id": "l2=0.01_lr=0.1_ep=400",
+      "l2": 0.01,
+      "learningRate": 0.1,
+      "epochs": 400
+    },
+    {
+      "id": "l2=0.01_lr=1_ep=400",
+      "l2": 0.01,
+      "learningRate": 1,
+      "epochs": 400
+    },
+    {
+      "id": "l2=0.01_lr=0.4_ep=200",
+      "l2": 0.01,
+      "learningRate": 0.4,
+      "epochs": 200
+    },
+    {
+      "id": "l2=0.01_lr=0.4_ep=800",
+      "l2": 0.01,
+      "learningRate": 0.4,
+      "epochs": 800
+    }
+  ],
+  "selectionRule": [
+    "Primary: maximize mean family-held-out balanced accuracy (mean of per-family BA on each fold held-out families).",
+    "Consider all configs within 0.005 of the best mean (tie band; avoids non-transitive pairwise comparisons).",
+    "Inside that band, prefer lower fold std of family BA.",
+    "If still tied, prefer higher mean both-sides-correct rate among two-polarity held-out families.",
+    "If still tied, prefer stronger L2, then fewer epochs, then lower learning rate.",
+    "Threshold fixed at 0.5. External 92-row val was not used."
+  ],
+  "selectionBand": {
+    "bestMean": 0.8155,
+    "eps": 0.005,
+    "ids": [
+      "l2=0_lr=0.4_ep=400",
+      "l2=0.001_lr=0.4_ep=400",
+      "l2=0.01_lr=1_ep=400",
+      "l2=0.01_lr=0.4_ep=800"
+    ]
+  },
+  "results": [
+    {
+      "id": "l2=0_lr=0.4_ep=400",
+      "l2": 0,
+      "learningRate": 0.4,
+      "epochs": 400,
+      "meanFamilyBalancedAccuracy": 0.8155,
+      "stdFamilyBalancedAccuracy": 0.0238,
+      "meanMacroF1": 0.8502,
+      "stdMacroF1": 0.0473,
+      "meanRowBalancedAccuracy": 0.8525,
+      "meanBothSidesRate": 0.4645,
+      "meanTrainNll": 0.3845,
+      "meanHoldoutNll": 0.467,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.3842,
+          "holdoutNll": 0.459,
+          "row": {
+            "n": 81,
+            "accuracy": 0.9012,
+            "balancedAccuracy": 0.8994,
+            "precision": 0.8857,
+            "recall": 0.8857,
+            "f1": 0.8857,
+            "macroF1": 0.8994,
+            "confusion": {
+              "tp": 31,
+              "tn": 42,
+              "fp": 4,
+              "fn": 4
+            },
+            "devAccuracy": 0.8857,
+            "nonDevAccuracy": 0.913
+          },
+          "meanFamilyBalancedAccuracy": 0.8246,
+          "bothSidesRate": 0.7,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.3893,
+          "holdoutNll": 0.4632,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8765,
+            "balancedAccuracy": 0.8778,
+            "precision": 0.8421,
+            "recall": 0.8889,
+            "f1": 0.8649,
+            "macroF1": 0.8756,
+            "confusion": {
+              "tp": 32,
+              "tn": 39,
+              "fp": 6,
+              "fn": 4
+            },
+            "devAccuracy": 0.8889,
+            "nonDevAccuracy": 0.8667
+          },
+          "meanFamilyBalancedAccuracy": 0.8016,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.3751,
+          "holdoutNll": 0.4991,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7778,
+            "balancedAccuracy": 0.7839,
+            "precision": 0.9286,
+            "recall": 0.619,
+            "f1": 0.7429,
+            "macroF1": 0.7736,
+            "confusion": {
+              "tp": 26,
+              "tn": 37,
+              "fp": 2,
+              "fn": 16
+            },
+            "devAccuracy": 0.619,
+            "nonDevAccuracy": 0.9487
+          },
+          "meanFamilyBalancedAccuracy": 0.7882,
+          "bothSidesRate": 0.1667,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.3928,
+          "holdoutNll": 0.4452,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8507,
+            "precision": 0.8409,
+            "recall": 0.881,
+            "f1": 0.8605,
+            "macroF1": 0.8513,
+            "confusion": {
+              "tp": 37,
+              "tn": 32,
+              "fp": 7,
+              "fn": 5
+            },
+            "devAccuracy": 0.881,
+            "nonDevAccuracy": 0.8205
+          },
+          "meanFamilyBalancedAccuracy": 0.8507,
+          "bothSidesRate": 0.5833,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.3811,
+          "holdoutNll": 0.4684,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8507,
+            "precision": 0.8649,
+            "recall": 0.8205,
+            "f1": 0.8421,
+            "macroF1": 0.8513,
+            "confusion": {
+              "tp": 32,
+              "tn": 37,
+              "fp": 5,
+              "fn": 7
+            },
+            "devAccuracy": 0.8205,
+            "nonDevAccuracy": 0.881
+          },
+          "meanFamilyBalancedAccuracy": 0.8125,
+          "bothSidesRate": 0.2727,
+          "bothSidesN": 11
+        }
+      ]
+    },
+    {
+      "id": "l2=0.001_lr=0.4_ep=400",
+      "l2": 0.001,
+      "learningRate": 0.4,
+      "epochs": 400,
+      "meanFamilyBalancedAccuracy": 0.8134,
+      "stdFamilyBalancedAccuracy": 0.0246,
+      "meanMacroF1": 0.8477,
+      "stdMacroF1": 0.0475,
+      "meanRowBalancedAccuracy": 0.8499,
+      "meanBothSidesRate": 0.4645,
+      "meanTrainNll": 0.3984,
+      "meanHoldoutNll": 0.4769,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.3983,
+          "holdoutNll": 0.4692,
+          "row": {
+            "n": 81,
+            "accuracy": 0.9012,
+            "balancedAccuracy": 0.8994,
+            "precision": 0.8857,
+            "recall": 0.8857,
+            "f1": 0.8857,
+            "macroF1": 0.8994,
+            "confusion": {
+              "tp": 31,
+              "tn": 42,
+              "fp": 4,
+              "fn": 4
+            },
+            "devAccuracy": 0.8857,
+            "nonDevAccuracy": 0.913
+          },
+          "meanFamilyBalancedAccuracy": 0.8246,
+          "bothSidesRate": 0.7,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4032,
+          "holdoutNll": 0.4731,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8765,
+            "balancedAccuracy": 0.8778,
+            "precision": 0.8421,
+            "recall": 0.8889,
+            "f1": 0.8649,
+            "macroF1": 0.8756,
+            "confusion": {
+              "tp": 32,
+              "tn": 39,
+              "fp": 6,
+              "fn": 4
+            },
+            "devAccuracy": 0.8889,
+            "nonDevAccuracy": 0.8667
+          },
+          "meanFamilyBalancedAccuracy": 0.8016,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.3893,
+          "holdoutNll": 0.5072,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7778,
+            "balancedAccuracy": 0.7839,
+            "precision": 0.9286,
+            "recall": 0.619,
+            "f1": 0.7429,
+            "macroF1": 0.7736,
+            "confusion": {
+              "tp": 26,
+              "tn": 37,
+              "fp": 2,
+              "fn": 16
+            },
+            "devAccuracy": 0.619,
+            "nonDevAccuracy": 0.9487
+          },
+          "meanFamilyBalancedAccuracy": 0.7882,
+          "bothSidesRate": 0.1667,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4065,
+          "holdoutNll": 0.4562,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8507,
+            "precision": 0.8409,
+            "recall": 0.881,
+            "f1": 0.8605,
+            "macroF1": 0.8513,
+            "confusion": {
+              "tp": 37,
+              "tn": 32,
+              "fp": 7,
+              "fn": 5
+            },
+            "devAccuracy": 0.881,
+            "nonDevAccuracy": 0.8205
+          },
+          "meanFamilyBalancedAccuracy": 0.8507,
+          "bothSidesRate": 0.5833,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.3949,
+          "holdoutNll": 0.479,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8395,
+            "balancedAccuracy": 0.8379,
+            "precision": 0.8611,
+            "recall": 0.7949,
+            "f1": 0.8267,
+            "macroF1": 0.8386,
+            "confusion": {
+              "tp": 31,
+              "tn": 37,
+              "fp": 5,
+              "fn": 8
+            },
+            "devAccuracy": 0.7949,
+            "nonDevAccuracy": 0.881
+          },
+          "meanFamilyBalancedAccuracy": 0.8021,
+          "bothSidesRate": 0.2727,
+          "bothSidesN": 11
+        }
+      ]
+    },
+    {
+      "id": "l2=0.01_lr=0.4_ep=400",
+      "l2": 0.01,
+      "learningRate": 0.4,
+      "epochs": 400,
+      "meanFamilyBalancedAccuracy": 0.8086,
+      "stdFamilyBalancedAccuracy": 0.0293,
+      "meanMacroF1": 0.8423,
+      "stdMacroF1": 0.0536,
+      "meanRowBalancedAccuracy": 0.8448,
+      "meanBothSidesRate": 0.4645,
+      "meanTrainNll": 0.4942,
+      "meanHoldoutNll": 0.5463,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4949,
+          "holdoutNll": 0.5402,
+          "row": {
+            "n": 81,
+            "accuracy": 0.9012,
+            "balancedAccuracy": 0.8994,
+            "precision": 0.8857,
+            "recall": 0.8857,
+            "f1": 0.8857,
+            "macroF1": 0.8994,
+            "confusion": {
+              "tp": 31,
+              "tn": 42,
+              "fp": 4,
+              "fn": 4
+            },
+            "devAccuracy": 0.8857,
+            "nonDevAccuracy": 0.913
+          },
+          "meanFamilyBalancedAccuracy": 0.8246,
+          "bothSidesRate": 0.7,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4982,
+          "holdoutNll": 0.5421,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8765,
+            "balancedAccuracy": 0.8778,
+            "precision": 0.8421,
+            "recall": 0.8889,
+            "f1": 0.8649,
+            "macroF1": 0.8756,
+            "confusion": {
+              "tp": 32,
+              "tn": 39,
+              "fp": 6,
+              "fn": 4
+            },
+            "devAccuracy": 0.8889,
+            "nonDevAccuracy": 0.8667
+          },
+          "meanFamilyBalancedAccuracy": 0.8016,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.487,
+          "holdoutNll": 0.5659,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7654,
+            "balancedAccuracy": 0.772,
+            "precision": 0.9259,
+            "recall": 0.5952,
+            "f1": 0.7246,
+            "macroF1": 0.7602,
+            "confusion": {
+              "tp": 25,
+              "tn": 37,
+              "fp": 2,
+              "fn": 17
+            },
+            "devAccuracy": 0.5952,
+            "nonDevAccuracy": 0.9487
+          },
+          "meanFamilyBalancedAccuracy": 0.7778,
+          "bothSidesRate": 0.1667,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5002,
+          "holdoutNll": 0.5335,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8507,
+            "precision": 0.8409,
+            "recall": 0.881,
+            "f1": 0.8605,
+            "macroF1": 0.8513,
+            "confusion": {
+              "tp": 37,
+              "tn": 32,
+              "fp": 7,
+              "fn": 5
+            },
+            "devAccuracy": 0.881,
+            "nonDevAccuracy": 0.8205
+          },
+          "meanFamilyBalancedAccuracy": 0.8507,
+          "bothSidesRate": 0.5833,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4906,
+          "holdoutNll": 0.5498,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8272,
+            "balancedAccuracy": 0.8242,
+            "precision": 0.8788,
+            "recall": 0.7436,
+            "f1": 0.8056,
+            "macroF1": 0.825,
+            "confusion": {
+              "tp": 29,
+              "tn": 38,
+              "fp": 4,
+              "fn": 10
+            },
+            "devAccuracy": 0.7436,
+            "nonDevAccuracy": 0.9048
+          },
+          "meanFamilyBalancedAccuracy": 0.7882,
+          "bothSidesRate": 0.2727,
+          "bothSidesN": 11
+        }
+      ]
+    },
+    {
+      "id": "l2=0.1_lr=0.4_ep=400",
+      "l2": 0.1,
+      "learningRate": 0.4,
+      "epochs": 400,
+      "meanFamilyBalancedAccuracy": 0.6468,
+      "stdFamilyBalancedAccuracy": 0.0903,
+      "meanMacroF1": 0.6236,
+      "stdMacroF1": 0.1787,
+      "meanRowBalancedAccuracy": 0.6737,
+      "meanBothSidesRate": 0.1367,
+      "meanTrainNll": 0.6539,
+      "meanHoldoutNll": 0.6648,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.655,
+          "holdoutNll": 0.6612,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8272,
+            "balancedAccuracy": 0.8068,
+            "precision": 0.92,
+            "recall": 0.6571,
+            "f1": 0.7667,
+            "macroF1": 0.8147,
+            "confusion": {
+              "tp": 23,
+              "tn": 44,
+              "fp": 2,
+              "fn": 12
+            },
+            "devAccuracy": 0.6571,
+            "nonDevAccuracy": 0.9565
+          },
+          "meanFamilyBalancedAccuracy": 0.7517,
+          "bothSidesRate": 0.4,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6556,
+          "holdoutNll": 0.6614,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7778,
+            "balancedAccuracy": 0.7639,
+            "precision": 0.8214,
+            "recall": 0.6389,
+            "f1": 0.7187,
+            "macroF1": 0.7675,
+            "confusion": {
+              "tp": 23,
+              "tn": 40,
+              "fp": 5,
+              "fn": 13
+            },
+            "devAccuracy": 0.6389,
+            "nonDevAccuracy": 0.8889
+          },
+          "meanFamilyBalancedAccuracy": 0.7113,
+          "bothSidesRate": 0.2,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6515,
+          "holdoutNll": 0.6711,
+          "row": {
+            "n": 81,
+            "accuracy": 0.5062,
+            "balancedAccuracy": 0.5238,
+            "precision": 1,
+            "recall": 0.0476,
+            "f1": 0.0909,
+            "macroF1": 0.376,
+            "confusion": {
+              "tp": 2,
+              "tn": 39,
+              "fp": 0,
+              "fn": 40
+            },
+            "devAccuracy": 0.0476,
+            "nonDevAccuracy": 1
+          },
+          "meanFamilyBalancedAccuracy": 0.5208,
+          "bothSidesRate": 0,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6547,
+          "holdoutNll": 0.6656,
+          "row": {
+            "n": 81,
+            "accuracy": 0.5926,
+            "balancedAccuracy": 0.6071,
+            "precision": 1,
+            "recall": 0.2143,
+            "f1": 0.3529,
+            "macroF1": 0.5278,
+            "confusion": {
+              "tp": 9,
+              "tn": 39,
+              "fp": 0,
+              "fn": 33
+            },
+            "devAccuracy": 0.2143,
+            "nonDevAccuracy": 1
+          },
+          "meanFamilyBalancedAccuracy": 0.6076,
+          "bothSidesRate": 0.0833,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6527,
+          "holdoutNll": 0.6649,
+          "row": {
+            "n": 81,
+            "accuracy": 0.679,
+            "balancedAccuracy": 0.6667,
+            "precision": 1,
+            "recall": 0.3333,
+            "f1": 0.5,
+            "macroF1": 0.6318,
+            "confusion": {
+              "tp": 13,
+              "tn": 42,
+              "fp": 0,
+              "fn": 26
+            },
+            "devAccuracy": 0.3333,
+            "nonDevAccuracy": 1
+          },
+          "meanFamilyBalancedAccuracy": 0.6424,
+          "bothSidesRate": 0,
+          "bothSidesN": 11
+        }
+      ]
+    },
+    {
+      "id": "l2=1_lr=0.4_ep=400",
+      "l2": 1,
+      "learningRate": 0.4,
+      "epochs": 400,
+      "meanFamilyBalancedAccuracy": 0.5,
+      "stdFamilyBalancedAccuracy": 0,
+      "meanMacroF1": 0.3422,
+      "stdMacroF1": 0.0174,
+      "meanRowBalancedAccuracy": 0.5,
+      "meanBothSidesRate": 0,
+      "meanTrainNll": 0.6879,
+      "meanHoldoutNll": 0.6906,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6888,
+          "holdoutNll": 0.6876,
+          "row": {
+            "n": 81,
+            "accuracy": 0.5679,
+            "balancedAccuracy": 0.5,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0,
+            "macroF1": 0.3622,
+            "confusion": {
+              "tp": 0,
+              "tn": 46,
+              "fp": 0,
+              "fn": 35
+            },
+            "devAccuracy": 0,
+            "nonDevAccuracy": 1
+          },
+          "meanFamilyBalancedAccuracy": 0.5,
+          "bothSidesRate": 0,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6888,
+          "holdoutNll": 0.6875,
+          "row": {
+            "n": 81,
+            "accuracy": 0.5556,
+            "balancedAccuracy": 0.5,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0,
+            "macroF1": 0.3571,
+            "confusion": {
+              "tp": 0,
+              "tn": 45,
+              "fp": 0,
+              "fn": 36
+            },
+            "devAccuracy": 0,
+            "nonDevAccuracy": 1
+          },
+          "meanFamilyBalancedAccuracy": 0.5,
+          "bothSidesRate": 0,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6869,
+          "holdoutNll": 0.6945,
+          "row": {
+            "n": 81,
+            "accuracy": 0.4815,
+            "balancedAccuracy": 0.5,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0,
+            "macroF1": 0.325,
+            "confusion": {
+              "tp": 0,
+              "tn": 39,
+              "fp": 0,
+              "fn": 42
+            },
+            "devAccuracy": 0,
+            "nonDevAccuracy": 1
+          },
+          "meanFamilyBalancedAccuracy": 0.5,
+          "bothSidesRate": 0,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6873,
+          "holdoutNll": 0.6939,
+          "row": {
+            "n": 81,
+            "accuracy": 0.4815,
+            "balancedAccuracy": 0.5,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0,
+            "macroF1": 0.325,
+            "confusion": {
+              "tp": 0,
+              "tn": 39,
+              "fp": 0,
+              "fn": 42
+            },
+            "devAccuracy": 0,
+            "nonDevAccuracy": 1
+          },
+          "meanFamilyBalancedAccuracy": 0.5,
+          "bothSidesRate": 0,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.6879,
+          "holdoutNll": 0.6895,
+          "row": {
+            "n": 81,
+            "accuracy": 0.5185,
+            "balancedAccuracy": 0.5,
+            "precision": 0,
+            "recall": 0,
+            "f1": 0,
+            "macroF1": 0.3415,
+            "confusion": {
+              "tp": 0,
+              "tn": 42,
+              "fp": 0,
+              "fn": 39
+            },
+            "devAccuracy": 0,
+            "nonDevAccuracy": 1
+          },
+          "meanFamilyBalancedAccuracy": 0.5,
+          "bothSidesRate": 0,
+          "bothSidesN": 11
+        }
+      ]
+    },
+    {
+      "id": "l2=0.01_lr=0.1_ep=400",
+      "l2": 0.01,
+      "learningRate": 0.1,
+      "epochs": 400,
+      "meanFamilyBalancedAccuracy": 0.7905,
+      "stdFamilyBalancedAccuracy": 0.0193,
+      "meanMacroF1": 0.8212,
+      "stdMacroF1": 0.0575,
+      "meanRowBalancedAccuracy": 0.8243,
+      "meanBothSidesRate": 0.3561,
+      "meanTrainNll": 0.5811,
+      "meanHoldoutNll": 0.61,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5824,
+          "holdoutNll": 0.6046,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8889,
+            "balancedAccuracy": 0.8851,
+            "precision": 0.8824,
+            "recall": 0.8571,
+            "f1": 0.8696,
+            "macroF1": 0.8864,
+            "confusion": {
+              "tp": 30,
+              "tn": 42,
+              "fp": 4,
+              "fn": 5
+            },
+            "devAccuracy": 0.8571,
+            "nonDevAccuracy": 0.913
+          },
+          "meanFamilyBalancedAccuracy": 0.8142,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5845,
+          "holdoutNll": 0.6054,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8642,
+            "balancedAccuracy": 0.8611,
+            "precision": 0.8571,
+            "recall": 0.8333,
+            "f1": 0.8451,
+            "macroF1": 0.8621,
+            "confusion": {
+              "tp": 30,
+              "tn": 40,
+              "fp": 5,
+              "fn": 6
+            },
+            "devAccuracy": 0.8333,
+            "nonDevAccuracy": 0.8889
+          },
+          "meanFamilyBalancedAccuracy": 0.7912,
+          "bothSidesRate": 0.4,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5759,
+          "holdoutNll": 0.6223,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7654,
+            "balancedAccuracy": 0.7729,
+            "precision": 0.96,
+            "recall": 0.5714,
+            "f1": 0.7164,
+            "macroF1": 0.7582,
+            "confusion": {
+              "tp": 24,
+              "tn": 38,
+              "fp": 1,
+              "fn": 18
+            },
+            "devAccuracy": 0.5714,
+            "nonDevAccuracy": 0.9744
+          },
+          "meanFamilyBalancedAccuracy": 0.7812,
+          "bothSidesRate": 0.1667,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5848,
+          "holdoutNll": 0.6056,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7654,
+            "balancedAccuracy": 0.7683,
+            "precision": 0.8286,
+            "recall": 0.6905,
+            "f1": 0.7532,
+            "macroF1": 0.7649,
+            "confusion": {
+              "tp": 29,
+              "tn": 33,
+              "fp": 6,
+              "fn": 13
+            },
+            "devAccuracy": 0.6905,
+            "nonDevAccuracy": 0.8462
+          },
+          "meanFamilyBalancedAccuracy": 0.7639,
+          "bothSidesRate": 0.25,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.578,
+          "holdoutNll": 0.612,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8395,
+            "balancedAccuracy": 0.8342,
+            "precision": 0.9643,
+            "recall": 0.6923,
+            "f1": 0.806,
+            "macroF1": 0.8346,
+            "confusion": {
+              "tp": 27,
+              "tn": 41,
+              "fp": 1,
+              "fn": 12
+            },
+            "devAccuracy": 0.6923,
+            "nonDevAccuracy": 0.9762
+          },
+          "meanFamilyBalancedAccuracy": 0.8021,
+          "bothSidesRate": 0.3636,
+          "bothSidesN": 11
+        }
+      ]
+    },
+    {
+      "id": "l2=0.01_lr=1_ep=400",
+      "l2": 0.01,
+      "learningRate": 1,
+      "epochs": 400,
+      "meanFamilyBalancedAccuracy": 0.8134,
+      "stdFamilyBalancedAccuracy": 0.0246,
+      "meanMacroF1": 0.8476,
+      "stdMacroF1": 0.0476,
+      "meanRowBalancedAccuracy": 0.8498,
+      "meanBothSidesRate": 0.4645,
+      "meanTrainNll": 0.4789,
+      "meanHoldoutNll": 0.5359,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4794,
+          "holdoutNll": 0.5301,
+          "row": {
+            "n": 81,
+            "accuracy": 0.9012,
+            "balancedAccuracy": 0.8994,
+            "precision": 0.8857,
+            "recall": 0.8857,
+            "f1": 0.8857,
+            "macroF1": 0.8994,
+            "confusion": {
+              "tp": 31,
+              "tn": 42,
+              "fp": 4,
+              "fn": 4
+            },
+            "devAccuracy": 0.8857,
+            "nonDevAccuracy": 0.913
+          },
+          "meanFamilyBalancedAccuracy": 0.8246,
+          "bothSidesRate": 0.7,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4827,
+          "holdoutNll": 0.5322,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8765,
+            "balancedAccuracy": 0.8778,
+            "precision": 0.8421,
+            "recall": 0.8889,
+            "f1": 0.8649,
+            "macroF1": 0.8756,
+            "confusion": {
+              "tp": 32,
+              "tn": 39,
+              "fp": 6,
+              "fn": 4
+            },
+            "devAccuracy": 0.8889,
+            "nonDevAccuracy": 0.8667
+          },
+          "meanFamilyBalancedAccuracy": 0.8016,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4716,
+          "holdoutNll": 0.5566,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7778,
+            "balancedAccuracy": 0.7839,
+            "precision": 0.9286,
+            "recall": 0.619,
+            "f1": 0.7429,
+            "macroF1": 0.7736,
+            "confusion": {
+              "tp": 26,
+              "tn": 37,
+              "fp": 2,
+              "fn": 16
+            },
+            "devAccuracy": 0.619,
+            "nonDevAccuracy": 0.9487
+          },
+          "meanFamilyBalancedAccuracy": 0.7882,
+          "bothSidesRate": 0.1667,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.485,
+          "holdoutNll": 0.5211,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8507,
+            "precision": 0.8409,
+            "recall": 0.881,
+            "f1": 0.8605,
+            "macroF1": 0.8513,
+            "confusion": {
+              "tp": 37,
+              "tn": 32,
+              "fp": 7,
+              "fn": 5
+            },
+            "devAccuracy": 0.881,
+            "nonDevAccuracy": 0.8205
+          },
+          "meanFamilyBalancedAccuracy": 0.8507,
+          "bothSidesRate": 0.5833,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4756,
+          "holdoutNll": 0.5397,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8395,
+            "balancedAccuracy": 0.837,
+            "precision": 0.8824,
+            "recall": 0.7692,
+            "f1": 0.8219,
+            "macroF1": 0.8379,
+            "confusion": {
+              "tp": 30,
+              "tn": 38,
+              "fp": 4,
+              "fn": 9
+            },
+            "devAccuracy": 0.7692,
+            "nonDevAccuracy": 0.9048
+          },
+          "meanFamilyBalancedAccuracy": 0.8021,
+          "bothSidesRate": 0.2727,
+          "bothSidesN": 11
+        }
+      ]
+    },
+    {
+      "id": "l2=0.01_lr=0.4_ep=200",
+      "l2": 0.01,
+      "learningRate": 0.4,
+      "epochs": 200,
+      "meanFamilyBalancedAccuracy": 0.7947,
+      "stdFamilyBalancedAccuracy": 0.0193,
+      "meanMacroF1": 0.8271,
+      "stdMacroF1": 0.0535,
+      "meanRowBalancedAccuracy": 0.8297,
+      "meanBothSidesRate": 0.3912,
+      "meanTrainNll": 0.5315,
+      "meanHoldoutNll": 0.5732,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5326,
+          "holdoutNll": 0.5672,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8889,
+            "balancedAccuracy": 0.8851,
+            "precision": 0.8824,
+            "recall": 0.8571,
+            "f1": 0.8696,
+            "macroF1": 0.8864,
+            "confusion": {
+              "tp": 30,
+              "tn": 42,
+              "fp": 4,
+              "fn": 5
+            },
+            "devAccuracy": 0.8571,
+            "nonDevAccuracy": 0.913
+          },
+          "meanFamilyBalancedAccuracy": 0.8142,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5354,
+          "holdoutNll": 0.5686,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8642,
+            "balancedAccuracy": 0.8639,
+            "precision": 0.8378,
+            "recall": 0.8611,
+            "f1": 0.8493,
+            "macroF1": 0.8629,
+            "confusion": {
+              "tp": 31,
+              "tn": 39,
+              "fp": 6,
+              "fn": 5
+            },
+            "devAccuracy": 0.8611,
+            "nonDevAccuracy": 0.8667
+          },
+          "meanFamilyBalancedAccuracy": 0.7912,
+          "bothSidesRate": 0.5,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5249,
+          "holdoutNll": 0.5895,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7531,
+            "balancedAccuracy": 0.7601,
+            "precision": 0.9231,
+            "recall": 0.5714,
+            "f1": 0.7059,
+            "macroF1": 0.7466,
+            "confusion": {
+              "tp": 24,
+              "tn": 37,
+              "fp": 2,
+              "fn": 18
+            },
+            "devAccuracy": 0.5714,
+            "nonDevAccuracy": 0.9487
+          },
+          "meanFamilyBalancedAccuracy": 0.7674,
+          "bothSidesRate": 0.1667,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5367,
+          "holdoutNll": 0.5644,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8148,
+            "balancedAccuracy": 0.815,
+            "precision": 0.8293,
+            "recall": 0.8095,
+            "f1": 0.8193,
+            "macroF1": 0.8147,
+            "confusion": {
+              "tp": 34,
+              "tn": 32,
+              "fp": 7,
+              "fn": 8
+            },
+            "devAccuracy": 0.8095,
+            "nonDevAccuracy": 0.8205
+          },
+          "meanFamilyBalancedAccuracy": 0.8125,
+          "bothSidesRate": 0.4167,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.5278,
+          "holdoutNll": 0.5762,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8272,
+            "balancedAccuracy": 0.8242,
+            "precision": 0.8788,
+            "recall": 0.7436,
+            "f1": 0.8056,
+            "macroF1": 0.825,
+            "confusion": {
+              "tp": 29,
+              "tn": 38,
+              "fp": 4,
+              "fn": 10
+            },
+            "devAccuracy": 0.7436,
+            "nonDevAccuracy": 0.9048
+          },
+          "meanFamilyBalancedAccuracy": 0.7882,
+          "bothSidesRate": 0.2727,
+          "bothSidesN": 11
+        }
+      ]
+    },
+    {
+      "id": "l2=0.01_lr=0.4_ep=800",
+      "l2": 0.01,
+      "learningRate": 0.4,
+      "epochs": 800,
+      "meanFamilyBalancedAccuracy": 0.8134,
+      "stdFamilyBalancedAccuracy": 0.0246,
+      "meanMacroF1": 0.8476,
+      "stdMacroF1": 0.0476,
+      "meanRowBalancedAccuracy": 0.8498,
+      "meanBothSidesRate": 0.4645,
+      "meanTrainNll": 0.48,
+      "meanHoldoutNll": 0.5366,
+      "folds": [
+        {
+          "fold": 0,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4805,
+          "holdoutNll": 0.5307,
+          "row": {
+            "n": 81,
+            "accuracy": 0.9012,
+            "balancedAccuracy": 0.8994,
+            "precision": 0.8857,
+            "recall": 0.8857,
+            "f1": 0.8857,
+            "macroF1": 0.8994,
+            "confusion": {
+              "tp": 31,
+              "tn": 42,
+              "fp": 4,
+              "fn": 4
+            },
+            "devAccuracy": 0.8857,
+            "nonDevAccuracy": 0.913
+          },
+          "meanFamilyBalancedAccuracy": 0.8246,
+          "bothSidesRate": 0.7,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 1,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4838,
+          "holdoutNll": 0.5328,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8765,
+            "balancedAccuracy": 0.8778,
+            "precision": 0.8421,
+            "recall": 0.8889,
+            "f1": 0.8649,
+            "macroF1": 0.8756,
+            "confusion": {
+              "tp": 32,
+              "tn": 39,
+              "fp": 6,
+              "fn": 4
+            },
+            "devAccuracy": 0.8889,
+            "nonDevAccuracy": 0.8667
+          },
+          "meanFamilyBalancedAccuracy": 0.8016,
+          "bothSidesRate": 0.6,
+          "bothSidesN": 10
+        },
+        {
+          "fold": 2,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4727,
+          "holdoutNll": 0.5573,
+          "row": {
+            "n": 81,
+            "accuracy": 0.7778,
+            "balancedAccuracy": 0.7839,
+            "precision": 0.9286,
+            "recall": 0.619,
+            "f1": 0.7429,
+            "macroF1": 0.7736,
+            "confusion": {
+              "tp": 26,
+              "tn": 37,
+              "fp": 2,
+              "fn": 16
+            },
+            "devAccuracy": 0.619,
+            "nonDevAccuracy": 0.9487
+          },
+          "meanFamilyBalancedAccuracy": 0.7882,
+          "bothSidesRate": 0.1667,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 3,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4861,
+          "holdoutNll": 0.522,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8519,
+            "balancedAccuracy": 0.8507,
+            "precision": 0.8409,
+            "recall": 0.881,
+            "f1": 0.8605,
+            "macroF1": 0.8513,
+            "confusion": {
+              "tp": 37,
+              "tn": 32,
+              "fp": 7,
+              "fn": 5
+            },
+            "devAccuracy": 0.881,
+            "nonDevAccuracy": 0.8205
+          },
+          "meanFamilyBalancedAccuracy": 0.8507,
+          "bothSidesRate": 0.5833,
+          "bothSidesN": 12
+        },
+        {
+          "fold": 4,
+          "nTrain": 324,
+          "nHoldout": 81,
+          "trainNll": 0.4767,
+          "holdoutNll": 0.5404,
+          "row": {
+            "n": 81,
+            "accuracy": 0.8395,
+            "balancedAccuracy": 0.837,
+            "precision": 0.8824,
+            "recall": 0.7692,
+            "f1": 0.8219,
+            "macroF1": 0.8379,
+            "confusion": {
+              "tp": 30,
+              "tn": 38,
+              "fp": 4,
+              "fn": 9
+            },
+            "devAccuracy": 0.7692,
+            "nonDevAccuracy": 0.9048
+          },
+          "meanFamilyBalancedAccuracy": 0.8021,
+          "bothSidesRate": 0.2727,
+          "bothSidesN": 11
+        }
+      ]
+    }
+  ],
+  "selected": {
+    "id": "l2=0.01_lr=1_ep=400",
+    "l2": 0.01,
+    "learningRate": 1,
+    "epochs": 400,
+    "meanFamilyBalancedAccuracy": 0.8134,
+    "stdFamilyBalancedAccuracy": 0.0246,
+    "meanMacroF1": 0.8476,
+    "stdMacroF1": 0.0476,
+    "meanRowBalancedAccuracy": 0.8498,
+    "meanBothSidesRate": 0.4645,
+    "meanTrainNll": 0.4789,
+    "meanHoldoutNll": 0.5359,
+    "folds": [
+      {
+        "fold": 0,
+        "nTrain": 324,
+        "nHoldout": 81,
+        "trainNll": 0.4794,
+        "holdoutNll": 0.5301,
+        "row": {
+          "n": 81,
+          "accuracy": 0.9012,
+          "balancedAccuracy": 0.8994,
+          "precision": 0.8857,
+          "recall": 0.8857,
+          "f1": 0.8857,
+          "macroF1": 0.8994,
+          "confusion": {
+            "tp": 31,
+            "tn": 42,
+            "fp": 4,
+            "fn": 4
+          },
+          "devAccuracy": 0.8857,
+          "nonDevAccuracy": 0.913
+        },
+        "meanFamilyBalancedAccuracy": 0.8246,
+        "bothSidesRate": 0.7,
+        "bothSidesN": 10
+      },
+      {
+        "fold": 1,
+        "nTrain": 324,
+        "nHoldout": 81,
+        "trainNll": 0.4827,
+        "holdoutNll": 0.5322,
+        "row": {
+          "n": 81,
+          "accuracy": 0.8765,
+          "balancedAccuracy": 0.8778,
+          "precision": 0.8421,
+          "recall": 0.8889,
+          "f1": 0.8649,
+          "macroF1": 0.8756,
+          "confusion": {
+            "tp": 32,
+            "tn": 39,
+            "fp": 6,
+            "fn": 4
+          },
+          "devAccuracy": 0.8889,
+          "nonDevAccuracy": 0.8667
+        },
+        "meanFamilyBalancedAccuracy": 0.8016,
+        "bothSidesRate": 0.6,
+        "bothSidesN": 10
+      },
+      {
+        "fold": 2,
+        "nTrain": 324,
+        "nHoldout": 81,
+        "trainNll": 0.4716,
+        "holdoutNll": 0.5566,
+        "row": {
+          "n": 81,
+          "accuracy": 0.7778,
+          "balancedAccuracy": 0.7839,
+          "precision": 0.9286,
+          "recall": 0.619,
+          "f1": 0.7429,
+          "macroF1": 0.7736,
+          "confusion": {
+            "tp": 26,
+            "tn": 37,
+            "fp": 2,
+            "fn": 16
+          },
+          "devAccuracy": 0.619,
+          "nonDevAccuracy": 0.9487
+        },
+        "meanFamilyBalancedAccuracy": 0.7882,
+        "bothSidesRate": 0.1667,
+        "bothSidesN": 12
+      },
+      {
+        "fold": 3,
+        "nTrain": 324,
+        "nHoldout": 81,
+        "trainNll": 0.485,
+        "holdoutNll": 0.5211,
+        "row": {
+          "n": 81,
+          "accuracy": 0.8519,
+          "balancedAccuracy": 0.8507,
+          "precision": 0.8409,
+          "recall": 0.881,
+          "f1": 0.8605,
+          "macroF1": 0.8513,
+          "confusion": {
+            "tp": 37,
+            "tn": 32,
+            "fp": 7,
+            "fn": 5
+          },
+          "devAccuracy": 0.881,
+          "nonDevAccuracy": 0.8205
+        },
+        "meanFamilyBalancedAccuracy": 0.8507,
+        "bothSidesRate": 0.5833,
+        "bothSidesN": 12
+      },
+      {
+        "fold": 4,
+        "nTrain": 324,
+        "nHoldout": 81,
+        "trainNll": 0.4756,
+        "holdoutNll": 0.5397,
+        "row": {
+          "n": 81,
+          "accuracy": 0.8395,
+          "balancedAccuracy": 0.837,
+          "precision": 0.8824,
+          "recall": 0.7692,
+          "f1": 0.8219,
+          "macroF1": 0.8379,
+          "confusion": {
+            "tp": 30,
+            "tn": 38,
+            "fp": 4,
+            "fn": 9
+          },
+          "devAccuracy": 0.7692,
+          "nonDevAccuracy": 0.9048
+        },
+        "meanFamilyBalancedAccuracy": 0.8021,
+        "bothSidesRate": 0.2727,
+        "bothSidesN": 11
+      }
+    ]
+  },
+  "rankedIds": [
+    "l2=0.01_lr=1_ep=400",
+    "l2=0.01_lr=0.4_ep=800",
+    "l2=0.001_lr=0.4_ep=400",
+    "l2=0_lr=0.4_ep=400",
+    "l2=0.01_lr=0.4_ep=400",
+    "l2=0.01_lr=0.4_ep=200",
+    "l2=0.01_lr=0.1_ep=400",
+    "l2=0.1_lr=0.4_ep=400",
+    "l2=1_lr=0.4_ep=400"
+  ]
+}

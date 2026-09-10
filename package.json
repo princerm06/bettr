@@ -8,7 +8,12 @@
     "start": "next start",
     "benchmark:semantic:legacy": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-legacy.js",
     "benchmark:semantic:mobilebert": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-mobilebert.js",
-    "benchmark:semantic:distilbert": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-distilbert.js"
+    "benchmark:semantic:distilbert": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-distilbert.js",
+    "dataset:semantic:developmental:emit": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/datasets/developmental-v1/emit-dataset.js",
+    "dataset:semantic:developmental:audit": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/datasets/developmental-v1/audit-dataset.js",
+    "benchmark:semantic:developmental:val": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-val.js 3a.2",
+    "benchmark:semantic:developmental:3a.3": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-3a.3.js",
+    "benchmark:semantic:developmental:3b": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-3b.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
