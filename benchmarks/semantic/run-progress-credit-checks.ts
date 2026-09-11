@@ -6,6 +6,7 @@ import { attributionShareForCategory } from '../../lib/evaluation/categoryAttrib
 import { shiftIsoDate } from '../../lib/evaluation/discipline';
 import {
   countCreditedActiveDays,
+  countCreditedProgressStreak,
   creditedProgressPoints,
   hasPositiveProgressCredit,
   isCreditedProgressLog,
@@ -93,6 +94,90 @@ const afterMetadata = logs.map((log) =>
   log.id === 'a' ? { ...log, date: today } : log
 );
 assert.equal(sumCreditedProgress(afterMetadata), 12);
+
+const yesterday = shiftIsoDate(today, -1);
+const twoAgo = shiftIsoDate(today, -2);
+assert.equal(
+  countCreditedProgressStreak([{ date: today, points: 0 }], today),
+  0
+);
+assert.equal(
+  countCreditedProgressStreak([{ date: today, points: 5 }], today),
+  1
+);
+assert.equal(
+  countCreditedProgressStreak(
+    [
+      { date: today, points: 5 },
+      { date: today, points: 7 },
+    ],
+    today
+  ),
+  1
+);
+assert.equal(
+  countCreditedProgressStreak([{ date: shiftIsoDate(today, 1), points: 5 }], today),
+  0
+);
+assert.equal(
+  countCreditedProgressStreak(
+    [
+      { date: today, points: 5 },
+      { date: yesterday, points: 5 },
+    ],
+    today
+  ),
+  2
+);
+assert.equal(
+  countCreditedProgressStreak(
+    [
+      { date: today, points: 5 },
+      { date: yesterday, points: 0 },
+      { date: twoAgo, points: 5 },
+    ],
+    today
+  ),
+  1
+);
+assert.equal(
+  countCreditedProgressStreak(
+    [
+      { date: yesterday, points: 5 },
+      { date: today, points: 0 },
+    ],
+    today
+  ),
+  0
+);
+
+const streakLogs = [
+  { id: 'keep', date: yesterday, points: 5 },
+  { id: 'gone', date: today, points: 5 },
+];
+assert.equal(countCreditedProgressStreak(streakLogs, today), 2);
+assert.equal(
+  countCreditedProgressStreak(
+    streakLogs.filter((log) => log.id !== 'gone'),
+    today
+  ),
+  0
+);
+assert.equal(
+  countCreditedProgressStreak(
+    streakLogs.map((log) =>
+      log.id === 'gone' ? { ...log, date: shiftIsoDate(today, -8) } : log
+    ),
+    today
+  ),
+  0
+);
+
+const historyRows = [
+  { date: today, points: 0, activity: 'rejected' },
+  { date: today, points: 5, activity: 'Ran 5k' },
+];
+assert.equal(historyRows.length, 2);
 
 console.log(
   JSON.stringify(

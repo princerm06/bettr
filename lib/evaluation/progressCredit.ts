@@ -36,3 +36,34 @@ export function countCreditedActiveDays(
     logs.filter(isCreditedProgressLog).map((log) => log.date)
   ).size;
 }
+
+function previousIsoDate(iso: string): string {
+  const [year, month, day] = iso.split('-').map(Number);
+  return new Date(Date.UTC(year, month - 1, day - 1)).toISOString().slice(0, 10);
+}
+
+/**
+ * Consecutive credited-progress days ending today.
+ * Same walk-back-from-today algorithm as the calendar; future dates never start it.
+ * A gap or a zero-only today yields 0.
+ */
+export function countCreditedProgressStreak(
+  logs: readonly { date: string; points?: unknown }[],
+  today: string
+): number {
+  if (!ISO_DATE.test(today)) return 0;
+  const creditedDates = new Set(
+    logs
+      .filter(isCreditedProgressLog)
+      .filter((log) => ISO_DATE.test(log.date) && log.date <= today)
+      .map((log) => log.date)
+  );
+
+  let streak = 0;
+  let cursor = today;
+  while (creditedDates.has(cursor)) {
+    streak += 1;
+    cursor = previousIsoDate(cursor);
+  }
+  return streak;
+}

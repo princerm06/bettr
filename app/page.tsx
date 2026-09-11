@@ -21,6 +21,7 @@ import { attributionShareForCategory } from '../lib/evaluation/categoryAttributi
 import { calculateDisciplineScore, shiftIsoDate } from '../lib/evaluation/discipline';
 import {
   countCreditedActiveDays,
+  countCreditedProgressStreak,
   isCreditedProgressLog,
   isIsoDateInInclusiveRange,
   sumCreditedProgress,
@@ -2639,21 +2640,13 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
   const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
   const monthPrefix = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
   const monthLogs = logs.filter((log) => log.date.startsWith(monthPrefix));
-  const activeCategories = new Set(monthLogs.flatMap((log) => categoriesForLog(log))).size;
-  const activeDates = new Set(monthLogs.map((log) => log.date)).size;
-
-  const currentStreak = (() => {
-    let streak = 0;
-    const day = new Date();
-    day.setHours(12, 0, 0, 0);
-    while (true) {
-      const iso = day.toISOString().slice(0, 10);
-      if (!grouped[iso]?.length) break;
-      streak += 1;
-      day.setDate(day.getDate() - 1);
-    }
-    return streak;
-  })();
+  const today = todayISO();
+  const creditedMonthLogs = monthLogs.filter(
+    (log) => isCreditedProgressLog(log) && log.date <= today
+  );
+  const activeCategories = new Set(creditedMonthLogs.flatMap((log) => categoriesForLog(log))).size;
+  const activeDates = countCreditedActiveDays(creditedMonthLogs);
+  const currentStreak = countCreditedProgressStreak(logs, today);
 
   const monthCells = useMemo(() => {
     const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
@@ -2678,7 +2671,11 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
     .slice(0, 4);
 
   const selectedLogs = grouped[selectedDate] || [];
-  const maxDayCount = Math.max(1, ...monthCells.map((date) => grouped[date.toISOString().slice(0, 10)]?.length || 0));
+  const creditedCountOnDate = (iso: string) =>
+    iso <= today
+      ? (grouped[iso] || []).filter(isCreditedProgressLog).length
+      : 0;
+  const maxDayCount = Math.max(1, ...monthCells.map((date) => creditedCountOnDate(date.toISOString().slice(0, 10))));
 
   function shiftPeriod(direction: number) {
     if (mode === 'year') {
@@ -2708,17 +2705,18 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
           {monthCells.map((date) => {
             const iso = date.toISOString().slice(0, 10);
             const dayLogs = grouped[iso] || [];
+            const creditedCount = creditedCountOnDate(iso);
             const inMonth = date.getMonth() === cursor.getMonth();
             const isToday = iso === todayISO();
             const selected = iso === selectedDate;
-            const intensity = dayLogs.length ? Math.max(.18, Math.min(1, dayLogs.length / maxDayCount)) : 0;
+            const intensity = creditedCount ? Math.max(.18, Math.min(1, creditedCount / maxDayCount)) : 0;
             const photo = dayLogs.find((log) => log.image)?.image;
             const icons = Array.from(new Set(dayLogs.flatMap((log) => categoriesForLog(log).map((key) => categoryFor(key).emoji)))).slice(0, 4);
             return (
               <button
                 key={iso}
-                className={`calendarDay ${!inMonth ? 'outsideMonth' : ''} ${dayLogs.length ? 'hasActivity' : ''} ${selected ? 'selectedDay' : ''} ${isToday ? 'todayDay' : ''}`}
-                style={dayLogs.length ? { '--dayHeat': intensity } as React.CSSProperties : undefined}
+                className={`calendarDay ${!inMonth ? 'outsideMonth' : ''} ${creditedCount ? 'hasActivity' : ''} ${selected ? 'selectedDay' : ''} ${isToday ? 'todayDay' : ''}`}
+                style={creditedCount ? { '--dayHeat': intensity } as React.CSSProperties : undefined}
                 onClick={() => setSelectedDate(iso)}
               >
                 <span className="dayNumber">{date.getDate()}</span>
@@ -2770,8 +2768,11 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
       <div className="yearGrid">
         {Array.from({ length: 12 }, (_, month) => {
           const prefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-          const count = logs.filter((log) => log.date.startsWith(prefix)).length;
-          const active = new Set(logs.filter((log) => log.date.startsWith(prefix)).map((log) => log.date)).size;
+          const monthRows = logs.filter((log) => log.date.startsWith(prefix));
+          const count = monthRows.length;
+          const active = countCreditedActiveDays(
+            monthRows.filter((log) => log.date <= today)
+          );
           return (
             <button key={month} className="yearMonth card" onClick={() => { setCursor(new Date(year, month, 1)); setMode('month'); }}>
               <span>{new Date(year, month, 1).toLocaleDateString(undefined, { month: 'short' })}</span>
