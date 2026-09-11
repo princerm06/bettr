@@ -21,7 +21,8 @@
     "check:custom-composer-gate": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-custom-composer-gate-checks.js",
     "check:3a-fixture-parity": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-3a-fixture-parity.js",
     "check:category-suggestions": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-category-suggestion-fixtures.js",
-    "check:priority-reward": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-priority-reward-checks.js"
+    "check:priority-reward": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-priority-reward-checks.js",
+    "check:priority-state": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-priority-state-checks.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

@@ -11,7 +11,13 @@ import {
   categorySignals,
   calculateDeterministicBasePoints,
 } from '../lib/evaluation/legacyEvaluator';
-import { applyPriorityReward } from '../lib/evaluation/priorityReward';
+import { applyPriorityReward, type PriorityLevel } from '../lib/evaluation/priorityReward';
+import {
+  buildOnboardingPriorityMap,
+  createDefaultPriorityMap,
+  normalizePriorityMap,
+  parsePriorityMap,
+} from '../lib/evaluation/priorityState';
 import {
   additionalCategorySuggestions,
   CATEGORY_REQUIRED_MESSAGE,
@@ -65,7 +71,7 @@ import {
   X,
   Settings,} from 'lucide-react';
 
-type Priority = 'critical' | 'high' | 'normal' | 'maintenance';
+type Priority = PriorityLevel;
 
 type Log = {
   id: string;
@@ -258,10 +264,7 @@ async function uploadImageForLog(userId: string, logId: string, image?: string) 
 
 export default function Home() {
   const [logs, setLogs] = useState<Log[]>([]);
-  const [priorities, setPriorities] = useState<Record<CategoryKey, Priority>>({
-    appearance: 'normal', fashion: 'maintenance', academics: 'critical', career: 'high', finance: 'normal',
-    nutrition: 'high', social: 'maintenance', physical: 'high', mind: 'normal', spirituality: 'normal',
-  });
+  const [priorities, setPriorities] = useState<Record<CategoryKey, Priority>>(createDefaultPriorityMap);
   const [tab, setTab] = useState<'dashboard' | 'history' | 'activity' | 'analytics' | 'friends'>('dashboard');
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
@@ -374,7 +377,7 @@ export default function Home() {
     } else {
       setLogs(seedLogs());
     }
-    if (savedPriorities) setPriorities(JSON.parse(savedPriorities));
+    if (savedPriorities) setPriorities(parsePriorityMap(savedPriorities));
   }, []);
 
   useEffect(() => {
@@ -423,7 +426,11 @@ export default function Home() {
       setRecoveryEmailVerified(Boolean(profileRow?.recovery_email_verified));
       if (typeof profileRow?.onboarding_completed === 'boolean') setOnboardingComplete(profileRow.onboarding_completed);
       else setProfileName(account.user_metadata?.display_name || account.email?.split('@')[0] || 'Bettr');
-      if (priorityRow?.priorities) setPriorities(priorityRow.priorities as Record<CategoryKey, Priority>);
+      if (priorityRow?.priorities != null) {
+        setPriorities(normalizePriorityMap(priorityRow.priorities));
+      } else {
+        setPriorities(createDefaultPriorityMap());
+      }
 
       if (remoteLogs?.length) {
         const hydrated = await Promise.all((remoteLogs as CloudLogRow[]).map(rowToLog));
@@ -529,14 +536,15 @@ export default function Home() {
 
   useEffect(() => {
     const priorityKey = supabaseConfigured && user ? `himothy.priorities.${user.id}` : 'himothy.priorities';
-    localStorage.setItem(priorityKey, JSON.stringify(priorities));
+    const persistedPriorities = normalizePriorityMap(priorities);
+    localStorage.setItem(priorityKey, JSON.stringify(persistedPriorities));
     if (!supabase || !user || !cloudReady) return;
     const client = supabase;
     const account = user;
     const timer = window.setTimeout(async () => {
       const { error } = await client.from('user_priorities').upsert({
         user_id: account.id,
-        priorities,
+        priorities: persistedPriorities,
         updated_at: new Date().toISOString(),
       });
       if (error) setToast(`Could not sync priorities: ${error.message}`);
@@ -739,7 +747,8 @@ export default function Home() {
   }
 
   async function persistPriorities(nextPriorities: Record<CategoryKey, Priority>) {
-    setPriorities(nextPriorities);
+    const normalized = normalizePriorityMap(nextPriorities);
+    setPriorities(normalized);
 
     if (!supabase || !user) return true;
 
@@ -747,7 +756,7 @@ export default function Home() {
       .from('user_priorities')
       .upsert({
         user_id: user.id,
-        priorities: nextPriorities,
+        priorities: normalized,
         updated_at: new Date().toISOString(),
       });
 
@@ -764,6 +773,7 @@ export default function Home() {
     startLog = false,
     suggestedCategory: CategoryKey = 'mind'
   ) {
+    const normalized = normalizePriorityMap(nextPriorities);
     setOnboardingComplete(true);
 
     if (supabase && user) {
@@ -775,7 +785,7 @@ export default function Home() {
             .from('user_priorities')
             .upsert({
               user_id: user.id,
-              priorities: nextPriorities,
+              priorities: normalized,
               updated_at: new Date().toISOString(),
             }),
 
@@ -801,7 +811,7 @@ export default function Home() {
       }
     }
 
-    setPriorities(nextPriorities);
+    setPriorities(normalized);
 
     if (startLog) {
       setComposerCategory(suggestedCategory);
@@ -925,7 +935,7 @@ export default function Home() {
   if (supabaseConfigured && authReady && !user) return <AuthScreen/>;
   if (supabaseConfigured && user && (!cloudReady || onboardingComplete === null)) return <CloudBoot/>;
   if (supabaseConfigured && user && onboardingComplete === false) {
-    return <OnboardingFlow profileName={profileName} initialPriorities={priorities} onFinish={finishOnboarding}/>;
+    return <OnboardingFlow profileName={profileName} onFinish={finishOnboarding}/>;
   }
 
   return (
@@ -1182,7 +1192,7 @@ export default function Home() {
               {categories.map((category) => (
                 <div key={category.key}>
                   <span>{category.emoji} {category.short}</span>
-                  <select value={priorities[category.key]} onChange={(event) => setPriorities((prev) => ({ ...prev, [category.key]: event.target.value as Priority }))}>
+                  <select value={priorities[category.key]} onChange={(event) => setPriorities((prev) => normalizePriorityMap({ ...prev, [category.key]: event.target.value }))}>
                     <option value="critical">Critical</option>
                     <option value="high">High</option>
                     <option value="normal">Normal</option>
@@ -1391,9 +1401,8 @@ function CloudBoot() {
   );
 }
 
-function OnboardingFlow({ profileName, initialPriorities, onFinish }: {
+function OnboardingFlow({ profileName, onFinish }: {
   profileName: string;
-  initialPriorities: Record<CategoryKey, Priority>;
   onFinish: (priorities: Record<CategoryKey, Priority>, startLog?: boolean, suggestedCategory?: CategoryKey) => Promise<void>;
 }) {
   const [step, setStep] = useState(0);
@@ -1407,10 +1416,8 @@ function OnboardingFlow({ profileName, initialPriorities, onFinish }: {
     setFocus((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key]);
   };
   const configuredPriorities = () => {
-    const next = { ...initialPriorities };
-    categories.forEach((category) => { next[category.key] = 'maintenance'; });
-    focus.forEach((key) => { next[key] = key === mission ? 'critical' : 'high'; });
-    return next;
+    if (!mission) return createDefaultPriorityMap();
+    return buildOnboardingPriorityMap(focus, mission);
   };
   async function finish(startLog: boolean) {
     if (!mission) return;
