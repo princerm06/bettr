@@ -1,0 +1,257 @@
+{
+  "evaluator": "candidate-developmental-6a",
+  "pass": "bringup-seed-42-fold-0",
+  "not_the_locked_decision": true,
+  "controlMiniLmLinear": {
+    "meanBothSides": 0.4645,
+    "meanFamilyBalancedAccuracy": 0.8086
+  },
+  "gateK": {
+    "A": 0.5645,
+    "B_familyBa": 0.8586,
+    "B_bothSidesFloor": 0.4645,
+    "note": "Decision uses 3-seed mean over 5 outer folds. Bring-up is not SUCCESS/NULL."
+  },
+  "locked_eval_seeds": [
+    42,
+    123,
+    456
+  ],
+  "fold": {
+    "outer_fold": 0,
+    "seed": 42,
+    "encoder": {
+      "base_model_id": "sentence-transformers/all-MiniLM-L6-v2",
+      "tokenizer_id": "sentence-transformers/all-MiniLM-L6-v2",
+      "tokenizer_class": "BertTokenizer",
+      "n_layers": 6,
+      "hidden_size": 384,
+      "embedding_dim": 384,
+      "max_seq_length": 256,
+      "trainable_param_count": 110592,
+      "frozen_param_count": 22713216,
+      "trainable_modules": [
+        "base_model.model.encoder.layer.4.attention.self.query.lora_A.default.weight",
+        "base_model.model.encoder.layer.4.attention.self.query.lora_B.default.weight",
+        "base_model.model.encoder.layer.4.attention.self.key.lora_A.default.weight",
+        "base_model.model.encoder.layer.4.attention.self.key.lora_B.default.weight",
+        "base_model.model.encoder.layer.4.attention.self.value.lora_A.default.weight",
+        "base_model.model.encoder.layer.4.attention.self.value.lora_B.default.weight",
+        "base_model.model.encoder.layer.4.attention.output.dense.lora_A.default.weight",
+        "base_model.model.encoder.layer.4.attention.output.dense.lora_B.default.weight",
+        "base_model.model.encoder.layer.4.intermediate.dense.lora_A.default.weight",
+        "base_model.model.encoder.layer.4.intermediate.dense.lora_B.default.weight",
+        "base_model.model.encoder.layer.4.output.dense.lora_A.default.weight",
+        "base_model.model.encoder.layer.4.output.dense.lora_B.default.weight",
+        "base_model.model.encoder.layer.5.attention.self.query.lora_A.default.weight",
+        "base_model.model.encoder.layer.5.attention.self.query.lora_B.default.weight",
+        "base_model.model.encoder.layer.5.attention.self.key.lora_A.default.weight",
+        "base_model.model.encoder.layer.5.attention.self.key.lora_B.default.weight",
+        "base_model.model.encoder.layer.5.attention.self.value.lora_A.default.weight",
+        "base_model.model.encoder.layer.5.attention.self.value.lora_B.default.weight",
+        "base_model.model.encoder.layer.5.attention.output.dense.lora_A.default.weight",
+        "base_model.model.encoder.layer.5.attention.output.dense.lora_B.default.weight",
+        "base_model.model.encoder.layer.5.intermediate.dense.lora_A.default.weight",
+        "base_model.model.encoder.layer.5.intermediate.dense.lora_B.default.weight",
+        "base_model.model.encoder.layer.5.output.dense.lora_A.default.weight",
+        "base_model.model.encoder.layer.5.output.dense.lora_B.default.weight"
+      ],
+      "lora": {
+        "r": 8,
+        "alpha": 16,
+        "dropout": 0.1,
+        "target_modules": [
+          "encoder.layer.4.attention.self.query",
+          "encoder.layer.4.attention.self.key",
+          "encoder.layer.4.attention.self.value",
+          "encoder.layer.4.attention.output.dense",
+          "encoder.layer.4.intermediate.dense",
+          "encoder.layer.4.output.dense",
+          "encoder.layer.5.attention.self.query",
+          "encoder.layer.5.attention.self.key",
+          "encoder.layer.5.attention.self.value",
+          "encoder.layer.5.attention.output.dense",
+          "encoder.layer.5.intermediate.dense",
+          "encoder.layer.5.output.dense"
+        ]
+      }
+    },
+    "n_inner_train_families": 38,
+    "n_inner_val_families": 10,
+    "n_outer_train_families": 48,
+    "n_outer_families": 12,
+    "inner_train_families": [
+      "academics.essay_outline_vs_bookmark",
+      "academics.notes_vs_print",
+      "academics.tutor_explain_vs_library_phone",
+      "appearance.groom_vs_mirror",
+      "appearance.haircut_vs_book_slot",
+      "appearance.posture_vs_try_on",
+      "career.club_demo_vs_sit_meetup",
+      "career.opener_used_vs_star_post",
+      "career.shadow_ticket_vs_bus",
+      "career.star_rehearsal_vs_forward_invite",
+      "craft.dictation_vs_app_open",
+      "craft.ram_reseat_vs_buy_laptop",
+      "craft.short_snare_vs_unopened_sticks",
+      "craft.still_life_vs_buy_pad",
+      "fashion.alter_vs_unbox",
+      "fashion.repair_vs_replace",
+      "finance.payment_plan_vs_refund",
+      "finance.plan_compare_vs_pay_bill",
+      "finance.savings_bucket_vs_swipe",
+      "finance.scope_hours_vs_deposit_ping",
+      "nutrition.log_adjust_vs_candy",
+      "nutrition.rice_consistency_vs_microwave",
+      "ordinary.detailed_errand_hardneg",
+      "ordinary.home_admin",
+      "ordinary.travel_logistics",
+      "physical.climb_session_vs_spectate",
+      "social.boundary_talk_vs_like",
+      "social.facilitate_vs_errand",
+      "social.lead_icebreakers_vs_rsvp",
+      "social.listen_question_vs_group_show",
+      "spiritual.examen_vs_click",
+      "spiritual.prayer_vs_calendar",
+      "spiritual.study_prep_vs_ride",
+      "spiritual.verse_sit_vs_buy_object",
+      "wellbeing.after_action_vs_mood",
+      "wellbeing.paced_walk_vs_doomscroll",
+      "wellbeing.wind_down_vs_pass_out",
+      "wellbeing.worry_schedule_vs_nap"
+    ],
+    "inner_val_families": [
+      "appearance.washday_vs_buy_product",
+      "career.project_walkthrough_vs_payroll",
+      "craft.bike_drivetrain_vs_shop_drop",
+      "craft.chess_motif_vs_phone_bed",
+      "fashion.layer_test_vs_browse",
+      "finance.debt_order_vs_wallet_glance",
+      "finance.service_packages_vs_paypal_glance",
+      "nutrition.knife_skill_vs_reheat",
+      "nutrition.new_method_vs_grocery",
+      "physical.finishing_vs_bleachers_practiced"
+    ],
+    "pairs_inner": {
+      "n_pairs": 280,
+      "uncapped_inventory": 361,
+      "max_pairs_per_family": 8,
+      "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+    },
+    "pairs_refit": {
+      "n_pairs": 360,
+      "uncapped_inventory": 521
+    },
+    "selection": {
+      "E_k": 3,
+      "best_inner_val": {
+        "bothSidesRate": 0.4,
+        "meanFamilyBalancedAccuracy": 0.8875,
+        "nll": 0.516
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.040697,
+          "inner_val_both_sides": 0.4,
+          "inner_val_family_ba": 0.8875,
+          "inner_val_nll": 0.5164
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.040197,
+          "inner_val_both_sides": 0.4,
+          "inner_val_family_ba": 0.8875,
+          "inner_val_nll": 0.5163
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.034642,
+          "inner_val_both_sides": 0.4,
+          "inner_val_family_ba": 0.8875,
+          "inner_val_nll": 0.516
+        }
+      ],
+      "stopped_epoch": 3
+    },
+    "refit_losses": [
+      0.042222,
+      0.043142,
+      0.037881
+    ],
+    "refit_epochs": 3,
+    "outer": {
+      "row": {
+        "n": 81,
+        "accuracy": 0.8889,
+        "balancedAccuracy": 0.8885,
+        "precision": 0.8611,
+        "recall": 0.8857,
+        "f1": 0.8732,
+        "macroF1": 0.8872,
+        "confusion": {
+          "tp": 31,
+          "tn": 41,
+          "fp": 5,
+          "fn": 4
+        }
+      },
+      "meanFamilyBalancedAccuracy": 0.8108,
+      "bothSidesRate": 0.6,
+      "bothSidesN": 10,
+      "bothSidesCorrectCount": 6,
+      "nll": 0.5375
+    },
+    "geometry": {
+      "inner_train": {
+        "before": {
+          "nInFamilyOpposite": 361,
+          "nCrossFamilySameLabel": 14464,
+          "meanInFamilyOpposite": 0.1963,
+          "meanCrossFamilySameLabel": 0.1462,
+          "gap": -0.0502
+        },
+        "after": {
+          "nInFamilyOpposite": 361,
+          "nCrossFamilySameLabel": 14464,
+          "meanInFamilyOpposite": 0.1709,
+          "meanCrossFamilySameLabel": 0.1224,
+          "gap": -0.0485
+        }
+      },
+      "outer_holdout": {
+        "before": {
+          "nInFamilyOpposite": 109,
+          "nCrossFamilySameLabel": 1503,
+          "meanInFamilyOpposite": 0.2052,
+          "meanCrossFamilySameLabel": 0.1379,
+          "gap": -0.0672
+        },
+        "after": {
+          "nInFamilyOpposite": 109,
+          "nCrossFamilySameLabel": 1503,
+          "meanInFamilyOpposite": 0.1825,
+          "meanCrossFamilySameLabel": 0.1153,
+          "gap": -0.0672
+        }
+      }
+    },
+    "embedding_drift_mean_cosine": {
+      "inner_train": 0.9989,
+      "outer_holdout": 0.9989
+    },
+    "loss": {
+      "type": "relu(cos(z_i,z_j) - margin).mean()",
+      "margin": 0.2,
+      "lambda_attraction": 0.0,
+      "batch_size": 16,
+      "patience": 2
+    },
+    "probe": {
+      "l2": 0.01,
+      "learningRate": 0.4,
+      "epochs": 400,
+      "threshold": 0.5
+    }
+  }
+}

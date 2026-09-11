@@ -1,0 +1,6 @@
+# Candidate #6A Python sidecar only. Not used by the Next.js app.
+torch==2.14.0
+transformers==5.17.0
+peft==0.20.0
+numpy==2.5.3
+accelerate==1.15.0

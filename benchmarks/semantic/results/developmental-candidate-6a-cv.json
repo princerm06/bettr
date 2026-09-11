@@ -1,0 +1,4606 @@
+{
+  "evaluator": "candidate-developmental-6a",
+  "pass": "locked-3-seed-5-fold-fp32",
+  "generatedAt": "2026-09-10T23:30:03.469838+00:00",
+  "controlMiniLmLinear": {
+    "meanBothSides": 0.4645,
+    "meanFamilyBalancedAccuracy": 0.8086
+  },
+  "historical5A": {
+    "meanBothSides": 0.3848,
+    "meanFamilyBalancedAccuracy": 0.8066
+  },
+  "gateK": {
+    "A": 0.5645,
+    "B_familyBa": 0.8586,
+    "B_bothSidesFloor": 0.4645,
+    "pathA": false,
+    "pathB": false,
+    "success": false,
+    "decision": "NULL"
+  },
+  "aggregate": {
+    "seedSummaries": [
+      {
+        "seed": 42,
+        "meanBothSides": 0.4627,
+        "meanFamilyBalancedAccuracy": 0.8135,
+        "foldBothSides": [
+          0.6,
+          0.6,
+          0.1667,
+          0.5833,
+          0.3636
+        ],
+        "foldFamilyBa": [
+          0.8108,
+          0.8016,
+          0.7882,
+          0.8507,
+          0.816
+        ]
+      },
+      {
+        "seed": 123,
+        "meanBothSides": 0.4627,
+        "meanFamilyBalancedAccuracy": 0.8107,
+        "foldBothSides": [
+          0.6,
+          0.6,
+          0.1667,
+          0.5833,
+          0.3636
+        ],
+        "foldFamilyBa": [
+          0.8108,
+          0.8016,
+          0.7882,
+          0.8507,
+          0.8021
+        ]
+      },
+      {
+        "seed": 456,
+        "meanBothSides": 0.4627,
+        "meanFamilyBalancedAccuracy": 0.8107,
+        "foldBothSides": [
+          0.6,
+          0.6,
+          0.1667,
+          0.5833,
+          0.3636
+        ],
+        "foldFamilyBa": [
+          0.8108,
+          0.8016,
+          0.7882,
+          0.8507,
+          0.8021
+        ]
+      }
+    ],
+    "meanBothSides": 0.4627,
+    "stdBothSides": 0.0,
+    "meanFamilyBalancedAccuracy": 0.8116,
+    "stdFamilyBalancedAccuracy": 0.0016,
+    "deltaVsFrozenBothSides": -0.0018,
+    "deltaVsFrozenFamilyBa": 0.003
+  },
+  "runs": [
+    {
+      "outer_fold": 0,
+      "seed": 42,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.savings_bucket_vs_swipe",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "fashion.layer_test_vs_browse",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 280,
+        "uncapped_inventory": 361,
+        "n_capped_families": 35,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 360,
+        "uncapped_inventory": 521,
+        "n_capped_families": 45,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4,
+          "meanFamilyBalancedAccuracy": 0.8875,
+          "nll": 0.516
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.040697,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.5164
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.040197,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.5163
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.034642,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.516
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.042222,
+        0.043142,
+        0.037881
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8889,
+          "balancedAccuracy": 0.8885,
+          "precision": 0.8611,
+          "recall": 0.8857,
+          "f1": 0.8732,
+          "macroF1": 0.8872,
+          "confusion": {
+            "tp": 31,
+            "tn": 41,
+            "fp": 5,
+            "fn": 4
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8108,
+        "bothSidesRate": 0.6,
+        "bothSidesN": 10,
+        "bothSidesCorrectCount": 6,
+        "nll": 0.5375
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1963,
+            "meanCrossFamilySameLabel": 0.1462,
+            "gap": -0.0502
+          },
+          "after": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1709,
+            "meanCrossFamilySameLabel": 0.1224,
+            "gap": -0.0485
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 160,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2178,
+            "meanCrossFamilySameLabel": 0.1522,
+            "gap": -0.0657
+          },
+          "after": {
+            "nInFamilyOpposite": 160,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1921,
+            "meanCrossFamilySameLabel": 0.1282,
+            "gap": -0.0639
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 109,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.2052,
+            "meanCrossFamilySameLabel": 0.1379,
+            "gap": -0.0672
+          },
+          "after": {
+            "nInFamilyOpposite": 109,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1825,
+            "meanCrossFamilySameLabel": 0.1153,
+            "gap": -0.0672
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9989,
+        "inner_val": 0.9989,
+        "outer_holdout": 0.9989
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 1,
+      "seed": 42,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.study_prep_vs_ride",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "fashion.layer_test_vs_browse",
+        "finance.savings_bucket_vs_swipe",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 288,
+        "uncapped_inventory": 366,
+        "n_capped_families": 36,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.study_prep_vs_ride",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 2,
+        "zero_pair_families": [
+          "ordinary.home_admin",
+          "ordinary.invoice_admin"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 360,
+        "uncapped_inventory": 510,
+        "n_capped_families": 45,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.study_prep_vs_ride",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.1111,
+          "meanFamilyBalancedAccuracy": 0.7438,
+          "nll": 0.5408
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.048526,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.5416
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.046143,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.5412
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.044265,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.5408
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.051801,
+        0.051643,
+        0.044233
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8765,
+          "balancedAccuracy": 0.8778,
+          "precision": 0.8421,
+          "recall": 0.8889,
+          "f1": 0.8649,
+          "macroF1": 0.8756,
+          "confusion": {
+            "tp": 32,
+            "tn": 39,
+            "fp": 6,
+            "fn": 4
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8016,
+        "bothSidesRate": 0.6,
+        "bothSidesN": 10,
+        "bothSidesCorrectCount": 6,
+        "nll": 0.5412
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 366,
+            "nCrossFamilySameLabel": 14462,
+            "meanInFamilyOpposite": 0.2155,
+            "meanCrossFamilySameLabel": 0.1485,
+            "gap": -0.067
+          },
+          "after": {
+            "nInFamilyOpposite": 366,
+            "nCrossFamilySameLabel": 14462,
+            "meanInFamilyOpposite": 0.1886,
+            "meanCrossFamilySameLabel": 0.1232,
+            "gap": -0.0654
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2148,
+            "meanCrossFamilySameLabel": 0.1375,
+            "gap": -0.0772
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1885,
+            "meanCrossFamilySameLabel": 0.1128,
+            "gap": -0.0756
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 120,
+            "nCrossFamilySameLabel": 1502,
+            "meanInFamilyOpposite": 0.1525,
+            "meanCrossFamilySameLabel": 0.1505,
+            "gap": -0.002
+          },
+          "after": {
+            "nInFamilyOpposite": 120,
+            "nCrossFamilySameLabel": 1502,
+            "meanInFamilyOpposite": 0.1287,
+            "meanCrossFamilySameLabel": 0.128,
+            "gap": -0.0007
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9988,
+        "inner_val": 0.9988,
+        "outer_holdout": 0.9989
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 2,
+      "seed": 42,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.proof_dough_vs_cereal_box",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.savings_bucket_vs_swipe",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 272,
+        "uncapped_inventory": 348,
+        "n_capped_families": 34,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.proof_dough_vs_cereal_box",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 344,
+        "uncapped_inventory": 492,
+        "n_capped_families": 43,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 5,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4444,
+          "meanFamilyBalancedAccuracy": 0.8187,
+          "nll": 0.5314
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.039118,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.532
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.038069,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.5318
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.035364,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.5314
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.038763,
+        0.035925,
+        0.030525
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.7778,
+          "balancedAccuracy": 0.7839,
+          "precision": 0.9286,
+          "recall": 0.619,
+          "f1": 0.7429,
+          "macroF1": 0.7736,
+          "confusion": {
+            "tp": 26,
+            "tn": 37,
+            "fp": 2,
+            "fn": 16
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.7882,
+        "bothSidesRate": 0.1667,
+        "bothSidesN": 12,
+        "bothSidesCorrectCount": 2,
+        "nll": 0.5626
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.1967,
+            "meanCrossFamilySameLabel": 0.1488,
+            "gap": -0.048
+          },
+          "after": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.1729,
+            "meanCrossFamilySameLabel": 0.1261,
+            "gap": -0.0468
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2089,
+            "meanCrossFamilySameLabel": 0.1378,
+            "gap": -0.0711
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1837,
+            "meanCrossFamilySameLabel": 0.1147,
+            "gap": -0.069
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.2142,
+            "meanCrossFamilySameLabel": 0.1408,
+            "gap": -0.0734
+          },
+          "after": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.191,
+            "meanCrossFamilySameLabel": 0.118,
+            "gap": -0.073
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.999,
+        "inner_val": 0.999,
+        "outer_holdout": 0.999
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 3,
+      "seed": 42,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.chess_motif_vs_phone_bed",
+        "fashion.layer_test_vs_browse",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.savings_bucket_vs_swipe",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check"
+      ],
+      "pairs_inner": {
+        "n_pairs": 272,
+        "uncapped_inventory": 348,
+        "n_capped_families": 34,
+        "capped_families": [
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 344,
+        "uncapped_inventory": 492,
+        "n_capped_families": 43,
+        "capped_families": [
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out"
+        ],
+        "n_zero_pair_families": 5,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.3333,
+          "meanFamilyBalancedAccuracy": 0.8063,
+          "nll": 0.5428
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.053507,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5434
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.049014,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5431
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.048047,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5428
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.048104,
+        0.047572,
+        0.039584
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8519,
+          "balancedAccuracy": 0.8507,
+          "precision": 0.8409,
+          "recall": 0.881,
+          "f1": 0.8605,
+          "macroF1": 0.8513,
+          "confusion": {
+            "tp": 37,
+            "tn": 32,
+            "fp": 7,
+            "fn": 5
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8507,
+        "bothSidesRate": 0.5833,
+        "bothSidesN": 12,
+        "bothSidesCorrectCount": 7,
+        "nll": 0.5295
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.2149,
+            "meanCrossFamilySameLabel": 0.1431,
+            "gap": -0.0718
+          },
+          "after": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.1904,
+            "meanCrossFamilySameLabel": 0.1204,
+            "gap": -0.07
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1883,
+            "meanCrossFamilySameLabel": 0.1534,
+            "gap": -0.0349
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1643,
+            "meanCrossFamilySameLabel": 0.131,
+            "gap": -0.0333
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1897,
+            "meanCrossFamilySameLabel": 0.1505,
+            "gap": -0.0393
+          },
+          "after": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1663,
+            "meanCrossFamilySameLabel": 0.1286,
+            "gap": -0.0377
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.999,
+        "inner_val": 0.999,
+        "outer_holdout": 0.999
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 4,
+      "seed": 42,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.layer_test_vs_browse",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 280,
+        "uncapped_inventory": 361,
+        "n_capped_families": 35,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 352,
+        "uncapped_inventory": 505,
+        "n_capped_families": 44,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4444,
+          "meanFamilyBalancedAccuracy": 0.8063,
+          "nll": 0.5238
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.037122,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5241
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.036737,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.524
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.034218,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5238
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.038726,
+        0.03614,
+        0.032724
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8519,
+          "balancedAccuracy": 0.848,
+          "precision": 0.9355,
+          "recall": 0.7436,
+          "f1": 0.8286,
+          "macroF1": 0.8491,
+          "confusion": {
+            "tp": 29,
+            "tn": 40,
+            "fp": 2,
+            "fn": 10
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.816,
+        "bothSidesRate": 0.3636,
+        "bothSidesN": 11,
+        "bothSidesCorrectCount": 4,
+        "nll": 0.5448
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1919,
+            "meanCrossFamilySameLabel": 0.1429,
+            "gap": -0.049
+          },
+          "after": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1688,
+            "meanCrossFamilySameLabel": 0.1212,
+            "gap": -0.0475
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1884,
+            "meanCrossFamilySameLabel": 0.149,
+            "gap": -0.0394
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1641,
+            "meanCrossFamilySameLabel": 0.1266,
+            "gap": -0.0376
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 125,
+            "nCrossFamilySameLabel": 1491,
+            "meanInFamilyOpposite": 0.2535,
+            "meanCrossFamilySameLabel": 0.1424,
+            "gap": -0.1112
+          },
+          "after": {
+            "nInFamilyOpposite": 125,
+            "nCrossFamilySameLabel": 1491,
+            "meanInFamilyOpposite": 0.2315,
+            "meanCrossFamilySameLabel": 0.1206,
+            "gap": -0.1109
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9991,
+        "inner_val": 0.999,
+        "outer_holdout": 0.9991
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 0,
+      "seed": 123,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.savings_bucket_vs_swipe",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "fashion.layer_test_vs_browse",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 280,
+        "uncapped_inventory": 361,
+        "n_capped_families": 35,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 360,
+        "uncapped_inventory": 521,
+        "n_capped_families": 45,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4,
+          "meanFamilyBalancedAccuracy": 0.8875,
+          "nll": 0.5154
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.043023,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.5163
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.040471,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.5159
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.038211,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.5154
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.04293,
+        0.041906,
+        0.037067
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8889,
+          "balancedAccuracy": 0.8885,
+          "precision": 0.8611,
+          "recall": 0.8857,
+          "f1": 0.8732,
+          "macroF1": 0.8872,
+          "confusion": {
+            "tp": 31,
+            "tn": 41,
+            "fp": 5,
+            "fn": 4
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8108,
+        "bothSidesRate": 0.6,
+        "bothSidesN": 10,
+        "bothSidesCorrectCount": 6,
+        "nll": 0.5369
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1963,
+            "meanCrossFamilySameLabel": 0.1462,
+            "gap": -0.0502
+          },
+          "after": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1696,
+            "meanCrossFamilySameLabel": 0.1213,
+            "gap": -0.0483
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 160,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2178,
+            "meanCrossFamilySameLabel": 0.1522,
+            "gap": -0.0657
+          },
+          "after": {
+            "nInFamilyOpposite": 160,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1909,
+            "meanCrossFamilySameLabel": 0.1275,
+            "gap": -0.0634
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 109,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.2052,
+            "meanCrossFamilySameLabel": 0.1379,
+            "gap": -0.0672
+          },
+          "after": {
+            "nInFamilyOpposite": 109,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1815,
+            "meanCrossFamilySameLabel": 0.1144,
+            "gap": -0.067
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9988,
+        "inner_val": 0.9988,
+        "outer_holdout": 0.9988
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 1,
+      "seed": 123,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.study_prep_vs_ride",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "fashion.layer_test_vs_browse",
+        "finance.savings_bucket_vs_swipe",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 288,
+        "uncapped_inventory": 366,
+        "n_capped_families": 36,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.study_prep_vs_ride",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 2,
+        "zero_pair_families": [
+          "ordinary.home_admin",
+          "ordinary.invoice_admin"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 360,
+        "uncapped_inventory": 510,
+        "n_capped_families": 45,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.study_prep_vs_ride",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.1111,
+          "meanFamilyBalancedAccuracy": 0.7438,
+          "nll": 0.5404
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.050785,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.5415
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.049766,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.5411
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.044282,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.5404
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.053115,
+        0.048353,
+        0.041605
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8765,
+          "balancedAccuracy": 0.8778,
+          "precision": 0.8421,
+          "recall": 0.8889,
+          "f1": 0.8649,
+          "macroF1": 0.8756,
+          "confusion": {
+            "tp": 32,
+            "tn": 39,
+            "fp": 6,
+            "fn": 4
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8016,
+        "bothSidesRate": 0.6,
+        "bothSidesN": 10,
+        "bothSidesCorrectCount": 6,
+        "nll": 0.5407
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 366,
+            "nCrossFamilySameLabel": 14462,
+            "meanInFamilyOpposite": 0.2155,
+            "meanCrossFamilySameLabel": 0.1485,
+            "gap": -0.067
+          },
+          "after": {
+            "nInFamilyOpposite": 366,
+            "nCrossFamilySameLabel": 14462,
+            "meanInFamilyOpposite": 0.1873,
+            "meanCrossFamilySameLabel": 0.1223,
+            "gap": -0.065
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2148,
+            "meanCrossFamilySameLabel": 0.1375,
+            "gap": -0.0772
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1878,
+            "meanCrossFamilySameLabel": 0.1126,
+            "gap": -0.0752
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 120,
+            "nCrossFamilySameLabel": 1502,
+            "meanInFamilyOpposite": 0.1525,
+            "meanCrossFamilySameLabel": 0.1505,
+            "gap": -0.002
+          },
+          "after": {
+            "nInFamilyOpposite": 120,
+            "nCrossFamilySameLabel": 1502,
+            "meanInFamilyOpposite": 0.1278,
+            "meanCrossFamilySameLabel": 0.1272,
+            "gap": -0.0006
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9987,
+        "inner_val": 0.9987,
+        "outer_holdout": 0.9987
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 2,
+      "seed": 123,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.proof_dough_vs_cereal_box",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.savings_bucket_vs_swipe",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 272,
+        "uncapped_inventory": 348,
+        "n_capped_families": 34,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.proof_dough_vs_cereal_box",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 344,
+        "uncapped_inventory": 492,
+        "n_capped_families": 43,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 5,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4444,
+          "meanFamilyBalancedAccuracy": 0.8187,
+          "nll": 0.531
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.039747,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.5318
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.038007,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.5315
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.034085,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.531
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.043147,
+        0.041048,
+        0.033801
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.7778,
+          "balancedAccuracy": 0.7839,
+          "precision": 0.9286,
+          "recall": 0.619,
+          "f1": 0.7429,
+          "macroF1": 0.7736,
+          "confusion": {
+            "tp": 26,
+            "tn": 37,
+            "fp": 2,
+            "fn": 16
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.7882,
+        "bothSidesRate": 0.1667,
+        "bothSidesN": 12,
+        "bothSidesCorrectCount": 2,
+        "nll": 0.5623
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.1967,
+            "meanCrossFamilySameLabel": 0.1488,
+            "gap": -0.048
+          },
+          "after": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.172,
+            "meanCrossFamilySameLabel": 0.1252,
+            "gap": -0.0468
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2089,
+            "meanCrossFamilySameLabel": 0.1378,
+            "gap": -0.0711
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1823,
+            "meanCrossFamilySameLabel": 0.1139,
+            "gap": -0.0684
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.2142,
+            "meanCrossFamilySameLabel": 0.1408,
+            "gap": -0.0734
+          },
+          "after": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1904,
+            "meanCrossFamilySameLabel": 0.1176,
+            "gap": -0.0729
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9989,
+        "inner_val": 0.999,
+        "outer_holdout": 0.999
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 3,
+      "seed": 123,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.chess_motif_vs_phone_bed",
+        "fashion.layer_test_vs_browse",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.savings_bucket_vs_swipe",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check"
+      ],
+      "pairs_inner": {
+        "n_pairs": 272,
+        "uncapped_inventory": 348,
+        "n_capped_families": 34,
+        "capped_families": [
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 344,
+        "uncapped_inventory": 492,
+        "n_capped_families": 43,
+        "capped_families": [
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out"
+        ],
+        "n_zero_pair_families": 5,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.3333,
+          "meanFamilyBalancedAccuracy": 0.8063,
+          "nll": 0.5424
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.053196,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5432
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.048661,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5428
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.043669,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5424
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.049297,
+        0.043025,
+        0.039235
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8519,
+          "balancedAccuracy": 0.8507,
+          "precision": 0.8409,
+          "recall": 0.881,
+          "f1": 0.8605,
+          "macroF1": 0.8513,
+          "confusion": {
+            "tp": 37,
+            "tn": 32,
+            "fp": 7,
+            "fn": 5
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8507,
+        "bothSidesRate": 0.5833,
+        "bothSidesN": 12,
+        "bothSidesCorrectCount": 7,
+        "nll": 0.5294
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.2149,
+            "meanCrossFamilySameLabel": 0.1431,
+            "gap": -0.0718
+          },
+          "after": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.1897,
+            "meanCrossFamilySameLabel": 0.1197,
+            "gap": -0.07
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1883,
+            "meanCrossFamilySameLabel": 0.1534,
+            "gap": -0.0349
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1639,
+            "meanCrossFamilySameLabel": 0.1307,
+            "gap": -0.0332
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1897,
+            "meanCrossFamilySameLabel": 0.1505,
+            "gap": -0.0393
+          },
+          "after": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1652,
+            "meanCrossFamilySameLabel": 0.1275,
+            "gap": -0.0376
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9989,
+        "inner_val": 0.999,
+        "outer_holdout": 0.9989
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 4,
+      "seed": 123,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.layer_test_vs_browse",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 280,
+        "uncapped_inventory": 361,
+        "n_capped_families": 35,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 352,
+        "uncapped_inventory": 505,
+        "n_capped_families": 44,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4444,
+          "meanFamilyBalancedAccuracy": 0.8063,
+          "nll": 0.5233
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.040987,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5239
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.037641,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5237
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.033272,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5233
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.039123,
+        0.034546,
+        0.031595
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8395,
+          "balancedAccuracy": 0.8361,
+          "precision": 0.9062,
+          "recall": 0.7436,
+          "f1": 0.8169,
+          "macroF1": 0.837,
+          "confusion": {
+            "tp": 29,
+            "tn": 39,
+            "fp": 3,
+            "fn": 10
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8021,
+        "bothSidesRate": 0.3636,
+        "bothSidesN": 11,
+        "bothSidesCorrectCount": 4,
+        "nll": 0.5442
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1919,
+            "meanCrossFamilySameLabel": 0.1429,
+            "gap": -0.049
+          },
+          "after": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1674,
+            "meanCrossFamilySameLabel": 0.1201,
+            "gap": -0.0473
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1884,
+            "meanCrossFamilySameLabel": 0.149,
+            "gap": -0.0394
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1625,
+            "meanCrossFamilySameLabel": 0.1256,
+            "gap": -0.0369
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 125,
+            "nCrossFamilySameLabel": 1491,
+            "meanInFamilyOpposite": 0.2535,
+            "meanCrossFamilySameLabel": 0.1424,
+            "gap": -0.1112
+          },
+          "after": {
+            "nInFamilyOpposite": 125,
+            "nCrossFamilySameLabel": 1491,
+            "meanInFamilyOpposite": 0.2304,
+            "meanCrossFamilySameLabel": 0.1196,
+            "gap": -0.1107
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.999,
+        "inner_val": 0.999,
+        "outer_holdout": 0.999
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 0,
+      "seed": 456,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.savings_bucket_vs_swipe",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "fashion.layer_test_vs_browse",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 280,
+        "uncapped_inventory": 361,
+        "n_capped_families": 35,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 360,
+        "uncapped_inventory": 521,
+        "n_capped_families": 45,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4,
+          "meanFamilyBalancedAccuracy": 0.8875,
+          "nll": 0.5153
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.044499,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.5162
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.041122,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.5158
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.038806,
+            "inner_val_both_sides": 0.4,
+            "inner_val_family_ba": 0.8875,
+            "inner_val_nll": 0.5153
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.045559,
+        0.04109,
+        0.035801
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8889,
+          "balancedAccuracy": 0.8885,
+          "precision": 0.8611,
+          "recall": 0.8857,
+          "f1": 0.8732,
+          "macroF1": 0.8872,
+          "confusion": {
+            "tp": 31,
+            "tn": 41,
+            "fp": 5,
+            "fn": 4
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8108,
+        "bothSidesRate": 0.6,
+        "bothSidesN": 10,
+        "bothSidesCorrectCount": 6,
+        "nll": 0.5369
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1963,
+            "meanCrossFamilySameLabel": 0.1462,
+            "gap": -0.0502
+          },
+          "after": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1698,
+            "meanCrossFamilySameLabel": 0.1214,
+            "gap": -0.0484
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 160,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2178,
+            "meanCrossFamilySameLabel": 0.1522,
+            "gap": -0.0657
+          },
+          "after": {
+            "nInFamilyOpposite": 160,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1906,
+            "meanCrossFamilySameLabel": 0.1271,
+            "gap": -0.0635
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 109,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.2052,
+            "meanCrossFamilySameLabel": 0.1379,
+            "gap": -0.0672
+          },
+          "after": {
+            "nInFamilyOpposite": 109,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1815,
+            "meanCrossFamilySameLabel": 0.1147,
+            "gap": -0.0668
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9988,
+        "inner_val": 0.9988,
+        "outer_holdout": 0.9988
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 1,
+      "seed": 456,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.study_prep_vs_ride",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "fashion.layer_test_vs_browse",
+        "finance.savings_bucket_vs_swipe",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 288,
+        "uncapped_inventory": 366,
+        "n_capped_families": 36,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.study_prep_vs_ride",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 2,
+        "zero_pair_families": [
+          "ordinary.home_admin",
+          "ordinary.invoice_admin"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 360,
+        "uncapped_inventory": 510,
+        "n_capped_families": 45,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.study_prep_vs_ride",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.1111,
+          "meanFamilyBalancedAccuracy": 0.7438,
+          "nll": 0.5405
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.04942,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.5415
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.048955,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.541
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.044202,
+            "inner_val_both_sides": 0.1111,
+            "inner_val_family_ba": 0.7438,
+            "inner_val_nll": 0.5405
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.048379,
+        0.043126,
+        0.038854
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8765,
+          "balancedAccuracy": 0.8778,
+          "precision": 0.8421,
+          "recall": 0.8889,
+          "f1": 0.8649,
+          "macroF1": 0.8756,
+          "confusion": {
+            "tp": 32,
+            "tn": 39,
+            "fp": 6,
+            "fn": 4
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8016,
+        "bothSidesRate": 0.6,
+        "bothSidesN": 10,
+        "bothSidesCorrectCount": 6,
+        "nll": 0.5409
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 366,
+            "nCrossFamilySameLabel": 14462,
+            "meanInFamilyOpposite": 0.2155,
+            "meanCrossFamilySameLabel": 0.1485,
+            "gap": -0.067
+          },
+          "after": {
+            "nInFamilyOpposite": 366,
+            "nCrossFamilySameLabel": 14462,
+            "meanInFamilyOpposite": 0.1886,
+            "meanCrossFamilySameLabel": 0.1233,
+            "gap": -0.0653
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2148,
+            "meanCrossFamilySameLabel": 0.1375,
+            "gap": -0.0772
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1882,
+            "meanCrossFamilySameLabel": 0.1131,
+            "gap": -0.0751
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 120,
+            "nCrossFamilySameLabel": 1502,
+            "meanInFamilyOpposite": 0.1525,
+            "meanCrossFamilySameLabel": 0.1505,
+            "gap": -0.002
+          },
+          "after": {
+            "nInFamilyOpposite": 120,
+            "nCrossFamilySameLabel": 1502,
+            "meanInFamilyOpposite": 0.1287,
+            "meanCrossFamilySameLabel": 0.1282,
+            "gap": -0.0006
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9988,
+        "inner_val": 0.9988,
+        "outer_holdout": 0.9988
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 2,
+      "seed": 456,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "career.club_demo_vs_sit_meetup",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.proof_dough_vs_cereal_box",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.listen_question_vs_group_show",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.wind_down_vs_pass_out",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.savings_bucket_vs_swipe",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 272,
+        "uncapped_inventory": 348,
+        "n_capped_families": 34,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "career.club_demo_vs_sit_meetup",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.proof_dough_vs_cereal_box",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 344,
+        "uncapped_inventory": 492,
+        "n_capped_families": 43,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.washday_vs_buy_product",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "physical.climb_session_vs_spectate",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.listen_question_vs_group_show",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.wind_down_vs_pass_out",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 5,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4444,
+          "meanFamilyBalancedAccuracy": 0.8187,
+          "nll": 0.5311
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.037962,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.5318
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.037121,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.5315
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.0342,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8187,
+            "inner_val_nll": 0.5311
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.040064,
+        0.035284,
+        0.033162
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.7778,
+          "balancedAccuracy": 0.7839,
+          "precision": 0.9286,
+          "recall": 0.619,
+          "f1": 0.7429,
+          "macroF1": 0.7736,
+          "confusion": {
+            "tp": 26,
+            "tn": 37,
+            "fp": 2,
+            "fn": 16
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.7882,
+        "bothSidesRate": 0.1667,
+        "bothSidesN": 12,
+        "bothSidesCorrectCount": 2,
+        "nll": 0.5622
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.1967,
+            "meanCrossFamilySameLabel": 0.1488,
+            "gap": -0.048
+          },
+          "after": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.1724,
+            "meanCrossFamilySameLabel": 0.1254,
+            "gap": -0.047
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.2089,
+            "meanCrossFamilySameLabel": 0.1378,
+            "gap": -0.0711
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1821,
+            "meanCrossFamilySameLabel": 0.1137,
+            "gap": -0.0683
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.2142,
+            "meanCrossFamilySameLabel": 0.1408,
+            "gap": -0.0734
+          },
+          "after": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1907,
+            "meanCrossFamilySameLabel": 0.1177,
+            "gap": -0.073
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9989,
+        "inner_val": 0.9989,
+        "outer_holdout": 0.9989
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 3,
+      "seed": 456,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.notes_vs_print",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.opener_used_vs_star_post",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.dictation_vs_app_open",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.short_snare_vs_unopened_sticks",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.alter_vs_unbox",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.repair_vs_replace",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.home_admin",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.climb_session_vs_spectate",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "social.listen_question_vs_group_show",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.wind_down_vs_pass_out"
+      ],
+      "inner_val_families": [
+        "appearance.washday_vs_buy_product",
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.chess_motif_vs_phone_bed",
+        "fashion.layer_test_vs_browse",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.savings_bucket_vs_swipe",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check"
+      ],
+      "pairs_inner": {
+        "n_pairs": 272,
+        "uncapped_inventory": 348,
+        "n_capped_families": 34,
+        "capped_families": [
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.opener_used_vs_star_post",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.repair_vs_replace",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 344,
+        "uncapped_inventory": 492,
+        "n_capped_families": 43,
+        "capped_families": [
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.notes_vs_print",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "appearance.washday_vs_buy_product",
+          "career.informational_call_vs_meme_channel",
+          "career.opener_used_vs_star_post",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.dictation_vs_app_open",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.short_snare_vs_unopened_sticks",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.alter_vs_unbox",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "fashion.repair_vs_replace",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.savings_bucket_vs_swipe",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.climb_session_vs_spectate",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "social.listen_question_vs_group_show",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.wind_down_vs_pass_out"
+        ],
+        "n_zero_pair_families": 5,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.home_admin",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.3333,
+          "meanFamilyBalancedAccuracy": 0.8063,
+          "nll": 0.5421
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.054373,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5431
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.055122,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5427
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.047132,
+            "inner_val_both_sides": 0.3333,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5421
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.050937,
+        0.049561,
+        0.042243
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8519,
+          "balancedAccuracy": 0.8507,
+          "precision": 0.8409,
+          "recall": 0.881,
+          "f1": 0.8605,
+          "macroF1": 0.8513,
+          "confusion": {
+            "tp": 37,
+            "tn": 32,
+            "fp": 7,
+            "fn": 5
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8507,
+        "bothSidesRate": 0.5833,
+        "bothSidesN": 12,
+        "bothSidesCorrectCount": 7,
+        "nll": 0.5291
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.2149,
+            "meanCrossFamilySameLabel": 0.1431,
+            "gap": -0.0718
+          },
+          "after": {
+            "nInFamilyOpposite": 348,
+            "nCrossFamilySameLabel": 14479,
+            "meanInFamilyOpposite": 0.19,
+            "meanCrossFamilySameLabel": 0.1201,
+            "gap": -0.0699
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1883,
+            "meanCrossFamilySameLabel": 0.1534,
+            "gap": -0.0349
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1636,
+            "meanCrossFamilySameLabel": 0.1312,
+            "gap": -0.0324
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1897,
+            "meanCrossFamilySameLabel": 0.1505,
+            "gap": -0.0393
+          },
+          "after": {
+            "nInFamilyOpposite": 138,
+            "nCrossFamilySameLabel": 1503,
+            "meanInFamilyOpposite": 0.1655,
+            "meanCrossFamilySameLabel": 0.128,
+            "gap": -0.0375
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.9989,
+        "inner_val": 0.9989,
+        "outer_holdout": 0.9989
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    },
+    {
+      "outer_fold": 4,
+      "seed": 456,
+      "encoder": {
+        "trainable_param_count": 110592,
+        "frozen_param_count": 22713216,
+        "base_model_id": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "n_inner_train_families": 38,
+      "n_inner_val_families": 10,
+      "n_outer_train_families": 48,
+      "n_outer_families": 12,
+      "inner_train_families": [
+        "academics.essay_outline_vs_bookmark",
+        "academics.lemma_own_words_vs_stack_packet",
+        "academics.tutor_explain_vs_library_phone",
+        "academics.writing_center_vs_inbox_glance",
+        "appearance.groom_vs_mirror",
+        "appearance.haircut_vs_book_slot",
+        "appearance.posture_vs_try_on",
+        "career.club_demo_vs_sit_meetup",
+        "career.shadow_ticket_vs_bus",
+        "career.star_rehearsal_vs_forward_invite",
+        "craft.piano_hands_vs_buy_metronome",
+        "craft.ram_reseat_vs_buy_laptop",
+        "craft.sink_washer_vs_new_faucet",
+        "craft.still_life_vs_buy_pad",
+        "fashion.color_practice_vs_mall_look",
+        "fashion.layer_test_vs_browse",
+        "finance.payment_plan_vs_refund",
+        "finance.plan_compare_vs_pay_bill",
+        "finance.scope_hours_vs_deposit_ping",
+        "nutrition.log_adjust_vs_candy",
+        "nutrition.proof_dough_vs_cereal_box",
+        "nutrition.rice_consistency_vs_microwave",
+        "ordinary.detailed_errand_hardneg",
+        "ordinary.invoice_admin",
+        "ordinary.travel_logistics",
+        "physical.prescribed_rehab_vs_idle_sore",
+        "physical.sport_drill_vs_commute",
+        "social.boundary_talk_vs_like",
+        "social.facilitate_vs_errand",
+        "social.lead_icebreakers_vs_rsvp",
+        "spiritual.examen_vs_click",
+        "spiritual.prayer_vs_calendar",
+        "spiritual.study_prep_vs_ride",
+        "spiritual.verse_sit_vs_buy_object",
+        "wellbeing.after_action_vs_mood",
+        "wellbeing.named_sensations_vs_floor_scroll",
+        "wellbeing.paced_walk_vs_doomscroll",
+        "wellbeing.worry_schedule_vs_nap"
+      ],
+      "inner_val_families": [
+        "career.informational_call_vs_meme_channel",
+        "career.project_walkthrough_vs_payroll",
+        "craft.bike_drivetrain_vs_shop_drop",
+        "craft.chess_motif_vs_phone_bed",
+        "finance.debt_order_vs_wallet_glance",
+        "finance.service_packages_vs_paypal_glance",
+        "nutrition.knife_skill_vs_reheat",
+        "nutrition.new_method_vs_grocery",
+        "ordinary.status_check",
+        "physical.finishing_vs_bleachers_practiced"
+      ],
+      "pairs_inner": {
+        "n_pairs": 280,
+        "uncapped_inventory": 361,
+        "n_capped_families": 35,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 3,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.invoice_admin",
+          "ordinary.travel_logistics"
+        ],
+        "max_pairs_per_family": 8,
+        "note": "pairsPerEpoch is sampled relationships, not independent N; membership fixed across epochs"
+      },
+      "pairs_refit": {
+        "n_pairs": 352,
+        "uncapped_inventory": 505,
+        "n_capped_families": 44,
+        "capped_families": [
+          "academics.essay_outline_vs_bookmark",
+          "academics.lemma_own_words_vs_stack_packet",
+          "academics.tutor_explain_vs_library_phone",
+          "academics.writing_center_vs_inbox_glance",
+          "appearance.groom_vs_mirror",
+          "appearance.haircut_vs_book_slot",
+          "appearance.posture_vs_try_on",
+          "career.club_demo_vs_sit_meetup",
+          "career.informational_call_vs_meme_channel",
+          "career.project_walkthrough_vs_payroll",
+          "career.shadow_ticket_vs_bus",
+          "career.star_rehearsal_vs_forward_invite",
+          "craft.bike_drivetrain_vs_shop_drop",
+          "craft.chess_motif_vs_phone_bed",
+          "craft.piano_hands_vs_buy_metronome",
+          "craft.ram_reseat_vs_buy_laptop",
+          "craft.sink_washer_vs_new_faucet",
+          "craft.still_life_vs_buy_pad",
+          "fashion.color_practice_vs_mall_look",
+          "fashion.layer_test_vs_browse",
+          "finance.debt_order_vs_wallet_glance",
+          "finance.payment_plan_vs_refund",
+          "finance.plan_compare_vs_pay_bill",
+          "finance.scope_hours_vs_deposit_ping",
+          "finance.service_packages_vs_paypal_glance",
+          "nutrition.knife_skill_vs_reheat",
+          "nutrition.log_adjust_vs_candy",
+          "nutrition.new_method_vs_grocery",
+          "nutrition.proof_dough_vs_cereal_box",
+          "nutrition.rice_consistency_vs_microwave",
+          "physical.finishing_vs_bleachers_practiced",
+          "physical.prescribed_rehab_vs_idle_sore",
+          "physical.sport_drill_vs_commute",
+          "social.boundary_talk_vs_like",
+          "social.facilitate_vs_errand",
+          "social.lead_icebreakers_vs_rsvp",
+          "spiritual.examen_vs_click",
+          "spiritual.prayer_vs_calendar",
+          "spiritual.study_prep_vs_ride",
+          "spiritual.verse_sit_vs_buy_object",
+          "wellbeing.after_action_vs_mood",
+          "wellbeing.named_sensations_vs_floor_scroll",
+          "wellbeing.paced_walk_vs_doomscroll",
+          "wellbeing.worry_schedule_vs_nap"
+        ],
+        "n_zero_pair_families": 4,
+        "zero_pair_families": [
+          "ordinary.detailed_errand_hardneg",
+          "ordinary.invoice_admin",
+          "ordinary.status_check",
+          "ordinary.travel_logistics"
+        ]
+      },
+      "selection": {
+        "E_k": 3,
+        "best_inner_val": {
+          "bothSidesRate": 0.4444,
+          "meanFamilyBalancedAccuracy": 0.8063,
+          "nll": 0.5233
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.041739,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5239
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.034826,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5237
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.036573,
+            "inner_val_both_sides": 0.4444,
+            "inner_val_family_ba": 0.8063,
+            "inner_val_nll": 0.5233
+          }
+        ],
+        "stopped_epoch": 3
+      },
+      "refit_losses": [
+        0.037725,
+        0.034274,
+        0.031559
+      ],
+      "refit_epochs": 3,
+      "outer": {
+        "row": {
+          "n": 81,
+          "accuracy": 0.8395,
+          "balancedAccuracy": 0.8361,
+          "precision": 0.9062,
+          "recall": 0.7436,
+          "f1": 0.8169,
+          "macroF1": 0.837,
+          "confusion": {
+            "tp": 29,
+            "tn": 39,
+            "fp": 3,
+            "fn": 10
+          }
+        },
+        "meanFamilyBalancedAccuracy": 0.8021,
+        "bothSidesRate": 0.3636,
+        "bothSidesN": 11,
+        "bothSidesCorrectCount": 4,
+        "nll": 0.5443
+      },
+      "geometry": {
+        "inner_train": {
+          "before": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1919,
+            "meanCrossFamilySameLabel": 0.1429,
+            "gap": -0.049
+          },
+          "after": {
+            "nInFamilyOpposite": 361,
+            "nCrossFamilySameLabel": 14464,
+            "meanInFamilyOpposite": 0.1686,
+            "meanCrossFamilySameLabel": 0.1211,
+            "gap": -0.0475
+          }
+        },
+        "inner_val": {
+          "before": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1884,
+            "meanCrossFamilySameLabel": 0.149,
+            "gap": -0.0394
+          },
+          "after": {
+            "nInFamilyOpposite": 144,
+            "nCrossFamilySameLabel": 1440,
+            "meanInFamilyOpposite": 0.1634,
+            "meanCrossFamilySameLabel": 0.1265,
+            "gap": -0.0368
+          }
+        },
+        "outer_holdout": {
+          "before": {
+            "nInFamilyOpposite": 125,
+            "nCrossFamilySameLabel": 1491,
+            "meanInFamilyOpposite": 0.2535,
+            "meanCrossFamilySameLabel": 0.1424,
+            "gap": -0.1112
+          },
+          "after": {
+            "nInFamilyOpposite": 125,
+            "nCrossFamilySameLabel": 1491,
+            "meanInFamilyOpposite": 0.2308,
+            "meanCrossFamilySameLabel": 0.1199,
+            "gap": -0.1108
+          }
+        }
+      },
+      "embedding_drift_mean_cosine": {
+        "inner_train": 0.999,
+        "inner_val": 0.999,
+        "outer_holdout": 0.999
+      },
+      "loss": {
+        "type": "relu(cos(z_i,z_j) - margin).mean()",
+        "margin": 0.2,
+        "lambda_attraction": 0.0,
+        "batch_size": 16,
+        "patience": 2
+      },
+      "probe": {
+        "l2": 0.01,
+        "learningRate": 0.4,
+        "epochs": 400,
+        "threshold": 0.5
+      }
+    }
+  ]
+}
