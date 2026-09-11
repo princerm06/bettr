@@ -676,6 +676,35 @@
   line-height:1.4;
 }
 
+.composerGateNotice,
+.composerClarification{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin:12px 0 16px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+
+.composerGateNotice span,
+.composerClarification span,
+.composerClarification small{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+}
+
+.composerClarification strong{
+  font-size:13px;
+}
+
+.composerCategoryHint{
+  border-color:var(--line);
+  background:rgba(255,255,255,.025);
+}
+
 
 /* ======================================================
    Himothy priority clarity + mobile navigation hardening

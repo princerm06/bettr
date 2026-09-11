@@ -227,9 +227,18 @@ export function validateLogQuality(categoryKeys: CategoryKey[], activity: string
   return { status: 'questionable', rewardRatio: 0, matchedCategories: matched, unsupportedCategories: unsupported, message: 'This entry doesn’t clearly describe meaningful progress yet. Add what you actually did or what improved so Bettr can score it fairly.' };
 }
 
+/** Evidence-backed 7 vs standard 5. No semantic multiplier. */
+export function calculateDeterministicBasePoints(
+  details: string,
+  hasImage: boolean
+) {
+  const usefulDetails = Boolean(details.trim()) && !looksLikeReferenceDump(details);
+  return usefulDetails || hasImage ? 7 : 5;
+}
+
 export function calculateLogPoints(categoryKeys: CategoryKey[], activity: string, details: string, hasImage: boolean) {
   const quality = validateLogQuality(categoryKeys, activity, details);
-  const usefulDetails = Boolean(details.trim()) && !looksLikeReferenceDump(details);
-  const basePoints = usefulDetails || hasImage ? 7 : 5;
-  return Math.round(basePoints * quality.rewardRatio);
+  return Math.round(
+    calculateDeterministicBasePoints(details, hasImage) * quality.rewardRatio
+  );
 }

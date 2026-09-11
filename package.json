@@ -15,7 +15,11 @@
     "benchmark:semantic:developmental:3a.3": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-3a.3.js",
     "benchmark:semantic:developmental:3b": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-3b.js",
     "benchmark:semantic:developmental:4a": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-4a.js",
-    "benchmark:semantic:developmental:5a": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-5a.js"
+    "benchmark:semantic:developmental:5a": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-5a.js",
+    "benchmark:semantic:developmental:3a-abstention": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-3a-abstention.js",
+    "benchmark:semantic:developmental:3a-parity": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-3a-runtime-parity.js",
+    "check:custom-composer-gate": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-custom-composer-gate-checks.js",
+    "check:3a-fixture-parity": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-3a-fixture-parity.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

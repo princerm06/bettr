@@ -1,3 +1,7 @@
+/**
+ * Node MiniLM feature extractor for benchmarks and the trusted 3A.2 runtime.
+ * Production browser loader: lib/evaluation/minilmClient.ts (no process.cwd).
+ */
 import { join } from 'path';
 
 export const MINILM_MODEL_ID = 'Xenova/all-MiniLM-L6-v2';

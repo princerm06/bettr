@@ -10,8 +10,29 @@ import {
   categoryFor,
   categorySignals,
   validateLogQuality,
-  calculateLogPoints,
+  calculateDeterministicBasePoints,
 } from '../lib/evaluation/legacyEvaluator';
+import {
+  canBypassSemanticGateForQuickClaim,
+  TRUSTED_QUICK_ACTIVITIES,
+} from '../lib/evaluation/trustedQuickActivities';
+import { evaluateComposerSubmission } from '../lib/evaluation/developmentalGate';
+import { isClientMiniLmLoaded, loadClientMiniLm } from '../lib/evaluation/minilmClient';
+import {
+  COMPOSER_GATE_COPY,
+  composeSemanticLogText,
+  gatedProgressInsight,
+  persistDetailsAfterGate,
+  shouldResetClarificationSession,
+} from '../lib/evaluation/customComposerSemantic';
+import {
+  applyComposerGateDecisionToUi,
+  resolveComposerSubmitPrecheck,
+} from '../lib/evaluation/customComposerSubmit';
+import {
+  canPersistComposerResult,
+  shouldReevaluateEditedLog,
+} from '../lib/evaluation/composerPersistence';
 import onboardingStyles from './onboarding.module.css';
 import {
   BarChart3,
@@ -56,19 +77,6 @@ type Log = {
 };
 
 type ReactionMap = Record<string, number>;
-
-const quickActivities: Record<CategoryKey, string[]> = {
-  appearance: ['Skincare routine', 'Hair / grooming', 'Full reset'],
-  fashion: ['Put together a fit', 'Wardrobe cleanup', 'Accessory / fragrance'],
-  academics: ['Study session', 'Assignment progress', 'Exam prep'],
-  career: ['Applied to a role', 'Résumé / portfolio', 'Interview prep'],
-  finance: ['Tracked spending', 'Budget check', 'Invested / saved'],
-  nutrition: ['Cooked a meal', 'Meal prep', 'Grocery planning'],
-  social: ['Started a conversation', 'Met someone new', 'Made plans'],
-  physical: ['Lifted', 'Ran', 'Athletic training'],
-  mind: ['Read', 'Journaled', 'Practiced a craft'],
-  spirituality: ['Prayer / reflection', 'Religious study', 'Service / worship'],
-};
 
 const priorityWeights: Record<Priority, number> = { critical: 4, high: 3, normal: 2, maintenance: 1 };
 const priorityTargets: Record<Priority, number> = { critical: 5, high: 3, normal: 2, maintenance: 1 };
@@ -130,6 +138,7 @@ function applyPriorityReward(
   categoryKeys: CategoryKey[],
   priorities: Record<CategoryKey, Priority>
 ) {
+  // Existing production scoring (Phase 0). Not Phase 2 focus/rank weighting.
   // Priority can amplify legitimate progress, but it can never rescue
   // an invalid / zero-point entry.
   if (basePoints <= 0 || categoryKeys.length === 0) return 0;
@@ -171,14 +180,6 @@ function pointsForCategory(log: Log, category: CategoryKey) {
 
 function effortShareForCategory(log: Log, category: CategoryKey) {
   return attributionShareForCategory(log, category);
-}
-
-function prototypeInsight(categoryKeys: CategoryKey[], activity: string, details: string, hasImage: boolean) {
-  const quality = validateLogQuality(categoryKeys, activity, details);
-  if (quality.status !== 'valid') return quality.message;
-  const labels = categoryKeys.map((key) => categoryFor(key).short).join(' + ');
-  const evidence = details.trim() || hasImage ? ' The extra context will also make this entry more useful when you look back later.' : '';
-  return `${labels}: ${quality.message}${evidence}`;
 }
 
 async function compressImage(file: File): Promise<string> {
@@ -284,6 +285,7 @@ export default function Home() {
   const [quickCategory, setQuickCategory] = useState<Category | null>(null);
   const [composerCategory, setComposerCategory] = useState<CategoryKey>('academics');
   const [showComposer, setShowComposer] = useState(false);
+  const [composerSession, setComposerSession] = useState(0);
   const [editingLog, setEditingLog] = useState<Log | null>(null);
   const [showPriority, setShowPriority] = useState(false);
   const [recentLogId, setRecentLogId] = useState<string | null>(null);
@@ -640,6 +642,15 @@ export default function Home() {
   }
 
   async function claimLog(category: CategoryKey, activity: string) {
+    if (!canBypassSemanticGateForQuickClaim(category, activity)) {
+      console.error('Blocked untrusted quick claim; free text cannot bypass 3A.', {
+        category,
+        activity,
+      });
+      setToast('That action isn’t an approved quick claim. Use a custom entry.');
+      return;
+    }
+
     const id = crypto.randomUUID();
     const points = applyPriorityReward(5, [category], priorities);
 
@@ -663,6 +674,7 @@ export default function Home() {
   function openComposer(category?: CategoryKey) {
     if (category) setComposerCategory(category);
     setQuickCategory(null);
+    setComposerSession((value) => value + 1);
     setShowComposer(true);
   }
 
@@ -670,7 +682,14 @@ export default function Home() {
     const id = crypto.randomUUID();
 
     const finalPoints = Number(log.points || 0);
-    const zeroPoint = finalPoints <= 0;
+    if (finalPoints <= 0) {
+      console.error('Blocked new custom log with non-positive points after semantic gate.', {
+        activity: log.activity,
+        points: finalPoints,
+      });
+      setToast("Bettr couldn't award progress for this entry. Try again.");
+      return;
+    }
 
     const newLog: Log = {
       ...log,
@@ -678,26 +697,20 @@ export default function Home() {
       timestamp: Date.now(),
       points: finalPoints,
       custom: true,
-      visibility: zeroPoint ? 'private' : (log.visibility || 'friends'),
+      visibility: log.visibility || 'friends',
     };
 
     setLogs((prev) => [newLog, ...prev]);
     setShowComposer(false);
     setRecentLogId(id);
-
-    if (zeroPoint) {
-      setToast(
-        'Saved privately — this entry wasn’t counted as progress or shared to Friends.'
-      );
-    } else {
-      setToast(`${categoryFor(log.category).emoji} Custom entry added`);
-    }
+    setToast(`${categoryFor(log.category).emoji} Custom entry added`);
 
     window.setTimeout(() => setRecentLogId(null), 1200);
     await persistCloudLog(newLog);
   }
 
   async function updateLog(id: string, patch: Omit<Log, 'id' | 'timestamp'>) {
+    // Semantic rejection must never call this. Failed edits leave the original row unchanged.
     const current = logs.find((item) => item.id === id);
     if (!current) return;
     let updated: Log = {
@@ -809,6 +822,7 @@ export default function Home() {
 
     if (startLog) {
       setComposerCategory(suggestedCategory);
+      setComposerSession((value) => value + 1);
       setShowComposer(true);
     }
   }
@@ -1139,7 +1153,7 @@ export default function Home() {
             <h2>{quickCategory.label}</h2>
             <p>Claim a common activity instantly, or make this one memorable.</p>
             <div className="activityChoices">
-              {quickActivities[quickCategory.key].map((activity) => (
+              {TRUSTED_QUICK_ACTIVITIES[quickCategory.key].map((activity) => (
                 <button key={activity} onClick={() => claimLog(quickCategory.key, activity)}><Check size={17}/>{activity}</button>
               ))}
             </div>
@@ -1150,6 +1164,7 @@ export default function Home() {
 
       {showComposer && (
         <CustomComposer
+          key={`new-${composerSession}`}
           initialCategory={composerCategory}
           priorities={priorities}
           onClose={() => setShowComposer(false)}
@@ -1721,10 +1736,28 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
     existing?.visibility || 'private'
   );
   const [busy, setBusy] = useState(false);
+  const [evaluating, setEvaluating] = useState(false);
+  const [modelReady, setModelReady] = useState(isClientMiniLmLoaded());
+  const [gateNotice, setGateNotice] = useState<
+    | 'invalid'
+    | 'non'
+    | 'uncertain'
+    | 'uncertain_rejected'
+    | 'technical'
+    | 'scoring_conflict'
+    | 'clarification_needed'
+    | null
+  >(null);
+  const [awaitingClarification, setAwaitingClarification] = useState(false);
+  const [clarificationText, setClarificationText] = useState('');
+  const [frozenOriginalText, setFrozenOriginalText] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const evaluatingRef = useRef(false);
+  const closedRef = useRef(false);
+  const isEdit = Boolean(existing);
   const quality = activity.trim() ? validateLogQuality(selectedCategories, activity, details) : null;
   const baseEstimatedPoints = activity.trim()
-    ? calculateLogPoints(selectedCategories, activity, details, Boolean(image))
+    ? calculateDeterministicBasePoints(details, Boolean(image))
     : 0;
 
   const estimatedPoints = applyPriorityReward(
@@ -1732,6 +1765,41 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
     selectedCategories,
     priorities
   );
+
+  function resetClarificationSession() {
+    setAwaitingClarification(false);
+    setClarificationText('');
+    setFrozenOriginalText(null);
+    if (gateNotice === 'uncertain' || gateNotice === 'uncertain_rejected' || gateNotice === 'clarification_needed') {
+      setGateNotice(null);
+    }
+  }
+
+  function onSemanticSourceChange(nextActivity: string, nextDetails: string) {
+    const nextOriginal = composeSemanticLogText(nextActivity, nextDetails);
+    if (shouldResetClarificationSession(frozenOriginalText, nextOriginal)) {
+      resetClarificationSession();
+    }
+    if (gateNotice && gateNotice !== 'uncertain') {
+      setGateNotice(null);
+    }
+  }
+
+  useEffect(() => {
+    closedRef.current = false;
+    let cancelled = false;
+    void loadClientMiniLm()
+      .then(() => {
+        if (!cancelled) setModelReady(true);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+    return () => {
+      cancelled = true;
+      closedRef.current = true;
+    };
+  }, []);
 
   function toggleCategory(key: CategoryKey) {
     setSelectedCategories((current) => current.includes(key) ? (current.length === 1 ? current : current.filter((item) => item !== key)) : [...current, key]);
@@ -1744,36 +1812,148 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
     try { setImage(await compressImage(file)); } finally { setBusy(false); }
   }
 
-  function submit() {
-    const cleanActivity = activity.trim();
-    if (!cleanActivity || !selectedCategories.length) return;
-    const basePoints = calculateLogPoints(
-      selectedCategories,
-      cleanActivity,
-      details,
-      Boolean(image)
-    );
-
-    const points = applyPriorityReward(
-      basePoints,
-      selectedCategories,
-      priorities
-    );
+  function buildLogPayload(
+    cleanActivity: string,
+    points: number,
+    persistedDetails: string
+  ): Omit<Log, 'id' | 'timestamp'> {
     const totalDurationMinutes =
       (Math.max(0, Number(durationHours) || 0) * 60) +
       Math.max(0, Number(durationMinutes) || 0);
+    const labels = selectedCategories.map((key) => categoryFor(key).short).join(' + ');
 
-    onSave({
-      category: selectedCategories[0], categories: selectedCategories, activity: cleanActivity, details: details.trim(), image,
+    return {
+      category: selectedCategories[0],
+      categories: selectedCategories,
+      activity: cleanActivity,
+      details: persistedDetails,
+      image,
       imagePath: existing?.imagePath,
-      aiInsight: analyze ? prototypeInsight(selectedCategories, cleanActivity, details, Boolean(image)) : undefined,
+      aiInsight: analyze
+        ? gatedProgressInsight(labels, persistedDetails, Boolean(image))
+        : undefined,
       date,
       startTime: startTime || undefined,
       durationMinutes: totalDurationMinutes > 0 ? totalDurationMinutes : undefined,
       points,
       custom: true,
       visibility,
+    };
+  }
+
+  async function submitGated() {
+    if (evaluatingRef.current || evaluating) return;
+    const cleanActivity = activity.trim();
+    if (!cleanActivity || !selectedCategories.length) return;
+
+    const precheck = resolveComposerSubmitPrecheck({
+      activity: cleanActivity,
+      details,
+      awaitingClarification,
+      frozenOriginalText,
+      clarificationText,
     });
+
+    if (precheck.type === 'noop') return;
+    if (precheck.type === 'need_clarification_text') {
+      setGateNotice('clarification_needed');
+      return;
+    }
+    if (precheck.type === 'invalid') {
+      setAwaitingClarification(false);
+      setFrozenOriginalText(null);
+      setClarificationText('');
+      setGateNotice('invalid');
+      return;
+    }
+
+    const { originalText, clarificationPass } = precheck;
+
+    const skipGate =
+      isEdit &&
+      existing &&
+      !clarificationPass &&
+      !shouldReevaluateEditedLog({
+        existingPoints: existing.points,
+        existingSemanticText: composeSemanticLogText(
+          existing.activity,
+          existing.details || ''
+        ),
+        nextSemanticText: originalText,
+      });
+
+    if (skipGate) {
+      const basePoints = calculateDeterministicBasePoints(details, Boolean(image));
+      const points = applyPriorityReward(basePoints, selectedCategories, priorities);
+      if (points <= 0) {
+        setGateNotice('scoring_conflict');
+        return;
+      }
+      onSave(buildLogPayload(cleanActivity, points, details.trim()));
+      return;
+    }
+
+    evaluatingRef.current = true;
+    setEvaluating(true);
+    setGateNotice(null);
+
+    try {
+      const result = await evaluateComposerSubmission({
+        activity: cleanActivity,
+        details,
+        clarificationPass,
+        clarificationText,
+      });
+      if (result.status === 'TECHNICAL_FAILURE') {
+        console.error(result.error);
+      }
+      const ui = applyComposerGateDecisionToUi({
+        clarificationPass,
+        status: result.status,
+      });
+
+      if (ui.persist) {
+        const persistedDetails = persistDetailsAfterGate({
+          details,
+          clarificationPass,
+          clarificationText,
+        });
+        const basePoints = calculateDeterministicBasePoints(
+          persistedDetails,
+          Boolean(image)
+        );
+        const points = applyPriorityReward(basePoints, selectedCategories, priorities);
+        if (!canPersistComposerResult({ kind: 'save' }, points) || closedRef.current) {
+          if (points <= 0) {
+            console.error('DEVELOPMENTAL custom log produced non-positive points', {
+              basePoints,
+              points,
+              activity: cleanActivity,
+            });
+            setGateNotice('scoring_conflict');
+          }
+          return;
+        }
+        onSave(buildLogPayload(cleanActivity, points, persistedDetails));
+        return;
+      }
+
+      setAwaitingClarification(ui.awaitingClarification);
+      if (ui.awaitingClarification) {
+        setFrozenOriginalText(originalText);
+      } else {
+        setFrozenOriginalText(null);
+      }
+      setGateNotice(ui.gateNotice);
+    } finally {
+      evaluatingRef.current = false;
+      setEvaluating(false);
+      setModelReady(isClientMiniLmLoaded());
+    }
+  }
+
+  function submit() {
+    void submitGated();
   }
 
   return (
@@ -1813,7 +1993,11 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
         </div>
 
         <label className="fieldLabel" htmlFor="activity">Entry</label>
-        <input id="activity" className="textInput" autoFocus value={activity} onChange={(event) => setActivity(event.target.value)} placeholder="e.g. Hit a new squat PR, cooked salmon bowls, talked to someone new…"/>
+        <input id="activity" className="textInput" autoFocus value={activity} onChange={(event) => {
+          const next = event.target.value;
+          setActivity(next);
+          onSemanticSourceChange(next, details);
+        }} placeholder="e.g. Hit a new squat PR, cooked salmon bowls, talked to someone new…"/>
 
         <div className="composerSplit logTimingGrid">
           <div>
@@ -1923,12 +2107,18 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
         </div>
 
         <label className="fieldLabel" htmlFor="details">Details <span>optional</span></label>
-        <textarea id="details" className="textArea" value={details} onChange={(event) => setDetails(event.target.value)} placeholder="Numbers, context, what went well, what you learned, what you want to improve…"/>
+        <textarea id="details" className="textArea" value={details} onChange={(event) => {
+          const next = event.target.value;
+          setDetails(next);
+          onSemanticSourceChange(activity, next);
+        }} placeholder="Numbers, context, what went well, what you learned, what you want to improve…"/>
 
-        {quality && <div className={`qualityCheck ${quality.status}`}>
-          <strong>{quality.status === 'valid' ? '✓ Looks good' : quality.rewardRatio > 0 ? 'Tag / context check' : 'No progress points'}</strong>
-          <span>{quality.message}</span>
-          {quality.suggestedCategory && (
+        {quality?.suggestedCategory && (
+          <div className="qualityCheck composerCategoryHint">
+            <strong>Suggested category</strong>
+            <span>
+              This wording looks closer to {categoryFor(quality.suggestedCategory).label}. You can switch or add it. This is not acceptance, and it does not award points yet.
+            </span>
             <div className="qualityActions">
               <button type="button" onClick={() => {
                 const suggestion = quality.suggestedCategory!;
@@ -1940,18 +2130,51 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
               }}>
                 {quality.suggestionMode === 'add' ? 'Add' : 'Switch to'} {categoryFor(quality.suggestedCategory).emoji} {categoryFor(quality.suggestedCategory).short}
               </button>
-              <small>{quality.rewardRatio > 0
-                ? `Current selection earns ${estimatedPoints} total points. Better category evidence can restore full credit.`
-                : 'This entry can still be saved, but it will be saved privately and will not appear in Friends until it earns progress credit.'
-              }</small>
             </div>
-          )}
-        </div>}
+          </div>
+        )}
 
-        {activity.trim() && estimatedPoints === 0 && (
-          <div className="zeroPointPrivacyNotice">
-            <strong>🔒 Saved privately</strong>
-            <span>0-point entries stay in your history, but they are not shared to Friends.</span>
+        {gateNotice === 'invalid' && (
+          <div className="composerGateNotice">
+            <span>{COMPOSER_GATE_COPY.invalid}</span>
+          </div>
+        )}
+        {gateNotice === 'non' && (
+          <div className="composerGateNotice">
+            <span>{COMPOSER_GATE_COPY.non}</span>
+          </div>
+        )}
+        {gateNotice === 'technical' && (
+          <div className="composerGateNotice">
+            <span>{COMPOSER_GATE_COPY.technical}</span>
+          </div>
+        )}
+        {gateNotice === 'scoring_conflict' && (
+          <div className="composerGateNotice">
+            <span>{COMPOSER_GATE_COPY.scoringConflict}</span>
+          </div>
+        )}
+        {gateNotice === 'uncertain_rejected' && (
+          <div className="composerGateNotice">
+            <span>{COMPOSER_GATE_COPY.uncertainRejected}</span>
+          </div>
+        )}
+        {awaitingClarification && (gateNotice === 'uncertain' || gateNotice === 'clarification_needed') && (
+          <div className="composerClarification">
+            <strong>{COMPOSER_GATE_COPY.uncertainHeading}</strong>
+            <span>{COMPOSER_GATE_COPY.uncertainBody}</span>
+            <textarea
+              className="textArea"
+              value={clarificationText}
+              onChange={(event) => {
+                setClarificationText(event.target.value);
+                if (gateNotice === 'clarification_needed') setGateNotice('uncertain');
+              }}
+              placeholder="What did you do or accomplish?"
+            />
+            {gateNotice === 'clarification_needed' && (
+              <small>Add a little more before Bettr can recheck this action.</small>
+            )}
           </div>
         )}
 
@@ -1959,7 +2182,21 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
         {!image ? <button className="photoDrop" onClick={() => fileRef.current?.click()} disabled={busy}><ImageIcon size={22}/><div><strong>{busy ? 'Preparing photo…' : 'Add a photo'}</strong><small>Fit check, meal, gym PR, project screenshot, book, anything.</small></div></button> : <div className="photoPreview"><img src={image} alt="Custom log preview"/><button onClick={() => setImage(undefined)}><Trash2 size={16}/> Remove</button></div>}
 
         <label className="aiToggle"><input type="checkbox" checked={analyze} onChange={(event) => setAnalyze(event.target.checked)}/><span className="toggleTrack"><i/></span><div><strong><Sparkles size={15}/> Smart feedback</strong><small>Supportive prototype check. It evaluates the entry, never the person.</small></div></label>
-        <button className="primaryButton submitLog" onClick={submit} disabled={!activity.trim() || busy}><Send size={17}/> {existing ? 'Save changes' : estimatedPoints > 0 ? `Claim this progress (+${estimatedPoints})` : 'Save without points'}</button>
+        <button
+          type="button"
+          className="primaryButton submitLog"
+          onClick={submit}
+          disabled={!activity.trim() || busy || evaluating}
+        >
+          <Send size={17}/>
+          {evaluating
+            ? (modelReady ? COMPOSER_GATE_COPY.checking : COMPOSER_GATE_COPY.gettingReady)
+            : awaitingClarification && (gateNotice === 'uncertain' || gateNotice === 'clarification_needed')
+              ? COMPOSER_GATE_COPY.recheck
+              : isEdit
+                ? 'Save changes'
+                : `Check this action (+${estimatedPoints})`}
+        </button>
       </div>
     </div>
   );

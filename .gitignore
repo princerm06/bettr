@@ -4,3 +4,7 @@ node_modules
 .env*.local
 benchmarks/semantic/.compiled
 .cache
+**/__pycache__
+*.pyc
+.venv
+benchmarks/semantic/candidate_6a/.venv
