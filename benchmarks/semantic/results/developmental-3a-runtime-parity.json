@@ -1,0 +1,33 @@
+{
+  "evaluator": "developmental-3a-runtime-parity",
+  "n": 405,
+  "probe": {
+    "file": "developmental-3a.2.json",
+    "evaluator": "candidate-developmental-3a.2",
+    "l2": 0.01,
+    "learningRate": 0.4,
+    "epochs": 400,
+    "trainCount": 405
+  },
+  "trustedPath": "lib/evaluation/semantic/minilmEmbeddings.ts (Node cacheDir)",
+  "clientPath": "lib/evaluation/minilmClient.ts (no process.cwd)",
+  "isolation": "separate child processes so transformers env is not shared",
+  "meanAbsP": 0,
+  "medianAbsP": 0,
+  "maxAbsP": 0,
+  "meanMaxAbsEmbedding": 0,
+  "maxAbsEmbedding": 0,
+  "meanEmbeddingCosineGap": -2e-8,
+  "maxEmbeddingCosineGap": 7.5e-7,
+  "stateDisagreements": 0,
+  "stateDisagreeRate": 0,
+  "disagreementsNear045": 0,
+  "disagreementsNear055": 0,
+  "interiorDisagreements": 0,
+  "disagreements": [],
+  "portability": {
+    "rule": "STOP if state disagreement rate > 2%",
+    "pass": true,
+    "decision": "PASS"
+  }
+}

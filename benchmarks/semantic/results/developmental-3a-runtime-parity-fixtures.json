@@ -1,0 +1,63 @@
+{
+  "evaluator": "candidate-developmental-3a.2",
+  "modelId": "Xenova/all-MiniLM-L6-v2",
+  "quantization": "int8-onnx",
+  "pooling": "mean",
+  "normalize": true,
+  "embeddingDim": 384,
+  "thresholds": {
+    "nonMax": 0.45,
+    "devMin": 0.55
+  },
+  "tolerance": {
+    "maxAbsP": 0.00001,
+    "maxAbsEmb": 0.00001
+  },
+  "rows": [
+    {
+      "text": "Meditated",
+      "p": 0.6492544223522454,
+      "status": "DEVELOPMENTAL"
+    },
+    {
+      "text": "Ran 5k",
+      "p": 0.4881797952555444,
+      "status": "UNCERTAIN"
+    },
+    {
+      "text": "Studied calculus",
+      "p": 0.5564249492051134,
+      "status": "DEVELOPMENTAL"
+    },
+    {
+      "text": "Watched 6 ochem videos",
+      "p": 0.5458125239101012,
+      "status": "UNCERTAIN"
+    },
+    {
+      "text": "Lifted the moon",
+      "p": 0.4420166939987809,
+      "status": "NON_DEVELOPMENTAL"
+    },
+    {
+      "text": "Completed a 45-minute organic chemistry problem set",
+      "p": 0.6468285289809514,
+      "status": "DEVELOPMENTAL"
+    },
+    {
+      "text": "Doomscrolled for two hours",
+      "p": 0.43888429569189796,
+      "status": "NON_DEVELOPMENTAL"
+    },
+    {
+      "text": "Practiced piano for 30 minutes",
+      "p": 0.5860111582956985,
+      "status": "DEVELOPMENTAL"
+    },
+    {
+      "text": "aaaaaaaaaa",
+      "p": null,
+      "status": "INVALID"
+    }
+  ]
+}
