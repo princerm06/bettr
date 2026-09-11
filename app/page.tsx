@@ -8,7 +8,6 @@ import {
   type CategoryKey,
   categories,
   categoryFor,
-  categorySignals,
   calculateDeterministicBasePoints,
 } from '../lib/evaluation/legacyEvaluator';
 import { applyPriorityReward, type PriorityLevel } from '../lib/evaluation/priorityReward';
@@ -18,6 +17,8 @@ import {
   normalizePriorityMap,
   parsePriorityMap,
 } from '../lib/evaluation/priorityState';
+import { attributionShareForCategory } from '../lib/evaluation/categoryAttribution';
+import { calculateDisciplineScore } from '../lib/evaluation/discipline';
 import {
   additionalCategorySuggestions,
   CATEGORY_REQUIRED_MESSAGE,
@@ -98,9 +99,6 @@ type Log = {
 
 type ReactionMap = Record<string, number>;
 
-const priorityWeights: Record<Priority, number> = { critical: 4, high: 3, normal: 2, maintenance: 1 };
-const priorityTargets: Record<Priority, number> = { critical: 5, high: 3, normal: 2, maintenance: 1 };
-
 const demoFriend = [
   { id: 'f1', name: 'Jordan', category: 'career' as CategoryKey, activity: 'Interview prep', detail: 'Behavioral questions + company research', time: '42m ago' },
   { id: 'f2', name: 'Jordan', category: 'physical' as CategoryKey, activity: 'Pull day', detail: 'Hit a rep PR on weighted pull-ups', time: '2h ago' },
@@ -153,27 +151,8 @@ function categoriesForLog(log: Pick<Log, 'category' | 'categories'>) {
   return Array.from(new Set(keys));
 }
 
-function attributionShareForCategory(log: Log, category: CategoryKey) {
-  const selected = categoriesForLog(log);
-  if (!selected.includes(category)) return 0;
-
-  const compact = `${log.activity} ${log.details || ''}`.toLowerCase().replace(/[^a-z0-9$\s]/g, ' ').replace(/\s+/g, ' ').trim();
-  const matched = selected.filter((key) => categorySignals[key].test(compact));
-  if (!matched.length) return 1 / selected.length;
-
-  // Evidence-backed tags receive most of the category credit. Intentional but
-  // unclear tags still receive a small share, so Himothy guides instead of blocks.
-  const weights = selected.map((key) => matched.includes(key) ? 1 : 0.35);
-  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-  return weights[selected.indexOf(category)] / totalWeight;
-}
-
 function pointsForCategory(log: Log, category: CategoryKey) {
   return log.points * attributionShareForCategory(log, category);
-}
-
-function effortShareForCategory(log: Log, category: CategoryKey) {
-  return attributionShareForCategory(log, category);
 }
 
 async function compressImage(file: File): Promise<string> {
@@ -575,23 +554,15 @@ export default function Home() {
     return result;
   }, [logs]);
 
-  const discipline = useMemo(() => {
-    const week = new Date();
-    week.setHours(0, 0, 0, 0);
-    week.setDate(week.getDate() - 6);
-    const recent = logs.filter(
-      (log) =>
-        log.points > 0 &&
-        new Date(`${log.date}T12:00:00`) >= week
-    );
-    const totalWeight = categories.reduce((sum, category) => sum + priorityWeights[priorities[category.key]], 0);
-    const earned = categories.reduce((sum, category) => {
-      const count = recent.reduce((sum, log) => sum + effortShareForCategory(log, category.key), 0);
-      const priority = priorities[category.key];
-      return sum + Math.min(1, count / priorityTargets[priority]) * priorityWeights[priority];
-    }, 0);
-    return Math.round((earned / totalWeight) * 100);
-  }, [logs, priorities]);
+  const discipline = useMemo(
+    () =>
+      calculateDisciplineScore({
+        logs,
+        priorities,
+        today: todayISO(),
+      }),
+    [logs, priorities]
+  );
 
   const todayLogs = logs.filter((log) => log.date === todayISO());
   const activeDays = new Set(
