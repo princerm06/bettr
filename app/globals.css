@@ -2341,12 +2341,42 @@
 }
 
 /* Mobile Friends: show circle/requests before the activity feed */
-@media (max-width: 800px) {
-  .friendsSidebar {
-    grid-row: 1;
+.priorityLevelGuide {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.priorityLevelGuide strong {
+  color: var(--text);
+}
+
+.priorityEmpty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.priorityEditor select {
+  min-height: 44px;
+  min-width: 148px;
+  font-size: 16px;
+}
+
+@media (max-width: 600px) {
+  .priorityEditor > div {
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
   }
 
-  .friendsActivityColumn {
-    grid-row: 2;
+  .priorityEditor select {
+    width: 100%;
   }
 }

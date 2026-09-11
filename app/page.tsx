@@ -86,6 +86,17 @@ import {
 
 type Priority = PriorityLevel;
 
+const PRIORITY_DISPLAY_LABEL: Record<Priority, string> = {
+  critical: 'Critical',
+  high: 'High',
+  normal: 'Normal',
+  maintenance: 'Maintenance',
+};
+
+function priorityDisplayLabel(level: Priority) {
+  return PRIORITY_DISPLAY_LABEL[level];
+}
+
 type Log = {
   id: string;
   category: CategoryKey;
@@ -578,7 +589,12 @@ export default function Home() {
     logs.filter((log) => log.date >= dayISO(-6) && log.date <= today)
   );
   const level = Math.max(1, Math.floor(sumCreditedProgress(logs) / 28) + 1);
-  const primaryPriority = categories.find((category) => priorities[category.key] === 'critical') || categories[0];
+  const criticalPriorityCategories = categories.filter(
+    (category) => priorities[category.key] === 'critical'
+  );
+  const highPriorityCategories = categories.filter(
+    (category) => priorities[category.key] === 'high'
+  );
 
   async function persistCloudLog(log: Log) {
     if (!supabase || !user) return log;
@@ -1012,7 +1028,12 @@ export default function Home() {
                 <span className="level">LEVEL {level}</span>
                 <span className="streak"><Flame size={16}/> {activeDays} active days</span>
               </div>
-              <h2>Strong week. <span>{primaryPriority.short} is the mission.</span></h2>
+              <h2>
+                Strong week.
+                {criticalPriorityCategories.length === 1 ? (
+                  <span> {criticalPriorityCategories[0].short} matters most right now.</span>
+                ) : null}
+              </h2>
               <p className="heroNote">Discipline rewards alignment with this week’s priorities, not checking every box.</p>
             </div>
             <div className="heroMetrics">
@@ -1061,7 +1082,7 @@ export default function Home() {
               const hasRecent = logs.some((log) => categoriesForLog(log).includes(category.key) && log.id === recentLogId);
               return (
                 <article className={`stat card ${hasRecent ? 'pulseStat' : ''}`} key={category.key}>
-                  <div className="statTop"><span>{category.emoji}</span><div><strong>{category.short}</strong><small>{priorities[category.key]}</small></div><b>{categoryScores[category.key]}</b></div>
+                  <div className="statTop"><span>{category.emoji}</span><div><strong>{category.short}</strong><small>{priorityDisplayLabel(priorities[category.key])}</small></div><b>{categoryScores[category.key]}</b></div>
                   <div className="bar"><i style={{ width: `${categoryScores[category.key]}%` }}/></div>
                   <div className="statMeta"><span>{logs.filter((log) => categoriesForLog(log).includes(category.key) && log.date >= dayISO(-6)).length} logs this week</span><span>→</span></div>
                 </article>
@@ -1070,11 +1091,15 @@ export default function Home() {
           </div>
 
           <section className="card priorityCard">
-            <div><p className="eyebrow">PRIORITY MODE</p><h2>Discipline follows context.</h2><p>Finals week can be Academics-heavy. Recruiting season can be Career-heavy. Bettr scores whether your effort matches what you said matters.</p></div>
+            <div><p className="eyebrow">PRIORITY MODE</p><h2>What matters most right now?</h2><p>Raise Critical or High when an area deserves extra attention. Normal is the neutral baseline. Maintenance means keep it healthy without chasing major growth.</p></div>
             <div className="priorityStack">
-              {categories.filter((category) => priorities[category.key] === 'critical' || priorities[category.key] === 'high').map((category) => (
-                <span key={category.key} className={priorities[category.key]}>{category.emoji} {category.short} · {priorities[category.key]}</span>
-              ))}
+              {criticalPriorityCategories.concat(highPriorityCategories).length ? (
+                criticalPriorityCategories.concat(highPriorityCategories).map((category) => (
+                <span key={category.key} className={priorities[category.key]}>{category.emoji} {category.short} · {priorityDisplayLabel(priorities[category.key])}</span>
+                ))
+              ) : (
+                <p className="priorityEmpty">Every area is at Normal — a neutral baseline. You can raise what matters most anytime.</p>
+              )}
             </div>
             <button className="priorityCardEdit" onClick={() => setShowPriority(true)}>
               Tune weekly priorities <ChevronRight size={15}/>
@@ -1169,8 +1194,14 @@ export default function Home() {
           <div className="modal wide" onClick={(event) => event.stopPropagation()}>
             <button className="close" onClick={() => setShowPriority(false)}><X/></button>
             <p className="eyebrow">WEEKLY PRIORITIES</p>
-            <h2>What matters right now?</h2>
-            <p>Critical categories carry more weight in Discipline. Maintenance means “keep it alive without stealing focus.”</p>
+            <h2>What matters most right now?</h2>
+            <p>These are importance levels, not a ranking contest. You can change them anytime. Making everything Critical flattens the signal.</p>
+            <ul className="priorityLevelGuide">
+              <li><strong>Critical</strong> — one of the most important areas in your life right now.</li>
+              <li><strong>High</strong> — important and worth consistent attention.</li>
+              <li><strong>Normal</strong> — important, but not a major push right now.</li>
+              <li><strong>Maintenance</strong> — keep this area healthy without prioritizing major growth.</li>
+            </ul>
             <div className="priorityEditor">
               {categories.map((category) => (
                 <div key={category.key}>
@@ -1462,8 +1493,8 @@ function OnboardingFlow({ profileName, onFinish }: {
         </section>}
 
         {step === 1 && <section className={onboardingStyles.panel}>
-          <p className={onboardingStyles.kicker}>YOUR FOCUS</p>
-          <h1>What are you focused on right now?</h1>
+          <p className={onboardingStyles.kicker}>YOUR PRIORITIES</p>
+          <h1>What matters to you right now?</h1>
           <p className={onboardingStyles.lead}>Pick at least one. Choose whatever matters to you right now — you can change these priorities anytime.</p>
           <div className={onboardingStyles.categoryGrid}>{categories.map((category) => <button key={category.key} className={`${onboardingStyles.category} ${focus.includes(category.key) ? onboardingStyles.selected : ''}`} onClick={() => toggleFocus(category.key)}><span>{category.emoji}</span><div><strong>{category.short}</strong><small>{category.description}</small></div>{focus.includes(category.key) && <Check size={17}/>}</button>)}</div>
           <div className={onboardingStyles.actions}><button className={onboardingStyles.back} onClick={() => setStep(0)}>Back</button><button className={onboardingStyles.primary} disabled={focus.length < 1} onClick={() => { if (!focus.includes(mission as CategoryKey)) setMission(null); setStep(2); }}>Choose priorities <ChevronRight size={17}/></button></div>
@@ -1472,9 +1503,9 @@ function OnboardingFlow({ profileName, onFinish }: {
         {step === 2 && <section className={onboardingStyles.panel}>
           <p className={onboardingStyles.kicker}>PRIORITY MODE</p>
           <h1>What matters most right now?</h1>
-          <p className={onboardingStyles.lead}>Choose one main focus. Bettr&apos;s Discipline score rewards consistency with what you said matters—not trying to do everything every day.</p>
-          <div className={onboardingStyles.missionList}>{focus.map((key) => { const category = categoryFor(key); return <button key={key} className={`${onboardingStyles.mission} ${mission === key ? onboardingStyles.selected : ''}`} onClick={() => setMission(key)}><span>{category.emoji}</span><div><strong>{category.label}</strong><small>{mission === key ? 'Critical priority' : 'Make this my main focus'}</small></div>{mission === key && <Check size={18}/>}</button>; })}</div>
-          <div className={onboardingStyles.note}><strong>How scoring works</strong><p>Your main focus becomes Critical, your other selected areas become High, and everything else stays in Maintenance. One activity has one total reward—even if it legitimately belongs to multiple categories.</p></div>
+          <p className={onboardingStyles.lead}>Choose the one area that is most important right now. That becomes Critical. You can change these levels anytime.</p>
+          <div className={onboardingStyles.missionList}>{focus.map((key) => { const category = categoryFor(key); return <button key={key} className={`${onboardingStyles.mission} ${mission === key ? onboardingStyles.selected : ''}`} onClick={() => setMission(key)}><span>{category.emoji}</span><div><strong>{category.label}</strong><small>{mission === key ? 'Critical priority' : 'Set as Critical'}</small></div>{mission === key && <Check size={18}/>}</button>; })}</div>
+          <div className={onboardingStyles.note}><strong>What this sets</strong><p>Your pick becomes Critical. Your other selected areas become High. Everything else starts at Maintenance — keep those healthy, not ignore them. This is not a permanent ranking.</p></div>
           <div className={onboardingStyles.actions}><button className={onboardingStyles.back} onClick={() => setStep(1)}>Back</button><button className={onboardingStyles.primary} disabled={!mission} onClick={() => setStep(3)}>Continue <ChevronRight size={17}/></button></div>
         </section>}
 
@@ -2660,7 +2691,7 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
   }, [cursor]);
 
   const categoryTotals = categories
-    .map((category) => ({ category, count: monthLogs.filter((log) => categoriesForLog(log).includes(category.key)).length }))
+    .map((category) => ({ category, count: creditedMonthLogs.filter((log) => categoriesForLog(log).includes(category.key)).length }))
     .filter((item) => item.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
@@ -3102,17 +3133,21 @@ function AnalyticsView({
           <small>CRITICAL PRIORITIES</small>
 
           <div className="criticalPriorityList">
-            {criticalPriorities.map((category) => (
-              <strong key={category.key} className="focusStat">
-                {category.emoji} {category.short}
-              </strong>
-            ))}
+            {criticalPriorities.length ? (
+              criticalPriorities.map((category) => (
+                <strong key={category.key} className="focusStat">
+                  {category.emoji} {category.short}
+                </strong>
+              ))
+            ) : (
+              <strong className="focusStat">None yet</strong>
+            )}
           </div>
 
           <span>
             {criticalPriorities.length === 1
-              ? '1 current critical focus'
-              : `${criticalPriorities.length} current critical focuses`}
+              ? '1 Critical priority'
+              : `${criticalPriorities.length} Critical priorities`}
           </span>
         </article>
       </div>
