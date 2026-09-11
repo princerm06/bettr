@@ -48,6 +48,11 @@ import {
   canPersistComposerResult,
   shouldReevaluateEditedLog,
 } from '../lib/evaluation/composerPersistence';
+import {
+  categorySelectionEquals,
+  logHasEvidenceImage,
+  resolveEditedPoints,
+} from '../lib/evaluation/editScoring';
 import onboardingStyles from './onboarding.module.css';
 import {
   BarChart3,
@@ -1927,9 +1932,37 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
   }
 
   function sameCategorySelection(log: Log, keys: CategoryKey[]) {
-    const existingKeys = categoriesForLog(log);
-    if (existingKeys.length !== keys.length) return false;
-    return existingKeys.every((key) => keys.includes(key));
+    return categorySelectionEquals(categoriesForLog(log), keys);
+  }
+
+  function editedCreditNext(cleanActivity: string, persistedDetails: string) {
+    return {
+      activity: cleanActivity,
+      details: persistedDetails,
+      categories: selectedCategories,
+      hasImage: Boolean(image),
+    };
+  }
+
+  function pointsForEditedLog(cleanActivity: string, persistedDetails: string) {
+    if (!existing) {
+      return applyPriorityReward(
+        calculateDeterministicBasePoints(persistedDetails, Boolean(image)),
+        selectedCategories,
+        priorities
+      );
+    }
+    return resolveEditedPoints({
+      previous: {
+        activity: existing.activity,
+        details: existing.details || '',
+        categories: categoriesForLog(existing),
+        hasImage: logHasEvidenceImage(existing),
+        points: existing.points,
+      },
+      next: editedCreditNext(cleanActivity, persistedDetails),
+      priorities,
+    });
   }
 
   async function blockObviousCategoryMismatch(text: string) {
@@ -2019,8 +2052,7 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
           setEvaluating(false);
         }
       }
-      const basePoints = calculateDeterministicBasePoints(details, Boolean(image));
-      const points = applyPriorityReward(basePoints, selectedCategories, priorities);
+      const points = pointsForEditedLog(cleanActivity, details.trim());
       if (points <= 0) {
         setGateNotice('scoring_conflict');
         return;
@@ -2054,15 +2086,10 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
           clarificationPass,
           clarificationText,
         });
-        const basePoints = calculateDeterministicBasePoints(
-          persistedDetails,
-          Boolean(image)
-        );
-        const points = applyPriorityReward(basePoints, selectedCategories, priorities);
+        const points = pointsForEditedLog(cleanActivity, persistedDetails);
         if (!canPersistComposerResult({ kind: 'save' }, points) || closedRef.current) {
           if (points <= 0) {
             console.error('DEVELOPMENTAL custom log produced non-positive points', {
-              basePoints,
               points,
               activity: cleanActivity,
             });
