@@ -25,6 +25,7 @@ const ALL_NORMAL: PriorityMap = {
   social: 'normal',
   physical: 'normal',
   mind: 'normal',
+  inner: 'normal',
   spirituality: 'normal',
 };
 
@@ -54,6 +55,8 @@ assert.equal(applyPriorityReward(5, ['physical'], mapWith({ physical: 'critical'
 assert.equal(applyPriorityReward(5, ['physical'], mapWith({ physical: 'high' })), 6);
 assert.equal(applyPriorityReward(5, ['physical'], mapWith({ physical: 'normal' })), 5);
 assert.equal(applyPriorityReward(5, ['physical'], mapWith({ physical: 'maintenance' })), 4);
+assert.equal(applyPriorityReward(5, ['inner'], mapWith({ inner: 'critical' })), 7);
+assert.equal(applyPriorityReward(5, ['inner'], mapWith({ inner: 'normal' })), 5);
 
 assert.equal(applyPriorityReward(7, ['physical'], mapWith({ physical: 'critical' })), 9);
 assert.equal(applyPriorityReward(7, ['physical'], mapWith({ physical: 'high' })), 8);

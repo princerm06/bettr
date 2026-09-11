@@ -79,6 +79,7 @@ const fullValid = {
   social: 'maintenance',
   physical: 'high',
   mind: 'normal',
+  inner: 'normal',
   spirituality: 'normal',
 } as const;
 assert.deepEqual(normalizePriorityMap(fullValid), { ...fullValid });
@@ -92,6 +93,8 @@ assert.equal(onboarded.career, 'high');
 assert.equal(onboarded.physical, 'high');
 assert.equal(onboarded.fashion, 'maintenance');
 assert.equal(onboarded.mind, 'maintenance');
+assert.equal(onboarded.inner, 'maintenance');
+assert.equal(defaults.inner, 'normal');
 assert.deepEqual(normalizePriorityMap(onboarded), onboarded);
 
 assertAllNormal(parsePriorityMap(undefined));

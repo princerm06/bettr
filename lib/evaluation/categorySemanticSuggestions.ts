@@ -41,6 +41,8 @@ export const CATEGORY_PROTOTYPES: Record<CategoryKey, string> = {
     'lifting, running, sports, workouts, exercise, athletic training',
   mind:
     'reading, journaling, practicing an instrument, coding, craft, focused skill practice',
+  inner:
+    'meditation, gratitude practice, intentional decompression, stress management, emotional processing',
   spirituality:
     'prayer, worship, scripture, faith practice, spiritual reflection',
 };

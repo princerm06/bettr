@@ -269,7 +269,7 @@ function mainSync() {
     (sum, list) => sum + list.length,
     0
   );
-  assert.equal(trustedCount, 30);
+  assert.equal(trustedCount, 33);
 
   assert.equal('aaaaaaaaaa'.length, 10);
   assert.equal(isRepeatedCharacterSpam('aaaaaaaaaa'), true);
@@ -482,6 +482,7 @@ function mainSync() {
       social: 'maintenance',
       physical: 'critical',
       mind: 'high',
+      inner: 'normal',
       spirituality: 'normal',
     },
     usage
@@ -499,6 +500,7 @@ function mainSync() {
       social: 'maintenance',
       physical: 'critical',
       mind: 'high',
+      inner: 'normal',
       spirituality: 'normal',
     },
     usage
@@ -549,6 +551,7 @@ function mainSync() {
     { key: 'nutrition', similarity: 0.05, keyword: false, rankScore: 0.05 },
     { key: 'social', similarity: 0.05, keyword: false, rankScore: 0.05 },
     { key: 'mind', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'inner', similarity: 0.05, keyword: false, rankScore: 0.05 },
     { key: 'spirituality', similarity: 0.05, keyword: false, rankScore: 0.05 },
   ];
   const blockedFashion = detectObviousCategoryMismatch(ran5kScores, ['fashion']);
@@ -568,6 +571,7 @@ function mainSync() {
     { key: 'social', similarity: 0.05, keyword: false, rankScore: 0.05 },
     { key: 'physical', similarity: 0.05, keyword: false, rankScore: 0.05 },
     { key: 'mind', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'inner', similarity: 0.05, keyword: false, rankScore: 0.05 },
     { key: 'spirituality', similarity: 0.05, keyword: false, rankScore: 0.05 },
   ];
   const allowedMulti = detectObviousCategoryMismatch(mealScores, ['nutrition', 'finance']);

@@ -8,7 +8,7 @@ import type {
 
 /**
  * Production keys that the legacy evaluator can actually receive.
- * Inner Wellbeing is intentionally absent.
+ * Inner Wellbeing maps to production key `inner`.
  */
 export const V1_TO_LEGACY_KEY: Record<BettrV1Category, CategoryKey | null> = {
   'Appearance & Self-Care': 'appearance',
@@ -20,7 +20,7 @@ export const V1_TO_LEGACY_KEY: Record<BettrV1Category, CategoryKey | null> = {
   'Social': 'social',
   'Physical Prowess': 'physical',
   'Mind & Craft': 'mind',
-  'Inner Wellbeing': null,
+  'Inner Wellbeing': 'inner',
   'Spirituality': 'spirituality',
 };
 
@@ -34,6 +34,7 @@ export const LEGACY_KEY_TO_V1: Record<CategoryKey, BettrV1Category> = {
   social: 'Social',
   physical: 'Physical Prowess',
   mind: 'Mind & Craft',
+  inner: 'Inner Wellbeing',
   spirituality: 'Spirituality',
 };
 

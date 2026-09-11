@@ -21,7 +21,7 @@ export type BenchmarkFamily =
 
 /**
  * Locked Bettr v1 category labels used by the semantic benchmark.
- * These are independent of the production 10-category taxonomy.
+ * These are independent of production CategoryKey identifiers.
  */
 export type BettrV1Category =
   | 'Appearance & Self-Care'
@@ -71,6 +71,6 @@ export const LEGACY_ADAPTER_ASSUMPTIONS = [
   'rewardRatio === 0, no suggestion, status questionable maps to NEEDS_CLARIFICATION. Legacy uses questionable for both genuine ambiguity and much junk/spam, so junk families may look like clarification rather than NO_CREDIT.',
   'Evidence STRONG vs STANDARD is inferred only from calculateLogPoints (7 vs 5 vs 0, with 0.5-ratio values treated as STANDARD if > 0). With empty details, the legacy helper never emits 7, so STRONG expected cases cannot match evidence/base-credit even when VALID.',
   'Fashion & Style is executed against production key `fashion` (label Fashion & Accessories). That is a public-name alias for an existing category, not a taxonomy translation.',
-  'Inner Wellbeing has no production key. Those cases are LEGACY_UNSUPPORTED_TAXONOMY and are not run through the evaluator.',
+  'Inner Wellbeing maps to production key `inner`.',
   'Social maps to production key `social` (label Socialization).',
 ] as const;

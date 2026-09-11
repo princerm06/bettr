@@ -28,6 +28,7 @@ const allNormal: PriorityMap = {
   social: 'normal',
   physical: 'normal',
   mind: 'normal',
+  inner: 'normal',
   spirituality: 'normal',
 };
 

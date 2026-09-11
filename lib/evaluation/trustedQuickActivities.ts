@@ -15,6 +15,7 @@ export const TRUSTED_QUICK_ACTIVITIES: Record<CategoryKey, readonly string[]> = 
   social: ['Started a conversation', 'Met someone new', 'Made plans'],
   physical: ['Lifted', 'Ran', 'Athletic training'],
   mind: ['Read', 'Journaled', 'Practiced a craft'],
+  inner: ['Meditated', 'Gratitude practice', 'Intentional decompression'],
   spirituality: ['Prayer / reflection', 'Religious study', 'Service / worship'],
 };
 

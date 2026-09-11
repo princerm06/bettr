@@ -96,6 +96,23 @@ export const CATEGORY_SUGGESTION_FIXTURES: CategorySuggestionFixture[] = [
     mustExclude: ['physical'],
   },
   {
+    id: 'I1',
+    text: 'Meditated for 15 minutes',
+    mustInclude: ['inner'],
+    mustExclude: ['mind'],
+  },
+  {
+    id: 'I2',
+    text: 'Did a gratitude exercise',
+    mustInclude: ['inner'],
+  },
+  {
+    id: 'I3',
+    text: 'Spent 20 minutes intentionally decompressing after a stressful day',
+    mustInclude: ['inner'],
+    mustExclude: ['mind'],
+  },
+  {
     id: 'R-A',
     text: 'Bought skincare and a suit',
     mustInclude: ['appearance', 'fashion'],

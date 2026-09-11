@@ -2845,7 +2845,7 @@ function HistoryView({ logs, onDelete, onEdit }: { logs: Log[]; onDelete: (id: s
       <div className="calendarSummary">
         <article className="calendarMetric card"><span className="metricIcon">🔥</span><div><strong>{currentStreak}</strong><small>Day streak</small></div></article>
         <article className="calendarMetric card"><span className="metricIcon">📊</span><div><strong>{monthLogs.length}</strong><small>Entries this month</small></div></article>
-        <article className="calendarMetric card"><span className="metricIcon">🏆</span><div><strong>{activeCategories}/10</strong><small>Areas active</small></div></article>
+        <article className="calendarMetric card"><span className="metricIcon">🏆</span><div><strong>{activeCategories}/{categories.length}</strong><small>Areas active</small></div></article>
         <article className="calendarMetric card"><span className="metricIcon">⭐</span><div><strong>{activeDates}</strong><small>Active days</small></div></article>
         <article className="intensityLegend card"><span>Activity intensity</span><div>{[0,.25,.45,.7,1].map((strength, i) => <i key={i} style={{ '--legendHeat': strength } as React.CSSProperties}/>)}</div><small><span>None</span><span>High</span></small></article>
       </div>
@@ -3122,7 +3122,7 @@ function AnalyticsView({
       <div className="analyticsMetrics">
         <article className="analyticsMetric card"><small>30-DAY POINTS</small><strong>{points}</strong><span className={delta >= 0 ? 'up' : 'down'}>{delta >= 0 ? '↑' : '↓'} {Math.abs(delta)}% vs prior 30d</span></article>
         <article className="analyticsMetric card"><small>ACTIVE DAYS</small><strong>{activeDays}<i>/30</i></strong><span>{Math.round((activeDays / 30) * 100)}% consistency</span></article>
-        <article className="analyticsMetric card"><small>AREAS ACTIVE</small><strong>{activeAreas}<i>/10</i></strong><span>{balance}% life coverage</span></article>
+        <article className="analyticsMetric card"><small>AREAS ACTIVE</small><strong>{activeAreas}<i>/{categories.length}</i></strong><span>{balance}% life coverage</span></article>
         <article className="analyticsMetric card">
           <small>MOST ACTIVE</small>
           <strong className="focusStat">{top.category.emoji} {top.category.short}</strong>
