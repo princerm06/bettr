@@ -31,6 +31,65 @@ const TRIVIAL_COMPACT = new Set(
   [...TRIVIAL_SPACED].map((phrase) => phrase.replace(/\s+/g, ''))
 );
 
+const FILLER_TOKENS = new Set([
+  'a',
+  'an',
+  'and',
+  'are',
+  'at',
+  'be',
+  'been',
+  'being',
+  'did',
+  'do',
+  'does',
+  'doing',
+  'done',
+  'for',
+  'get',
+  'go',
+  'going',
+  'good',
+  'got',
+  'had',
+  'has',
+  'have',
+  'i',
+  'im',
+  'in',
+  'is',
+  'it',
+  'its',
+  'just',
+  'kinda',
+  'like',
+  'me',
+  'my',
+  'nice',
+  'of',
+  'ok',
+  'okay',
+  'on',
+  'really',
+  'some',
+  'something',
+  'stuff',
+  'the',
+  'thing',
+  'things',
+  'this',
+  'to',
+  'tried',
+  'try',
+  'was',
+  'were',
+  'with',
+  'yeah',
+  'you',
+]);
+
+const SHORT_CONTENT = new Set(['pr', 'km', 'mi', 'hr']);
+
 function normalizeKey(text: string) {
   return String(text)
     .toLowerCase()
@@ -55,11 +114,24 @@ function isPunctuationOrPlaceholder(raw: string, compact: string) {
   return /^[.?,!\-:;/~*_'"“”‘’]+$/.test(marks);
 }
 
+function contentTokens(text: string) {
+  const spaced = alnumSpaced(normalizeKey(text));
+  if (!spaced) return [];
+  return spaced.split(' ').filter((token) => {
+    if (!token) return false;
+    if (/\d/.test(token)) return true;
+    if (SHORT_CONTENT.has(token)) return true;
+    if (FILLER_TOKENS.has(token)) return false;
+    return token.length >= 3;
+  });
+}
+
 /**
- * True when clarification is empty, punctuation-only, or an obvious
- * non-informative filler phrase. Exact phrase match after normalize — not length.
+ * True when clarification is empty, punctuation-only, an obvious
+ * non-informative filler phrase, or adds no concrete content tokens.
+ * Optional original text lets restatements of the same action count as trivial.
  */
-export function clarificationIsTrivial(clarification: string) {
+export function clarificationIsTrivial(clarification: string, originalText = '') {
   const raw = String(clarification).trim();
   if (!raw) return true;
 
@@ -69,5 +141,16 @@ export function clarificationIsTrivial(clarification: string) {
 
   if (isPunctuationOrPlaceholder(normalized, compact)) return true;
   if (TRIVIAL_SPACED.has(spaced) || TRIVIAL_COMPACT.has(compact)) return true;
+
+  const tokens = contentTokens(raw);
+  if (!tokens.length) return true;
+
+  const original = String(originalText).trim();
+  if (original) {
+    const originalTokens = new Set(contentTokens(original));
+    const novel = tokens.filter((token) => !originalTokens.has(token));
+    if (!novel.length) return true;
+  }
+
   return false;
 }

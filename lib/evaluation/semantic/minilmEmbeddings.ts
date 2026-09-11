@@ -38,6 +38,14 @@ export async function loadMiniLm(): Promise<LoadedMiniLm> {
   };
 }
 
+export async function embedTexts(texts: string[]): Promise<number[][]> {
+  const vectors: number[][] = [];
+  for (const text of texts) {
+    vectors.push(await embedText(text));
+  }
+  return vectors;
+}
+
 export async function embedText(text: string): Promise<number[]> {
   if (!extractor) {
     throw new Error('MiniLM is not loaded.');

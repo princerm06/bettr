@@ -3,6 +3,7 @@ import { calculateDeterministicBasePoints, calculateLogPoints } from '../../lib/
 import { isDeterministicInvalid } from '../../lib/evaluation/developmentalProductPolicy';
 import {
   COMPOSER_GATE_COPY,
+  categoryMismatchMessage,
   composeClarificationSemanticText,
   composeSemanticLogText,
   isComposerSemanticInputInvalid,
@@ -35,6 +36,25 @@ import {
   isTrustedQuickClaim,
   TRUSTED_QUICK_ACTIVITIES,
 } from '../../lib/evaluation/trustedQuickActivities';
+import {
+  CATEGORY_SUGGESTION_MIN_SIMILARITY,
+} from '../../lib/evaluation/categorySemanticSuggestions';
+import {
+  detectObviousCategoryMismatch,
+  evaluateObviousCategoryMismatch,
+  MISMATCH_ALTERNATIVE_MIN,
+  MISMATCH_MARGIN,
+  MISMATCH_SELECTED_MAX,
+} from '../../lib/evaluation/categoryMismatchGuard';
+import type { CategorySuggestionScore } from '../../lib/evaluation/categorySemanticSuggestions';
+import { embedTexts, loadMiniLm } from '../../lib/evaluation/semantic/minilmEmbeddings';
+import {
+  additionalCategorySuggestions,
+  CATEGORY_REQUIRED_MESSAGE,
+  countCategoryUsage,
+  inferMatchingCategories,
+  orderComposerCategories,
+} from '../../lib/evaluation/categoryComposerUx';
 
 function persistCalled(decision: ReturnType<typeof decideCustomComposerSubmit>, points: number) {
   return canPersistComposerResult(decision, points);
@@ -388,6 +408,12 @@ function mainSync() {
     'because',
     'I guess',
     'hard to explain',
+    'I did stuff',
+    'I did it',
+    'I tried',
+    'it was good',
+    'stuff',
+    'things',
   ];
   for (const text of trivialTrue) {
     assert.equal(clarificationIsTrivial(text), true, text);
@@ -413,6 +439,11 @@ function mainSync() {
     'applied to Google',
     'cooked dinner',
     'called my friend',
+    'Training for a race',
+    'Improved my pace',
+    'Ran it as interval training',
+    'Practiced for my recital',
+    'Worked on my portfolio',
     "I didn't actually train, I was just talking about running.",
     "I didn't run until later, then I completed the 5k.",
   ];
@@ -428,6 +459,135 @@ function mainSync() {
     clarificationExplicitlyDeniesAction("I didn't run until later, then I completed the 5k."),
     false
   );
+
+  assert.equal(CATEGORY_REQUIRED_MESSAGE, 'Choose at least one category.');
+
+  const usage = countCategoryUsage([
+    { category: 'physical', categories: ['physical', 'mind'] },
+    { category: 'physical' },
+    { category: 'mind' },
+  ]);
+  assert.equal(usage.physical, 2);
+  assert.equal(usage.mind, 2);
+  assert.equal(usage.academics, 0);
+
+  const ordered = orderComposerCategories(
+    {
+      appearance: 'maintenance',
+      fashion: 'maintenance',
+      academics: 'normal',
+      career: 'normal',
+      finance: 'normal',
+      nutrition: 'normal',
+      social: 'maintenance',
+      physical: 'critical',
+      mind: 'high',
+      spirituality: 'normal',
+    },
+    usage
+  );
+  assert.equal(ordered[0].key, 'physical');
+  assert.equal(ordered[1].key, 'mind');
+  const again = orderComposerCategories(
+    {
+      appearance: 'maintenance',
+      fashion: 'maintenance',
+      academics: 'normal',
+      career: 'normal',
+      finance: 'normal',
+      nutrition: 'normal',
+      social: 'maintenance',
+      physical: 'critical',
+      mind: 'high',
+      spirituality: 'normal',
+    },
+    usage
+  );
+  assert.deepEqual(again.map((item) => item.key), ordered.map((item) => item.key));
+
+  assert.ok(inferMatchingCategories('Ran 5 miles', '').includes('physical'));
+  assert.ok(inferMatchingCategories('Studied calculus', '').includes('academics'));
+  assert.deepEqual(
+    additionalCategorySuggestions('Ran 5 miles', '', ['physical']),
+    additionalCategorySuggestions('Ran 5 miles', '', ['physical']).filter((key) => key !== 'physical')
+  );
+  assert.ok(!additionalCategorySuggestions('Ran 5 miles', '', ['physical']).includes('physical'));
+  assert.ok(additionalCategorySuggestions('Ran 5 miles', '', []).includes('physical'));
+
+  assert.equal(clarificationIsTrivial('I did stuff', 'Ran 5k'), true);
+  assert.equal(clarificationIsTrivial('Improved my pace', 'Ran 5k'), false);
+  const trivialStuffPrecheck = resolveComposerSubmitPrecheck({
+    activity: 'Ran 5k',
+    details: '',
+    awaitingClarification: true,
+    frozenOriginalText: 'Ran 5k',
+    clarificationText: 'I did stuff',
+  });
+  assert.equal(trivialStuffPrecheck.type, 'trivial_clarification');
+
+  const emptyClarificationPrecheck = resolveComposerSubmitPrecheck({
+    activity: 'Ran 5k',
+    details: '',
+    awaitingClarification: true,
+    frozenOriginalText: 'Ran 5k',
+    clarificationText: '   ',
+  });
+  assert.equal(emptyClarificationPrecheck.type, 'need_clarification_text');
+
+  assert.equal(CATEGORY_SUGGESTION_MIN_SIMILARITY, 0.3);
+  assert.equal(MISMATCH_SELECTED_MAX, 0.2);
+  assert.equal(MISMATCH_ALTERNATIVE_MIN, 0.24);
+  assert.equal(MISMATCH_MARGIN, 0.08);
+
+  const ran5kScores: CategorySuggestionScore[] = [
+    { key: 'fashion', similarity: 0.16, keyword: false, rankScore: 0.16 },
+    { key: 'physical', similarity: 0.256, keyword: false, rankScore: 0.256 },
+    { key: 'appearance', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'academics', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'career', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'finance', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'nutrition', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'social', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'mind', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'spirituality', similarity: 0.05, keyword: false, rankScore: 0.05 },
+  ];
+  const blockedFashion = detectObviousCategoryMismatch(ran5kScores, ['fashion']);
+  assert.equal(blockedFashion.mismatch, true);
+  if (blockedFashion.mismatch) assert.equal(blockedFashion.alternativeKey, 'physical');
+
+  const allowedPhysical = detectObviousCategoryMismatch(ran5kScores, ['physical']);
+  assert.equal(allowedPhysical.mismatch, false);
+
+  const mealScores: CategorySuggestionScore[] = [
+    { key: 'nutrition', similarity: 0.5, keyword: true, rankScore: 0.54 },
+    { key: 'finance', similarity: 0.3, keyword: true, rankScore: 0.34 },
+    { key: 'fashion', similarity: 0.24, keyword: false, rankScore: 0.24 },
+    { key: 'appearance', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'academics', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'career', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'social', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'physical', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'mind', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'spirituality', similarity: 0.05, keyword: false, rankScore: 0.05 },
+  ];
+  const allowedMulti = detectObviousCategoryMismatch(mealScores, ['nutrition', 'finance']);
+  assert.equal(allowedMulti.mismatch, false);
+
+  const originalEdit = { points: 6, category: 'physical' };
+  const rejectedEdit = applyEditIfAccepted({
+    original: originalEdit,
+    next: { points: 6, category: 'fashion' },
+    decision: { kind: 'reject', notice: 'uncertain_rejected', closeClarification: true },
+    points: 6,
+  });
+  assert.deepEqual(rejectedEdit, originalEdit);
+  assert.equal(rejectedEdit.points, 6);
+
+  assert.equal(
+    categoryMismatchMessage('Fashion', 'Physical'),
+    "This action doesn't seem to match Fashion. It looks more related to Physical."
+  );
+  assert.equal(canBypassSemanticGateForQuickClaim('physical', 'Ran'), true);
 }
 
 async function mainAsync() {
@@ -605,14 +765,53 @@ async function mainAsync() {
   const contrastiveDelay = "I didn't run until later, then I completed the 5k.";
   assert.equal(clarificationIsTrivial(contrastiveDelay), false);
   assert.equal(clarificationExplicitlyDeniesAction(contrastiveDelay), false);
-  const contrastiveClarification = await evaluateComposerSubmission({
+  const trivialStuffEval = await evaluateComposerSubmission({
     activity: 'Ran 5k',
     details: '',
     clarificationPass: true,
-    clarificationText: contrastiveDelay,
+    clarificationText: 'I did stuff',
   });
-  assert.notEqual(contrastiveClarification.status, 'TECHNICAL_FAILURE');
-  assert.equal(typeof contrastiveClarification.pDev, 'number');
+  assert.equal(trivialStuffEval.status, 'UNCERTAIN');
+  assert.equal(trivialStuffEval.pDev, null);
+  const trivialStuffUi = applyComposerGateDecisionToUi({
+    clarificationPass: true,
+    status: trivialStuffEval.status,
+  });
+  assert.equal(trivialStuffUi.persist, false);
+  assert.equal(trivialStuffUi.awaitingClarification, false);
+  assert.equal(trivialStuffUi.gateNotice, 'uncertain_rejected');
+
+  const usefulClarification = await evaluateComposerSubmission({
+    activity: 'Ran 5k',
+    details: '',
+    clarificationPass: true,
+    clarificationText: 'Improved my pace while training for a race',
+  });
+  assert.notEqual(usefulClarification.status, 'TECHNICAL_FAILURE');
+  assert.equal(typeof usefulClarification.pDev, 'number');
+
+  await loadMiniLm();
+  const fashionMismatch = await evaluateObviousCategoryMismatch({
+    text: 'Ran 5k',
+    selected: ['fashion'],
+    embedMany: embedTexts,
+  });
+  assert.equal(fashionMismatch.mismatch, true);
+  if (fashionMismatch.mismatch) assert.equal(fashionMismatch.alternativeKey, 'physical');
+
+  const physicalOk = await evaluateObviousCategoryMismatch({
+    text: 'Ran 5k',
+    selected: ['physical'],
+    embedMany: embedTexts,
+  });
+  assert.equal(physicalOk.mismatch, false);
+
+  const multiOk = await evaluateObviousCategoryMismatch({
+    text: 'Meal prepped to save money',
+    selected: ['nutrition', 'finance'],
+    embedMany: embedTexts,
+  });
+  assert.equal(multiOk.mismatch, false);
 }
 
 async function main() {

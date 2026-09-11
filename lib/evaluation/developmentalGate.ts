@@ -145,7 +145,8 @@ export async function evaluateComposerSubmission(options: {
   }
   if (options.clarificationPass) {
     const clarification = options.clarificationText || '';
-    if (clarification.trim() && clarificationIsTrivial(clarification)) {
+    const originalText = composeSemanticLogText(options.activity, options.details);
+    if (clarification.trim() && clarificationIsTrivial(clarification, originalText)) {
       return { status: 'UNCERTAIN', pDev: null };
     }
     if (clarification.trim() && isDeterministicInvalid(clarification)) {

@@ -39,6 +39,10 @@ export const COMPOSER_GATE_COPY = {
   recheck: 'Continue / Recheck action',
 } as const;
 
+export function categoryMismatchMessage(selectedLabel: string, alternativeLabel: string) {
+  return `This action doesn't seem to match ${selectedLabel}. It looks more related to ${alternativeLabel}.`;
+}
+
 export function persistDetailsAfterGate(options: {
   details: string;
   clarificationPass: boolean;

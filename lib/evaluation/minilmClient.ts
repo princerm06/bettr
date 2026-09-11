@@ -60,6 +60,14 @@ export async function loadClientMiniLm(): Promise<LoadedClientMiniLm> {
   };
 }
 
+export async function embedTextsClient(texts: string[]): Promise<number[][]> {
+  const vectors: number[][] = [];
+  for (const text of texts) {
+    vectors.push(await embedTextClient(text));
+  }
+  return vectors;
+}
+
 export async function embedTextClient(text: string): Promise<number[]> {
   try {
     await ensureExtractor();

@@ -18,6 +18,7 @@ export type ComposerSubmitPrecheck =
   | { type: 'noop' }
   | { type: 'invalid' }
   | { type: 'need_clarification_text' }
+  | { type: 'trivial_clarification' }
   | { type: 'evaluate'; originalText: string; clarificationPass: boolean };
 
 /**
@@ -57,7 +58,13 @@ export function resolveComposerSubmitPrecheck(input: {
 
   if (
     clarificationPass &&
-    !clarificationIsTrivial(input.clarificationText) &&
+    clarificationIsTrivial(input.clarificationText, originalText)
+  ) {
+    return { type: 'trivial_clarification' };
+  }
+
+  if (
+    clarificationPass &&
     isDeterministicInvalid(input.clarificationText)
   ) {
     return { type: 'invalid' };

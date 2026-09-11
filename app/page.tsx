@@ -9,17 +9,25 @@ import {
   categories,
   categoryFor,
   categorySignals,
-  validateLogQuality,
   calculateDeterministicBasePoints,
 } from '../lib/evaluation/legacyEvaluator';
+import {
+  additionalCategorySuggestions,
+  CATEGORY_REQUIRED_MESSAGE,
+  countCategoryUsage,
+  orderComposerCategories,
+} from '../lib/evaluation/categoryComposerUx';
+import { suggestCategoriesHybrid } from '../lib/evaluation/categorySemanticSuggestions';
 import {
   canBypassSemanticGateForQuickClaim,
   TRUSTED_QUICK_ACTIVITIES,
 } from '../lib/evaluation/trustedQuickActivities';
 import { evaluateComposerSubmission } from '../lib/evaluation/developmentalGate';
-import { isClientMiniLmLoaded, loadClientMiniLm } from '../lib/evaluation/minilmClient';
+import { evaluateObviousCategoryMismatch } from '../lib/evaluation/categoryMismatchGuard';
+import { embedTextsClient, isClientMiniLmLoaded, loadClientMiniLm } from '../lib/evaluation/minilmClient';
 import {
   COMPOSER_GATE_COPY,
+  categoryMismatchMessage,
   composeSemanticLogText,
   gatedProgressInsight,
   persistDetailsAfterGate,
@@ -283,7 +291,7 @@ export default function Home() {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
   const [quickCategory, setQuickCategory] = useState<Category | null>(null);
-  const [composerCategory, setComposerCategory] = useState<CategoryKey>('academics');
+  const [composerCategory, setComposerCategory] = useState<CategoryKey | undefined>(undefined);
   const [showComposer, setShowComposer] = useState(false);
   const [composerSession, setComposerSession] = useState(0);
   const [editingLog, setEditingLog] = useState<Log | null>(null);
@@ -345,7 +353,7 @@ export default function Home() {
           if (payload.eventType === 'INSERT') {
             const inserted = payload.new as HimothyNotification;
 
-            if (!inserted.read_at) {
+            if (!inserted.read_at && !notificationPanelOpen) {
               setUnreadNotifications((current) => current + 1);
             }
 
@@ -364,7 +372,7 @@ export default function Home() {
     return () => {
       client.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [user?.id, notificationPanelOpen]);
 
   useEffect(() => {
     // Local prototype data is only hydrated directly when cloud mode is off.
@@ -672,7 +680,7 @@ export default function Home() {
   }
 
   function openComposer(category?: CategoryKey) {
-    if (category) setComposerCategory(category);
+    setComposerCategory(category);
     setQuickCategory(null);
     setComposerSession((value) => value + 1);
     setShowComposer(true);
@@ -963,7 +971,10 @@ export default function Home() {
                 title="Notifications"
                 onClick={() => {
                   setAccountOpen(false);
-                  setNotificationPanelOpen((open) => !open);
+                  setNotificationPanelOpen((open) => {
+                    if (!open) setUnreadNotifications(0);
+                    return !open;
+                  });
                 }}
               >
                 <Bell size={18}/>
@@ -1166,6 +1177,7 @@ export default function Home() {
         <CustomComposer
           key={`new-${composerSession}`}
           initialCategory={composerCategory}
+          logs={logs}
           priorities={priorities}
           onClose={() => setShowComposer(false)}
           onSave={saveCustomLog}
@@ -1177,6 +1189,7 @@ export default function Home() {
           key={`edit-${editingLog.id}`}
           initialCategory={editingLog.category}
           existing={editingLog}
+          logs={logs}
           priorities={priorities}
           onClose={() => setEditingLog(null)}
           onSave={(patch) => updateLog(editingLog.id, patch)}
@@ -1710,14 +1723,17 @@ function AuthScreen() {
   );
 }
 
-function CustomComposer({ initialCategory, existing, priorities, onClose, onSave }: {
-  initialCategory: CategoryKey;
+function CustomComposer({ initialCategory, existing, logs, priorities, onClose, onSave }: {
+  initialCategory?: CategoryKey;
   existing?: Log;
+  logs: Log[];
   priorities: Record<CategoryKey, Priority>;
   onClose: () => void;
   onSave: (log: Omit<Log, 'id' | 'timestamp'>) => void;
 }) {
-  const [selectedCategories, setSelectedCategories] = useState<CategoryKey[]>(existing ? categoriesForLog(existing) : [initialCategory]);
+  const [selectedCategories, setSelectedCategories] = useState<CategoryKey[]>(
+    existing ? categoriesForLog(existing) : initialCategory ? [initialCategory] : []
+  );
   const [activity, setActivity] = useState(existing?.activity || '');
   const [details, setDetails] = useState(existing?.details || '');
   const [date, setDate] = useState(existing?.date || todayISO());
@@ -1746,17 +1762,26 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
     | 'technical'
     | 'scoring_conflict'
     | 'clarification_needed'
+    | 'category_mismatch'
     | null
   >(null);
+  const [categoryMismatchNotice, setCategoryMismatchNotice] = useState<string | null>(null);
   const [awaitingClarification, setAwaitingClarification] = useState(false);
   const [clarificationText, setClarificationText] = useState('');
   const [frozenOriginalText, setFrozenOriginalText] = useState<string | null>(null);
+  const [categoryRequiredError, setCategoryRequiredError] = useState(false);
+  const [debouncedSuggestionText, setDebouncedSuggestionText] = useState('');
+  const [suggestedCategories, setSuggestedCategories] = useState<CategoryKey[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const evaluatingRef = useRef(false);
   const closedRef = useRef(false);
   const isEdit = Boolean(existing);
-  const quality = activity.trim() ? validateLogQuality(selectedCategories, activity, details) : null;
-  const baseEstimatedPoints = activity.trim()
+  const usageCounts = useMemo(() => countCategoryUsage(logs), [logs]);
+  const orderedCategories = useMemo(
+    () => orderComposerCategories(priorities, usageCounts),
+    [priorities, usageCounts]
+  );
+  const baseEstimatedPoints = activity.trim() && selectedCategories.length
     ? calculateDeterministicBasePoints(details, Boolean(image))
     : 0;
 
@@ -1801,8 +1826,86 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
     };
   }, []);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSuggestionText(`${activity}\n\u001f${details}`);
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [activity, details]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const [nextActivity, nextDetails = ''] = debouncedSuggestionText.split('\n\u001f');
+    const activityText = (nextActivity || '').trim();
+    const detailsText = nextDetails.trim();
+
+    if (!activityText && !detailsText) {
+      setSuggestedCategories([]);
+      return;
+    }
+
+    async function refreshSuggestions() {
+      if (!isClientMiniLmLoaded()) {
+        const fallback = additionalCategorySuggestions(
+          activityText,
+          detailsText,
+          selectedCategories,
+          orderedCategories
+        );
+        if (!cancelled) setSuggestedCategories(fallback);
+        return;
+      }
+
+      try {
+        const next = await suggestCategoriesHybrid({
+          activity: activityText,
+          details: detailsText,
+          selected: selectedCategories,
+          embedMany: embedTextsClient,
+        });
+        if (!cancelled) setSuggestedCategories(next);
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) {
+          setSuggestedCategories(
+            additionalCategorySuggestions(
+              activityText,
+              detailsText,
+              selectedCategories,
+              orderedCategories
+            )
+          );
+        }
+      }
+    }
+
+    void refreshSuggestions();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSuggestionText, selectedCategories, orderedCategories, modelReady]);
+
   function toggleCategory(key: CategoryKey) {
-    setSelectedCategories((current) => current.includes(key) ? (current.length === 1 ? current : current.filter((item) => item !== key)) : [...current, key]);
+    setSelectedCategories((current) => {
+      const next = current.includes(key)
+        ? current.filter((item) => item !== key)
+        : [...current, key];
+      if (next.length) setCategoryRequiredError(false);
+      return next;
+    });
+    if (gateNotice === 'category_mismatch') {
+      setGateNotice(null);
+      setCategoryMismatchNotice(null);
+    }
+  }
+
+  function addSuggestedCategory(key: CategoryKey) {
+    setSelectedCategories((current) => current.includes(key) ? current : [...current, key]);
+    setCategoryRequiredError(false);
+    if (gateNotice === 'category_mismatch') {
+      setGateNotice(null);
+      setCategoryMismatchNotice(null);
+    }
   }
 
   async function handleImage(event: ChangeEvent<HTMLInputElement>) {
@@ -1841,10 +1944,44 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
     };
   }
 
+  function sameCategorySelection(log: Log, keys: CategoryKey[]) {
+    const existingKeys = categoriesForLog(log);
+    if (existingKeys.length !== keys.length) return false;
+    return existingKeys.every((key) => keys.includes(key));
+  }
+
+  async function blockObviousCategoryMismatch(text: string) {
+    const selectedLabel =
+      selectedCategories.length === 1
+        ? categoryFor(selectedCategories[0]).short
+        : 'the selected categories';
+    try {
+      const verdict = await evaluateObviousCategoryMismatch({
+        text,
+        selected: selectedCategories,
+        embedMany: embedTextsClient,
+      });
+      if (!verdict.mismatch) return false;
+      setCategoryMismatchNotice(
+        categoryMismatchMessage(selectedLabel, categoryFor(verdict.alternativeKey).short)
+      );
+      setGateNotice('category_mismatch');
+      return true;
+    } catch (err) {
+      console.error(err);
+      setGateNotice('technical');
+      return true;
+    }
+  }
+
   async function submitGated() {
     if (evaluatingRef.current || evaluating) return;
     const cleanActivity = activity.trim();
-    if (!cleanActivity || !selectedCategories.length) return;
+    if (!cleanActivity) return;
+    if (!selectedCategories.length) {
+      setCategoryRequiredError(true);
+      return;
+    }
 
     const precheck = resolveComposerSubmitPrecheck({
       activity: cleanActivity,
@@ -1857,6 +1994,12 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
     if (precheck.type === 'noop') return;
     if (precheck.type === 'need_clarification_text') {
       setGateNotice('clarification_needed');
+      return;
+    }
+    if (precheck.type === 'trivial_clarification') {
+      setAwaitingClarification(false);
+      setFrozenOriginalText(null);
+      setGateNotice('uncertain_rejected');
       return;
     }
     if (precheck.type === 'invalid') {
@@ -1883,6 +2026,17 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
       });
 
     if (skipGate) {
+      const categoriesUnchanged = existing ? sameCategorySelection(existing, selectedCategories) : true;
+      if (!categoriesUnchanged) {
+        evaluatingRef.current = true;
+        setEvaluating(true);
+        try {
+          if (await blockObviousCategoryMismatch(originalText) || closedRef.current) return;
+        } finally {
+          evaluatingRef.current = false;
+          setEvaluating(false);
+        }
+      }
       const basePoints = calculateDeterministicBasePoints(details, Boolean(image));
       const points = applyPriorityReward(basePoints, selectedCategories, priorities);
       if (points <= 0) {
@@ -1934,6 +2088,8 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
           }
           return;
         }
+        const persistText = composeSemanticLogText(cleanActivity, persistedDetails);
+        if (await blockObviousCategoryMismatch(persistText) || closedRef.current) return;
         onSave(buildLogPayload(cleanActivity, points, persistedDetails));
         return;
       }
@@ -1964,10 +2120,13 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
         <h2>{existing ? 'Update this entry.' : 'What did you do?'}</h2>
         <p>Select every area this activity meaningfully contributed to. The first selected area is the primary category.</p>
 
-        <label className="fieldLabel">Categories <span>select multiple</span></label>
+        <label className="fieldLabel">Categories <span>select at least one</span></label>
         <div className="categoryPicker multiCategoryPicker">
-          {categories.map((item) => <button key={item.key} className={selectedCategories.includes(item.key) ? 'selected' : ''} onClick={() => toggleCategory(item.key)} title={item.label}>{item.emoji}<span>{item.short}</span></button>)}
+          {orderedCategories.map((item) => <button key={item.key} className={selectedCategories.includes(item.key) ? 'selected' : ''} onClick={() => toggleCategory(item.key)} title={item.label}>{item.emoji}<span>{item.short}</span></button>)}
         </div>
+        {categoryRequiredError && (
+          <p className="composerFieldError">{CATEGORY_REQUIRED_MESSAGE}</p>
+        )}
         <div className="selectedCategorySummary">
           {selectedCategories.map((key) => (
             <span key={key} className="selectedCategoryPill">
@@ -1977,13 +2136,10 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
                 className="selectedCategoryRemove"
                 aria-label={`Remove ${categoryFor(key).short}`}
                 title={`Remove ${categoryFor(key).short}`}
-                disabled={selectedCategories.length === 1}
                 onClick={() => {
-                  if (selectedCategories.length > 1) {
-                    setSelectedCategories((current) =>
-                      current.filter((item) => item !== key)
-                    );
-                  }
+                  setSelectedCategories((current) =>
+                    current.filter((item) => item !== key)
+                  );
                 }}
               >
                 ×
@@ -1991,6 +2147,21 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
             </span>
           ))}
         </div>
+        {suggestedCategories.length > 0 && (
+          <div className="composerAlsoFits">
+            <span>{selectedCategories.length ? 'Also fits' : 'Suggested'}</span>
+            {suggestedCategories.map((key) => (
+              <button
+                type="button"
+                key={key}
+                onClick={() => addSuggestedCategory(key)}
+                title={`Add ${categoryFor(key).label}`}
+              >
+                {categoryFor(key).emoji} {categoryFor(key).short}
+              </button>
+            ))}
+          </div>
+        )}
 
         <label className="fieldLabel" htmlFor="activity">Entry</label>
         <input id="activity" className="textInput" autoFocus value={activity} onChange={(event) => {
@@ -2113,27 +2284,11 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
           onSemanticSourceChange(activity, next);
         }} placeholder="Numbers, context, what went well, what you learned, what you want to improve…"/>
 
-        {quality?.suggestedCategory && (
-          <div className="qualityCheck composerCategoryHint">
-            <strong>Suggested category</strong>
-            <span>
-              This wording looks closer to {categoryFor(quality.suggestedCategory).label}. You can switch or add it. This is not acceptance, and it does not award points yet.
-            </span>
-            <div className="qualityActions">
-              <button type="button" onClick={() => {
-                const suggestion = quality.suggestedCategory!;
-                if (quality.suggestionMode === 'add') {
-                  setSelectedCategories((current) => current.includes(suggestion) ? current : [...current, suggestion]);
-                } else {
-                  setSelectedCategories([suggestion]);
-                }
-              }}>
-                {quality.suggestionMode === 'add' ? 'Add' : 'Switch to'} {categoryFor(quality.suggestedCategory).emoji} {categoryFor(quality.suggestedCategory).short}
-              </button>
-            </div>
+        {gateNotice === 'category_mismatch' && categoryMismatchNotice && (
+          <div className="composerGateNotice">
+            <span>{categoryMismatchNotice}</span>
           </div>
         )}
-
         {gateNotice === 'invalid' && (
           <div className="composerGateNotice">
             <span>{COMPOSER_GATE_COPY.invalid}</span>
@@ -2195,7 +2350,9 @@ function CustomComposer({ initialCategory, existing, priorities, onClose, onSave
               ? COMPOSER_GATE_COPY.recheck
               : isEdit
                 ? 'Save changes'
-                : `Check this action (+${estimatedPoints})`}
+                : selectedCategories.length
+                  ? `Check this action (+${estimatedPoints})`
+                  : 'Check this action'}
         </button>
       </div>
     </div>
@@ -3088,7 +3245,6 @@ function NotificationPanel({
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
-        .is('read_at', null)
         .order('created_at', { ascending: false })
         .limit(20),
 
@@ -3213,7 +3369,41 @@ function NotificationPanel({
   }
 
   useEffect(() => {
-    refreshPanel();
+    let cancelled = false;
+
+    async function loadAndAcknowledge() {
+      const visible = await refreshPanel();
+      if (!cancelled && visible) await markVisibleRead(visible);
+    }
+
+    loadAndAcknowledge();
+
+    if (!supabase) return;
+
+    const client = supabase;
+    const channel = client
+      .channel(`bell-notifications-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          void (async () => {
+            const visible = await refreshPanel();
+            if (visible) await markVisibleRead(visible);
+          })();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      client.removeChannel(channel);
+    };
   }, [user.id]);
 
   async function resolveFriendRequest(
@@ -3298,32 +3488,15 @@ function NotificationPanel({
       .eq('user_id', user.id);
 
     if (!error) {
-      // The bell is an unread inbox, so read items disappear here.
-      // The database row remains for Activity history.
       setItems((current) =>
-        current.filter((entry) => entry.id !== item.id)
+        current.map((entry) =>
+          entry.id === item.id ? { ...entry, read_at: readAt } : entry
+        )
       );
 
       onUnreadChange(
-        Math.max(0, items.filter((entry) => !entry.read_at).length - 1)
+        Math.max(0, items.filter((entry) => !entry.read_at && entry.id !== item.id).length)
       );
-    }
-  }
-
-  async function markAllRead() {
-    if (!supabase) return;
-
-    const readAt = new Date().toISOString();
-
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read_at: readAt })
-      .eq('user_id', user.id)
-      .is('read_at', null);
-
-    if (!error) {
-      setItems([]);
-      onUnreadChange(0);
     }
   }
 
@@ -3385,10 +3558,6 @@ function NotificationPanel({
         </div>
 
         <div className="notificationPanelActions">
-          {items.some((item) => !item.read_at) && (
-            <button onClick={markAllRead}>Mark all read</button>
-          )}
-
           <button
             className="notificationPanelClose"
             onClick={onClose}
@@ -3474,7 +3643,7 @@ function NotificationPanel({
           <div className="notificationPanelEmpty">
             <Bell size={19}/>
             <strong>You&apos;re caught up.</strong>
-            <span>No new notifications.</span>
+            <span>Recent notifications will show up here.</span>
           </div>
         )}
       </div>
