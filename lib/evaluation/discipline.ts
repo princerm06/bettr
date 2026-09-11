@@ -1,5 +1,6 @@
 import { categories, type CategoryKey } from './legacyEvaluator';
 import { attributionShareForCategory } from './categoryAttribution';
+import { hasPositiveProgressCredit } from './progressCredit';
 import {
   resolvePriorityLevel,
   type PriorityLevel,
@@ -68,8 +69,7 @@ export type DisciplineScoreInput = {
 export function calculateDisciplineScore(input: DisciplineScoreInput): number {
   const recent = input.logs.filter(
     (log) =>
-      Number.isFinite(log.points) &&
-      log.points > 0 &&
+      hasPositiveProgressCredit(log.points) &&
       isDateInDisciplineWindow(log.date, input.today)
   );
 

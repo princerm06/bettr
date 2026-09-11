@@ -18,7 +18,13 @@ import {
   parsePriorityMap,
 } from '../lib/evaluation/priorityState';
 import { attributionShareForCategory } from '../lib/evaluation/categoryAttribution';
-import { calculateDisciplineScore } from '../lib/evaluation/discipline';
+import { calculateDisciplineScore, shiftIsoDate } from '../lib/evaluation/discipline';
+import {
+  countCreditedActiveDays,
+  isCreditedProgressLog,
+  isIsoDateInInclusiveRange,
+  sumCreditedProgress,
+} from '../lib/evaluation/progressCredit';
 import {
   additionalCategorySuggestions,
   CATEGORY_REQUIRED_MESSAGE,
@@ -152,6 +158,7 @@ function categoriesForLog(log: Pick<Log, 'category' | 'categories'>) {
 }
 
 function pointsForCategory(log: Log, category: CategoryKey) {
+  if (!isCreditedProgressLog(log)) return 0;
   return log.points * attributionShareForCategory(log, category);
 }
 
@@ -546,7 +553,7 @@ export default function Home() {
     const result = {} as Record<CategoryKey, number>;
     categories.forEach((c) => {
       const earned = logs
-        .filter((log) => log.points > 0)
+        .filter(isCreditedProgressLog)
         .reduce((sum, log) => sum + pointsForCategory(log, c.key), 0);
 
       result[c.key] = Math.min(99, Math.max(0, Math.round(earned)));
@@ -565,12 +572,11 @@ export default function Home() {
   );
 
   const todayLogs = logs.filter((log) => log.date === todayISO());
-  const activeDays = new Set(
-    logs
-      .filter((log) => log.points > 0 && log.date >= dayISO(-6))
-      .map((log) => log.date)
-  ).size;
-  const level = Math.max(1, Math.floor(logs.reduce((sum, log) => sum + log.points, 0) / 28) + 1);
+  const today = todayISO();
+  const activeDays = countCreditedActiveDays(
+    logs.filter((log) => log.date >= dayISO(-6) && log.date <= today)
+  );
+  const level = Math.max(1, Math.floor(sumCreditedProgress(logs) / 28) + 1);
   const primaryPriority = categories.find((category) => priorities[category.key] === 'critical') || categories[0];
 
   async function persistCloudLog(log: Log) {
@@ -3032,24 +3038,22 @@ function AnalyticsView({
   priorities: Record<CategoryKey, Priority>;
   onTunePriorities: () => void;
 }) {
-  const cutoff = new Date();
-  cutoff.setHours(0, 0, 0, 0);
-  cutoff.setDate(cutoff.getDate() - 29);
-  const recent = logs.filter((log) => new Date(`${log.date}T12:00:00`) >= cutoff);
-  const priorCutoff = new Date(cutoff);
-  priorCutoff.setDate(priorCutoff.getDate() - 30);
-  const previous = logs.filter((log) => {
-    const date = new Date(`${log.date}T12:00:00`);
-    return date >= priorCutoff && date < cutoff;
-  });
-  const activeDays = new Set(recent.map((log) => log.date)).size;
-  const points = recent.reduce((sum, log) => sum + log.points, 0);
-  const previousPoints = previous.reduce((sum, log) => sum + log.points, 0);
+  const today = todayISO();
+  const windowStart = shiftIsoDate(today, -29);
+  const recent = logs.filter((log) => isIsoDateInInclusiveRange(log.date, windowStart, today));
+  const creditedRecent = recent.filter(isCreditedProgressLog);
+  const priorEnd = shiftIsoDate(windowStart, -1);
+  const priorStart = shiftIsoDate(priorEnd, -29);
+  const previous = logs.filter((log) => isIsoDateInInclusiveRange(log.date, priorStart, priorEnd));
+  const creditedPrevious = previous.filter(isCreditedProgressLog);
+  const activeDays = countCreditedActiveDays(creditedRecent);
+  const points = sumCreditedProgress(creditedRecent);
+  const previousPoints = sumCreditedProgress(creditedPrevious);
   const delta = previousPoints ? Math.round(((points - previousPoints) / previousPoints) * 100) : 0;
   const totals = categories.map((category) => ({
     category,
-    count: recent.filter((log) => categoriesForLog(log).includes(category.key)).length,
-    points: recent.reduce((sum, log) => sum + pointsForCategory(log, category.key), 0),
+    count: creditedRecent.filter((log) => categoriesForLog(log).includes(category.key)).length,
+    points: creditedRecent.reduce((sum, log) => sum + pointsForCategory(log, category.key), 0),
   })).sort((a, b) => b.points - a.points);
   const maxPoints = Math.max(1, ...totals.map((item) => item.points));
   const activeAreas = totals.filter((item) => item.count > 0).length;
@@ -3060,12 +3064,9 @@ function AnalyticsView({
     (category) => priorities[category.key] === 'critical'
   );
   const days = Array.from({ length: 30 }, (_, index) => {
-    const date = new Date();
-    date.setHours(12, 0, 0, 0);
-    date.setDate(date.getDate() - (29 - index));
-    const iso = date.toISOString().slice(0, 10);
-    const dayLogs = recent.filter((log) => log.date === iso);
-    return { iso, date, count: dayLogs.length, points: dayLogs.reduce((sum, log) => sum + log.points, 0) };
+    const iso = shiftIsoDate(windowStart, index);
+    const dayLogs = creditedRecent.filter((log) => log.date === iso);
+    return { iso, date: new Date(`${iso}T12:00:00`), count: dayLogs.length, points: sumCreditedProgress(dayLogs) };
   });
   const maxDayPoints = Math.max(1, ...days.map((day) => day.points));
   const quote = quoteForDate();

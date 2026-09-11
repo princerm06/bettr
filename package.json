@@ -24,7 +24,8 @@
     "check:priority-reward": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-priority-reward-checks.js",
     "check:priority-state": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-priority-state-checks.js",
     "check:edit-scoring": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-edit-scoring-checks.js",
-    "check:discipline": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-discipline-checks.js"
+    "check:discipline": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-discipline-checks.js",
+    "check:progress-credit": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-progress-credit-checks.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
