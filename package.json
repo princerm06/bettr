@@ -20,7 +20,8 @@
     "benchmark:semantic:developmental:3a-parity": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-3a-runtime-parity.js",
     "check:custom-composer-gate": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-custom-composer-gate-checks.js",
     "check:3a-fixture-parity": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-3a-fixture-parity.js",
-    "check:category-suggestions": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-category-suggestion-fixtures.js"
+    "check:category-suggestions": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-category-suggestion-fixtures.js",
+    "check:priority-reward": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-priority-reward-checks.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

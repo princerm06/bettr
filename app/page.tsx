@@ -11,6 +11,7 @@ import {
   categorySignals,
   calculateDeterministicBasePoints,
 } from '../lib/evaluation/legacyEvaluator';
+import { applyPriorityReward } from '../lib/evaluation/priorityReward';
 import {
   additionalCategorySuggestions,
   CATEGORY_REQUIRED_MESSAGE,
@@ -139,32 +140,6 @@ function seedLogs(): Log[] {
 function categoriesForLog(log: Pick<Log, 'category' | 'categories'>) {
   const keys = log.categories?.length ? log.categories : [log.category];
   return Array.from(new Set(keys));
-}
-
-function applyPriorityReward(
-  basePoints: number,
-  categoryKeys: CategoryKey[],
-  priorities: Record<CategoryKey, Priority>
-) {
-  // Existing production scoring (Phase 0). Not Phase 2 focus/rank weighting.
-  // Priority can amplify legitimate progress, but it can never rescue
-  // an invalid / zero-point entry.
-  if (basePoints <= 0 || categoryKeys.length === 0) return 0;
-
-  const bonusByPriority: Record<Priority, number> = {
-    critical: 2,
-    high: 1,
-    normal: 0,
-    maintenance: -1,
-  };
-
-  const averageBonus =
-    categoryKeys.reduce(
-      (sum, key) => sum + bonusByPriority[priorities[key]],
-      0
-    ) / categoryKeys.length;
-
-  return Math.max(1, Math.round(basePoints + averageBonus));
 }
 
 function attributionShareForCategory(log: Log, category: CategoryKey) {
