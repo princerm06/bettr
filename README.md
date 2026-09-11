@@ -39,6 +39,15 @@ Cloud photos are stored in a private `log-images` bucket and loaded through expi
 
 Do not commit `.env.local`; it is ignored by Git.
 
-## AI status
+## Semantic evaluation (custom logs)
 
-The current "AI insight" remains a local prototype heuristic. A real multimodal model should be added through a protected server endpoint after authentication is live. Never put an AI provider secret key directly in browser code.
+Trusted quick-log buttons do not go through this path. Custom free-text logs are interpreted locally in the browser (`$0`-first, no paid generative LLM for scoring).
+
+The pipeline is:
+
+1. **Embeddings** — `Xenova/all-MiniLM-L6-v2` (INT8, mean-pooled, L2-normalized, 384-d).
+2. **Developmental eligibility** — a frozen linear logistic probe on those embeddings. The probe score is an internal eligibility signal, not a calibrated probability and not XP.
+3. **Deterministic rules around the model** — validity checks, clarification when the log is ambiguous, and category-integrity checks. Category suggestions use a separate heuristic over the same embeddings; they are not the eligibility classifier.
+4. **Deterministic scoring** — if the log is eligible, application logic awards fixed base XP, then applies the selected category priority. The model does not output XP.
+
+Evaluation fixtures and related scripts live under `benchmarks/semantic/`. This is a measured first version of semantic log intelligence, not a claim of production-grade AI.
