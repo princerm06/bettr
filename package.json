@@ -26,7 +26,10 @@
     "check:edit-scoring": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-edit-scoring-checks.js",
     "check:discipline": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-discipline-checks.js",
     "check:progress-credit": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-progress-credit-checks.js",
-    "check:category-taxonomy": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-category-taxonomy-checks.js"
+    "check:category-taxonomy": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-category-taxonomy-checks.js",
+    "check:planning-invariants": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-invariant-checks.js",
+    "check:planning-schema": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-schema-checks.js",
+    "check:planning": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-invariant-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-schema-checks.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

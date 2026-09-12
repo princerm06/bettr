@@ -13,6 +13,8 @@
   },
   "include": [
     "benchmarks/semantic/**/*.ts",
-    "lib/evaluation/**/*.ts"
+    "benchmarks/planning/**/*.ts",
+    "lib/evaluation/**/*.ts",
+    "lib/planning/**/*.ts"
   ]
 }
