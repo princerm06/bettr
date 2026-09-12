@@ -13,13 +13,13 @@
 -- - A persisted completed/log row may keep log_id null after ON DELETE SET NULL.
 -- - Do not rewrite completed/log to light, and do not remove ON DELETE SET NULL.
 
-create or replace function public.planning_array_is_unique(values anyarray)
+create or replace function public.planning_array_is_unique(input_values anyarray)
 returns boolean
 language sql
 immutable
 as $$
-  select values is null
-    or cardinality(values) = (select count(distinct element) from unnest(values) as element);
+  select input_values is null
+    or cardinality(input_values) = (select count(distinct element) from unnest(input_values) as element);
 $$;
 
 create table if not exists public.goals (
