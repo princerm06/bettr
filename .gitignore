@@ -8,3 +8,6 @@ benchmarks/semantic/.compiled
 *.pyc
 .venv
 benchmarks/semantic/candidate_6a/.venv
+
+# Regent local run traces
+.regent/runs/
