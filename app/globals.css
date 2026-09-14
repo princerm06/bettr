@@ -2380,3 +2380,19 @@
     width: 100%;
   }
 }
+
+/* Phase 3 Slice 2 — Goals in mobile nav without dropping existing destinations */
+@media (max-width: 600px) {
+  .mobileNav {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .mobileNav button {
+    font-size: 7px;
+  }
+
+  .mobileNav .mobilePlus {
+    width: 40px;
+    height: 40px;
+  }
+}
