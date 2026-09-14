@@ -40,6 +40,7 @@ import {
 import { evaluateComposerSubmission } from '../lib/evaluation/developmentalGate';
 import { evaluateObviousCategoryMismatch } from '../lib/evaluation/categoryMismatchGuard';
 import { embedTextsClient, isClientMiniLmLoaded, loadClientMiniLm } from '../lib/evaluation/minilmClient';
+import { loadClientMpnet } from '../lib/evaluation/mpnetClient';
 import {
   COMPOSER_GATE_COPY,
   categoryMismatchMessage,
@@ -1816,6 +1817,9 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
       .catch((err) => {
         console.error(err);
       });
+    void loadClientMpnet().catch((err) => {
+      console.error(err);
+    });
     return () => {
       cancelled = true;
       closedRef.current = true;
