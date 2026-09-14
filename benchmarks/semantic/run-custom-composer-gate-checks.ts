@@ -2,6 +2,14 @@ import assert from 'assert';
 import { calculateDeterministicBasePoints, calculateLogPoints } from '../../lib/evaluation/legacyEvaluator';
 import { isDeterministicInvalid } from '../../lib/evaluation/developmentalProductPolicy';
 import {
+  isProcessWithoutComplement,
+  mapActionProbabilityToBand,
+  needsFirstPassClarification,
+  needsSingletonActivityClarification,
+} from '../../lib/evaluation/actionEvidence';
+import { applyPriorityReward } from '../../lib/evaluation/priorityReward';
+import { hasPositiveProgressCredit } from '../../lib/evaluation/progressCredit';
+import {
   COMPOSER_GATE_COPY,
   categoryMismatchMessage,
   composeClarificationSemanticText,
@@ -23,6 +31,7 @@ import {
   evaluateComposerSubmission,
   evaluateDevelopmentalAction,
   setDevelopmentalActionEvaluatorForTests,
+  type DevelopmentalGateResult,
 } from '../../lib/evaluation/developmentalGate';
 import {
   applyComposerGateDecisionToUi,
@@ -56,8 +65,22 @@ import {
   orderComposerCategories,
 } from '../../lib/evaluation/categoryComposerUx';
 
+const SLAYED_PRODUCTION_DETAILS =
+  'totally slayed the day today 💅 everyone wished they was me, queen behavior fr yuhhhh. beautiful, good looking, fitting good, wearing good, doing good living good sleeping good with lots of men Tackled the day and killed it! Looked fly felt fly was fly';
+
 function persistCalled(decision: ReturnType<typeof decideCustomComposerSubmit>, points: number) {
   return canPersistComposerResult(decision, points);
+}
+
+/** Frozen P1: 3A.2 / pDev run only after CONFIDENT_ACTION_POSITIVE. */
+function assertTwoAxisEvaluatorRan(result: DevelopmentalGateResult, label?: string) {
+  assert.equal(typeof result.pAction, 'number', label);
+  assert.notEqual(result.reason, 'STRUCTURAL_FIRST_PASS', label);
+  if (mapActionProbabilityToBand(result.pAction as number) === 'CONFIDENT_ACTION_POSITIVE') {
+    assert.equal(typeof result.pDev, 'number', label);
+  } else {
+    assert.equal(result.pDev, null, label);
+  }
 }
 
 function mainSync() {
@@ -98,6 +121,108 @@ function mainSync() {
   assert.ok(!isDeterministicInvalid('Did 100 pushups'));
   assert.ok(!isDeterministicInvalid('Ran 10 miles'));
   assert.ok(!isDeterministicInvalid('Studied for 6 hours'));
+
+  assert.equal(composeSemanticLogText('i learned', ''), 'i learned');
+  assert.equal(composeSemanticLogText('Slayed', ''), 'Slayed');
+  assert.equal(composeSemanticLogText('Slayed', 'Slayed'), 'Slayed\nSlayed');
+  assert.equal(
+    composeSemanticLogText('Slayed', SLAYED_PRODUCTION_DETAILS),
+    `Slayed\n${SLAYED_PRODUCTION_DETAILS}`
+  );
+  assert.equal(isProcessWithoutComplement('i learned'), true);
+  assert.equal(isProcessWithoutComplement('Studied'), true);
+  assert.equal(isProcessWithoutComplement('I learned pointer arithmetic'), false);
+  assert.equal(
+    isProcessWithoutComplement(
+      'I learned how pointer arithmetic works and completed five CS240 practice problems.'
+    ),
+    false
+  );
+  assert.equal(
+    isProcessWithoutComplement(
+      'Did my full skincare routine and applied moisturizer and sunscreen.'
+    ),
+    false
+  );
+  assert.equal(
+    isProcessWithoutComplement(
+      'Put together three outfits for my internship conference and practiced coordinating the pieces.'
+    ),
+    false
+  );
+  assert.equal(isProcessWithoutComplement('Ran 5 miles'), false);
+  assert.equal(isProcessWithoutComplement('Meditated for 15 minutes'), false);
+  assert.equal(isProcessWithoutComplement('Applied to 3 internships'), false);
+  assert.equal(isProcessWithoutComplement('Practiced guitar for 30 minutes'), false);
+  assert.equal(isProcessWithoutComplement('Slayed'), false);
+  assert.equal(isProcessWithoutComplement('Slayed\nSlayed'), false);
+  assert.equal(isProcessWithoutComplement(`Slayed\n${SLAYED_PRODUCTION_DETAILS}`), false);
+  assert.equal(needsSingletonActivityClarification('Slayed', ''), true);
+  assert.equal(needsSingletonActivityClarification('Slayed', 'Slayed'), true);
+  assert.equal(needsSingletonActivityClarification('Slayed', SLAYED_PRODUCTION_DETAILS), false);
+  assert.equal(needsFirstPassClarification('i learned', ''), true);
+  assert.equal(needsFirstPassClarification('Slayed', SLAYED_PRODUCTION_DETAILS), false);
+  assert.equal(
+    needsFirstPassClarification(
+      'I learned how pointer arithmetic works and completed five CS240 practice problems.',
+      ''
+    ),
+    false
+  );
+  assert.equal(
+    needsFirstPassClarification(
+      'Did my full skincare routine and applied moisturizer and sunscreen.',
+      ''
+    ),
+    false
+  );
+  assert.equal(
+    needsFirstPassClarification(
+      'Put together three outfits for my internship conference and practiced coordinating the pieces.',
+      ''
+    ),
+    false
+  );
+  assert.equal(needsFirstPassClarification('Ran 5 miles', ''), false);
+  assert.equal(needsFirstPassClarification('Meditated for 15 minutes', ''), false);
+  assert.equal(needsFirstPassClarification('Applied to 3 internships', ''), false);
+  assert.equal(needsFirstPassClarification('Practiced guitar for 30 minutes', ''), false);
+  assert.equal(needsSingletonActivityClarification('Deadlifted', '315 lbs for 5 reps'), false);
+  assert.equal(
+    needsSingletonActivityClarification(
+      'Journaled',
+      "Wrote about my goals and reflected on today's decisions"
+    ),
+    false
+  );
+  assert.equal(
+    needsSingletonActivityClarification(
+      'Volunteered',
+      'Helped serve meals at the community shelter for two hours'
+    ),
+    false
+  );
+  assert.equal(needsFirstPassClarification('Deadlifted', '315 lbs for 5 reps'), false);
+  assert.equal(
+    needsFirstPassClarification(
+      'Journaled',
+      "Wrote about my goals and reflected on today's decisions"
+    ),
+    false
+  );
+  assert.equal(
+    needsFirstPassClarification(
+      'Volunteered',
+      'Helped serve meals at the community shelter for two hours'
+    ),
+    false
+  );
+  assert.ok(!isDeterministicInvalid('i learned'));
+  assert.ok(!isDeterministicInvalid('Slayed'));
+  assert.ok(!isDeterministicInvalid('Slayed\nSlayed'));
+  assert.ok(!isDeterministicInvalid(`Slayed\n${SLAYED_PRODUCTION_DETAILS}`));
+  assert.equal(canBypassSemanticGateForQuickClaim('academics', 'i learned'), false);
+  assert.equal(canBypassSemanticGateForQuickClaim('fashion', 'Slayed'), false);
 
   assert.ok(isDeterministicInvalid('aaaaaaaaaa'));
   assert.ok(isDeterministicInvalid('zzzzzzzzzzzzzz'));
@@ -674,6 +799,193 @@ async function mainAsync() {
   }
 
   setDevelopmentalActionEvaluatorForTests(async () => {
+    throw new Error('MiniLM should not run for first-pass clarification');
+  });
+  try {
+    const learnedPending = await evaluateComposerSubmission({
+      activity: 'i learned',
+      details: '',
+    });
+    assert.equal(learnedPending.status, 'UNCERTAIN');
+    assert.equal(learnedPending.pDev, null);
+    const learnedUi = applyComposerGateDecisionToUi({
+      clarificationPass: false,
+      status: learnedPending.status,
+    });
+    assert.equal(learnedUi.persist, false);
+    assert.equal(learnedUi.awaitingClarification, true);
+    assert.equal(learnedUi.gateNotice, 'uncertain');
+    const learnedDecision = decideCustomComposerSubmit({
+      clarificationPass: false,
+      clarificationText: '',
+      status: learnedPending.status,
+    });
+    const learnedPoints = applyPriorityReward(
+      calculateDeterministicBasePoints('', false),
+      ['academics'],
+      {}
+    );
+    assert.equal(learnedPoints, 5);
+    assert.equal(hasPositiveProgressCredit(learnedPoints), true);
+    assert.equal(canPersistComposerResult(learnedDecision, learnedPoints), false);
+    assert.equal(wouldCallOnSave(learnedDecision), false);
+
+    const slayedBareCases = [
+      { details: '', label: 'Slayed empty' },
+      { details: 'Slayed', label: 'Slayed restated' },
+    ] as const;
+    for (const item of slayedBareCases) {
+      const slayed = await evaluateComposerSubmission({
+        activity: 'Slayed',
+        details: item.details,
+      });
+      assert.equal(slayed.status, 'UNCERTAIN', item.label);
+      assert.equal(slayed.pDev, null, item.label);
+      const slayedUi = applyComposerGateDecisionToUi({
+        clarificationPass: false,
+        status: slayed.status,
+      });
+      assert.equal(slayedUi.persist, false, item.label);
+      assert.equal(slayedUi.awaitingClarification, true, item.label);
+      assert.equal(slayedUi.gateNotice, 'uncertain', item.label);
+      const slayedDecision = decideCustomComposerSubmit({
+        clarificationPass: false,
+        clarificationText: '',
+        status: slayed.status,
+      });
+      const slayedPoints = applyPriorityReward(
+        calculateDeterministicBasePoints(item.details, false),
+        ['fashion'],
+        {}
+      );
+      assert.ok(slayedPoints > 0, item.label);
+      assert.equal(canPersistComposerResult(slayedDecision, slayedPoints), false, item.label);
+      assert.equal(wouldCallOnSave(slayedDecision), false, item.label);
+    }
+  } finally {
+    setDevelopmentalActionEvaluatorForTests(null);
+  }
+
+  const learnedWithObject = await evaluateComposerSubmission({
+    activity: 'I learned pointer arithmetic',
+    details: '',
+  });
+  assertTwoAxisEvaluatorRan(learnedWithObject);
+  assert.equal(mapActionProbabilityToBand(learnedWithObject.pAction as number), 'ACTION_UNCERTAIN');
+  assert.equal(learnedWithObject.status, 'UNCERTAIN');
+  assert.equal(learnedWithObject.reason, 'CLARIFICATION');
+  assert.notEqual(learnedWithObject.status, 'TECHNICAL_FAILURE');
+  assert.notEqual(learnedWithObject.status, 'INVALID');
+
+  const pointerControl = await evaluateComposerSubmission({
+    activity: 'I learned how pointer arithmetic works and completed five CS240 practice problems.',
+    details: '',
+  });
+  assert.equal(pointerControl.status, 'DEVELOPMENTAL');
+  assert.equal(typeof pointerControl.pDev, 'number');
+  assert.equal(
+    applyComposerGateDecisionToUi({
+      clarificationPass: false,
+      status: pointerControl.status,
+    }).persist,
+    true
+  );
+
+  const skincareControl = await evaluateComposerSubmission({
+    activity: 'Did my full skincare routine and applied moisturizer and sunscreen.',
+    details: '',
+  });
+  assert.equal(typeof skincareControl.pDev, 'number');
+  assert.notEqual(skincareControl.status, 'INVALID');
+  assert.notEqual(skincareControl.status, 'NON_DEVELOPMENTAL');
+  assert.notEqual(skincareControl.status, 'TECHNICAL_FAILURE');
+  assert.ok(
+    skincareControl.status === 'UNCERTAIN' || skincareControl.status === 'DEVELOPMENTAL',
+    `skincare reached the frozen 0.45/0.55 band or above; got ${skincareControl.status}`
+  );
+
+  const outfitControl = await evaluateComposerSubmission({
+    activity: 'Put together three outfits for my internship conference and practiced coordinating the pieces.',
+    details: '',
+  });
+  assert.equal(outfitControl.status, 'DEVELOPMENTAL');
+  assert.equal(
+    applyComposerGateDecisionToUi({
+      clarificationPass: false,
+      status: outfitControl.status,
+    }).persist,
+    true
+  );
+
+  for (const activity of [
+    'Ran 5 miles',
+    'Meditated for 15 minutes',
+    'Practiced guitar for 30 minutes',
+  ]) {
+    const concise = await evaluateComposerSubmission({ activity, details: '' });
+    assert.notEqual(concise.status, 'INVALID', activity);
+    assert.notEqual(concise.status, 'TECHNICAL_FAILURE', activity);
+    assert.ok(
+      concise.status === 'UNCERTAIN' || concise.status === 'DEVELOPMENTAL',
+      `${activity} may stay UNCERTAIN under the frozen band; got ${concise.status}`
+    );
+    if (concise.status === 'DEVELOPMENTAL') {
+      assert.equal(typeof concise.pDev, 'number', activity);
+    }
+  }
+
+  const internshipsControl = await evaluateComposerSubmission({
+    activity: 'Applied to 3 internships',
+    details: '',
+  });
+  assert.notEqual(internshipsControl.status, 'INVALID');
+  assert.notEqual(internshipsControl.status, 'TECHNICAL_FAILURE');
+  assert.notEqual(internshipsControl.status, 'DEVELOPMENTAL');
+  assert.ok(
+    internshipsControl.status === 'UNCERTAIN' || internshipsControl.status === 'NON_DEVELOPMENTAL',
+    `internships must not receive CREDIT; got ${internshipsControl.status}`
+  );
+
+  for (const item of [
+    { activity: 'Deadlifted', details: '315 lbs for 5 reps' },
+    {
+      activity: 'Journaled',
+      details: "Wrote about my goals and reflected on today's decisions",
+    },
+    {
+      activity: 'Volunteered',
+      details: 'Helped serve meals at the community shelter for two hours',
+    },
+  ]) {
+    const label = `${item.activity} + details`;
+    const result = await evaluateComposerSubmission(item);
+    assert.notEqual(result.status, 'INVALID', label);
+    assert.notEqual(result.status, 'TECHNICAL_FAILURE', label);
+    if (result.status === 'DEVELOPMENTAL') {
+      assert.equal(typeof result.pDev, 'number', label);
+    }
+  }
+
+  // Production paragraph adds open-class tokens, so the singleton-title
+  // safeguard must stand down. No narrower structural cut holds this
+  // slang paragraph without also intercepting Deadlifted/Journaled/Volunteered.
+  const slayedProduction = await evaluateComposerSubmission({
+    activity: 'Slayed',
+    details: SLAYED_PRODUCTION_DETAILS,
+  });
+  assert.notEqual(slayedProduction.status, 'TECHNICAL_FAILURE');
+  assert.notEqual(slayedProduction.status, 'INVALID');
+  assert.notEqual(slayedProduction.status, 'DEVELOPMENTAL');
+  assert.equal(slayedProduction.status, 'NON_DEVELOPMENTAL');
+  assert.equal(
+    applyComposerGateDecisionToUi({
+      clarificationPass: false,
+      status: slayedProduction.status,
+    }).persist,
+    false
+  );
+
+  setDevelopmentalActionEvaluatorForTests(async () => {
     throw new Error('forced MiniLM failure');
   });
   try {
@@ -764,7 +1076,7 @@ async function mainAsync() {
     clarificationText: "I didn't just run, I also lifted.",
   });
   assert.notEqual(allowedClarification.status, 'TECHNICAL_FAILURE');
-  assert.equal(typeof allowedClarification.pDev, 'number');
+  assertTwoAxisEvaluatorRan(allowedClarification);
 
   const contrastiveDelay = "I didn't run until later, then I completed the 5k.";
   assert.equal(clarificationIsTrivial(contrastiveDelay), false);
@@ -792,7 +1104,7 @@ async function mainAsync() {
     clarificationText: 'Improved my pace while training for a race',
   });
   assert.notEqual(usefulClarification.status, 'TECHNICAL_FAILURE');
-  assert.equal(typeof usefulClarification.pDev, 'number');
+  assertTwoAxisEvaluatorRan(usefulClarification);
 
   await loadMiniLm();
   const fashionMismatch = await evaluateObviousCategoryMismatch({

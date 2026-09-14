@@ -19,6 +19,8 @@
     "benchmark:semantic:developmental:3a-abstention": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-developmental-3a-abstention.js",
     "benchmark:semantic:developmental:3a-parity": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-3a-runtime-parity.js",
     "check:custom-composer-gate": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-custom-composer-gate-checks.js",
+    "check:two-axis-production": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-two-axis-production-checks.js",
+    "freeze:action-evidence-mpnet": "tsc --pretty false --strict --esModuleInterop --skipLibCheck --module commonjs --target ES2020 --moduleResolution node --outDir benchmarks/semantic/.compiled benchmarks/semantic/freeze-action-evidence-mpnet-weights.ts && node benchmarks/semantic/.compiled/benchmarks/semantic/freeze-action-evidence-mpnet-weights.js",
     "check:3a-fixture-parity": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-3a-fixture-parity.js",
     "check:category-suggestions": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-category-suggestion-fixtures.js",
     "check:priority-reward": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-priority-reward-checks.js",

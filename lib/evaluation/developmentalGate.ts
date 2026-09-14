@@ -1,6 +1,9 @@
 /**
- * Phase 1 developmental gate: frozen MiniLM + frozen 3A.2 logistic + NARROW band.
- * p_dev is internal only — never pass it to XP or UI.
+ * Phase 1 production gate orchestration:
+ * deterministic INVALID → structural first-pass → MPNet Action Evidence
+ * → frozen Candidate 3A.2 when action-positive → P1 policy.
+ *
+ * p_dev / p_action are internal only — never pass them to XP or UI.
  */
 import probeFile from './semantic/weights/developmental-3a.2.json';
 import {
@@ -13,16 +16,29 @@ import { embedTextClient, loadClientMiniLm } from './minilmClient';
 import { predictProbability, type LogisticModel } from './semantic/logisticRegression';
 import { clarificationExplicitlyDeniesAction } from './clarificationDenial';
 import { clarificationIsTrivial } from './clarificationTrivial';
+import { evaluateActionEvidence, needsFirstPassClarification } from './actionEvidence';
+import {
+  applyTwoAxisProductPolicy,
+  developmentalStatusToBand,
+  mapTwoAxisOutcomeToGateStatus,
+  type TwoAxisPolicyOutcome,
+} from './twoAxisProductPolicy';
 import {
   composeClarificationSemanticText,
   composeSemanticLogText,
   isComposerSemanticInputInvalid,
 } from './customComposerSemantic';
 
+export type DevelopmentalGateReason = TwoAxisPolicyOutcome | 'STRUCTURAL_FIRST_PASS';
+
 export type DevelopmentalGateResult = {
   status: DevelopmentalGateStatus;
   /** Internal / tests only. Do not show in UI or feed scoring. */
   pDev: number | null;
+  /** Internal / tests only. Present after the Action Evidence axis runs. */
+  pAction?: number | null;
+  /** Internal reason code. Public status stays on the existing gate contract. */
+  reason?: DevelopmentalGateReason;
   error?: string;
 };
 
@@ -120,10 +136,30 @@ export async function evaluateDevelopmentalAction(text: string): Promise<Develop
   }
 
   try {
+    const action = await evaluateActionEvidence(text);
+    if (action.band !== 'CONFIDENT_ACTION_POSITIVE') {
+      const outcome = applyTwoAxisProductPolicy(action.band);
+      return {
+        status: mapTwoAxisOutcomeToGateStatus(outcome),
+        pDev: null,
+        pAction: action.pAction,
+        reason: outcome,
+      };
+    }
+
     await loadClientMiniLm();
     const z = await embedTextClient(text);
     const pDev = predictProbability(model, z);
-    return { status: mapProbabilityToStatus(pDev), pDev };
+    const outcome = applyTwoAxisProductPolicy(
+      action.band,
+      developmentalStatusToBand(mapProbabilityToStatus(pDev))
+    );
+    return {
+      status: mapTwoAxisOutcomeToGateStatus(outcome),
+      pDev,
+      pAction: action.pAction,
+      reason: outcome,
+    };
   } catch (err) {
     return {
       status: 'TECHNICAL_FAILURE',
@@ -157,6 +193,12 @@ export async function evaluateComposerSubmission(options: {
     }
   }
   const originalText = composeSemanticLogText(options.activity, options.details);
+  if (
+    !options.clarificationPass &&
+    needsFirstPassClarification(options.activity, options.details)
+  ) {
+    return { status: 'UNCERTAIN', pDev: null, reason: 'STRUCTURAL_FIRST_PASS' };
+  }
   const textToEvaluate = options.clarificationPass
     ? composeClarificationSemanticText(originalText, options.clarificationText || '')
     : originalText;
