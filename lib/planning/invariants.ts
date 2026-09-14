@@ -3,6 +3,7 @@ import {
   PERSISTED_OCCURRENCE_STATUSES,
   PLANNING_CATEGORY_KEYS,
   PLANNING_COMPLETION_MODES,
+  GOAL_STATUS_TRANSITIONS,
   PLANNING_GOAL_STATUSES,
   PLANNING_ISO_WEEKDAYS,
   PLANNING_OCCURRENCE_SOURCES,
@@ -61,6 +62,15 @@ export function isPlanningGoalStatus(value: unknown): value is PlanningGoalStatu
     typeof value === 'string' &&
     (PLANNING_GOAL_STATUSES as readonly string[]).includes(value)
   );
+}
+
+export function isValidGoalStatusTransition(
+  from: unknown,
+  to: unknown
+): boolean {
+  if (!isPlanningGoalStatus(from) || !isPlanningGoalStatus(to)) return false;
+  if (from === to) return true;
+  return (GOAL_STATUS_TRANSITIONS[from] as readonly string[]).includes(to);
 }
 
 export function isValidPlanningCategories(

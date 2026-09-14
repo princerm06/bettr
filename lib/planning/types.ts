@@ -48,6 +48,19 @@ export const PLANNING_GOAL_STATUSES = ['active', 'completed', 'archived'] as con
 
 export type PlanningGoalStatus = (typeof PLANNING_GOAL_STATUSES)[number];
 
+/**
+ * Allowed Goal status transitions. Same-status is a no-op.
+ * Destructive deletion is not part of the Goal write path.
+ */
+export const GOAL_STATUS_TRANSITIONS: Record<
+  PlanningGoalStatus,
+  readonly PlanningGoalStatus[]
+> = {
+  active: ['completed', 'archived'],
+  completed: ['active', 'archived'],
+  archived: ['active'],
+};
+
 /** ISO-8601 weekday: Monday = 1 … Sunday = 7. */
 export const PLANNING_ISO_WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 

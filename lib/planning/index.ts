@@ -5,6 +5,7 @@
 
 export {
   DERIVED_OCCURRENCE_STATE,
+  GOAL_STATUS_TRANSITIONS,
   PERSISTED_OCCURRENCE_STATUSES,
   PLANNING_CATEGORY_KEYS,
   PLANNING_COMPLETION_MODES,
@@ -34,6 +35,14 @@ export type {
 } from './types';
 
 export {
+  PLANNING_CATEGORIES,
+  PLANNING_CATEGORY_DISPLAY,
+  planningCategoryDisplay,
+} from './categories';
+
+export type { PlanningCategoryDisplay } from './categories';
+
+export {
   deriveOccurrenceState,
   isEnteringLogBackedCompletion,
   isIanaTimeZone,
@@ -51,6 +60,7 @@ export {
   isPreservedLogBackedCompletion,
   isValidDurationMinutes,
   isValidGoal,
+  isValidGoalStatusTransition,
   isValidLogBackedCompletionEntry,
   isValidOccurrenceCombination,
   isValidOccurrenceSource,
@@ -65,3 +75,24 @@ export {
   reinterpretsLogBackedAsLightweight,
   samePlanningOwner,
 } from './invariants';
+
+export {
+  GOAL_CREATE_STATUS,
+  GOAL_DOMAIN_FIELDS,
+  GOAL_TABLE_COLUMNS,
+  GOAL_VALIDATION_MESSAGES,
+  goalFromRow,
+  mapOwnedGoalRows,
+  normalizeGoalCategories,
+  prepareGoalCreate,
+  prepareGoalStatusTransition,
+  prepareGoalUpdate,
+} from './goals';
+
+export type {
+  GoalInsertRow,
+  GoalRow,
+  GoalStatusUpdateRow,
+  GoalUpdateRow,
+  GoalWriteInput,
+} from './goals';

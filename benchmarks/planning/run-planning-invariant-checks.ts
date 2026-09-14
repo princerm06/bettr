@@ -12,6 +12,7 @@ import {
   isPreservedLogBackedCompletion,
   isValidDurationMinutes,
   isValidGoal,
+  isValidGoalStatusTransition,
   isValidLogBackedCompletionEntry,
   isValidOccurrenceCombination,
   isValidOccurrenceSource,
@@ -115,6 +116,15 @@ assert.equal(
   } as never),
   false
 );
+
+assert.equal(isValidGoalStatusTransition('active', 'completed'), true);
+assert.equal(isValidGoalStatusTransition('active', 'archived'), true);
+assert.equal(isValidGoalStatusTransition('active', 'active'), true);
+assert.equal(isValidGoalStatusTransition('completed', 'active'), true);
+assert.equal(isValidGoalStatusTransition('completed', 'archived'), true);
+assert.equal(isValidGoalStatusTransition('archived', 'active'), true);
+assert.equal(isValidGoalStatusTransition('archived', 'completed'), false);
+assert.equal(isValidGoalStatusTransition('active', 'paused'), false);
 
 assert.equal(
   isValidRoutine({

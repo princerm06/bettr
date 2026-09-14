@@ -80,10 +80,12 @@ import {
   Plus,
   Send,
   Sparkles,
+  Target,
   Trash2,
   Users,
   X,
   Settings,} from 'lucide-react';
+import GoalsView from './planning/GoalsView';
 
 type Priority = PriorityLevel;
 
@@ -269,7 +271,7 @@ async function uploadImageForLog(userId: string, logId: string, image?: string) 
 export default function Home() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [priorities, setPriorities] = useState<Record<CategoryKey, Priority>>(createDefaultPriorityMap);
-  const [tab, setTab] = useState<'dashboard' | 'history' | 'activity' | 'analytics' | 'friends'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'history' | 'goals' | 'activity' | 'analytics' | 'friends'>('dashboard');
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
   const [quickCategory, setQuickCategory] = useState<Category | null>(null);
@@ -1012,6 +1014,7 @@ export default function Home() {
       <nav className="tabs desktopTabs">
         <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}><BarChart3 size={17}/> Dashboard</button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}><CalendarDays size={17}/> History</button>
+        <button className={tab === 'goals' ? 'active' : ''} onClick={() => setTab('goals')}><Target size={17}/> Goals</button>
         <button className={tab === 'activity' ? 'active' : ''} onClick={openActivity}>
           <MessageCircle size={17}/> Activity
           {unreadNotifications > 0 && <span className="navBadge">{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>}
@@ -1112,6 +1115,7 @@ export default function Home() {
       )}
 
       {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog} onEdit={setEditingLog}/>}
+      {tab === 'goals' && <GoalsView user={user} onNotice={setToast} />}
       {tab === 'activity' && user && (
         <ActivityView
           user={user}
@@ -1137,6 +1141,8 @@ export default function Home() {
           <CalendarDays size={19}/>
           <span>History</span>
         </button>
+        <button className={tab === 'goals' ? 'active' : ''} onClick={() => setTab('goals')}><Target size={19}/><span>Goals</span></button>
+        <button className="mobilePlus" onClick={() => openComposer()}><Plus size={23}/></button>
         <button className={tab === 'activity' ? 'active' : ''} onClick={openActivity}>
           <span className="mobileActivityIcon">
             <MessageCircle size={19}/>
@@ -1144,7 +1150,6 @@ export default function Home() {
           </span>
           <span>Activity</span>
         </button>
-        <button className="mobilePlus" onClick={() => openComposer()}><Plus size={23}/></button>
         <button className={tab === 'friends' ? 'active' : ''} onClick={() => setTab('friends')}><Users size={19}/><span>Friends</span></button>
         <button className={tab === 'analytics' ? 'active' : ''} onClick={() => setTab('analytics')}><Sparkles size={19}/><span>Stats</span></button>
       </nav>

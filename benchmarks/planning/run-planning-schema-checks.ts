@@ -118,8 +118,17 @@ for (const table of requiredTables) {
 assert.ok(!compact.includes('friendships'));
 assert.ok(!compact.includes("visibility = 'friends'"));
 
-const planningSources = ['index.ts', 'types.ts', 'invariants.ts'].map((name) =>
-  readFileSync(join(root, 'lib/planning', name), 'utf8')
+const planningDir = join(root, 'lib/planning');
+const planningFiles = readdirSync(planningDir).filter((name) => name.endsWith('.ts'));
+assert.ok(planningFiles.includes('index.ts'));
+assert.ok(planningFiles.includes('types.ts'));
+assert.ok(planningFiles.includes('invariants.ts'));
+assert.ok(planningFiles.includes('goals.ts'));
+assert.ok(planningFiles.includes('goalsAccess.ts'));
+assert.ok(planningFiles.includes('categories.ts'));
+
+const planningSources = planningFiles.map((name) =>
+  readFileSync(join(planningDir, name), 'utf8')
 );
 const planningBundle = planningSources.join('\n');
 assert.ok(planningBundle.includes('recurrenceType'));
@@ -131,6 +140,9 @@ assert.ok(planningBundle.includes('archivedAt'));
 assert.ok(planningBundle.includes('isValidOccurrenceWrite'));
 assert.ok(planningBundle.includes('isValidLogBackedCompletionEntry'));
 assert.ok(planningBundle.includes('isEnteringLogBackedCompletion'));
+assert.ok(planningBundle.includes('isValidGoalStatusTransition'));
+assert.ok(planningBundle.includes('prepareGoalCreate'));
+assert.ok(planningBundle.includes('goalFromRow'));
 assert.ok(!planningBundle.includes('recurrenceFrequency'));
 assert.ok(!planningBundle.includes('PLANNING_RECURRENCE_FREQUENCIES'));
 assert.ok(!planningBundle.includes('lib/evaluation'));
@@ -141,6 +153,15 @@ assert.ok(!planningBundle.includes('progressCredit'));
 assert.ok(!planningBundle.includes('legacyEvaluator'));
 assert.ok(!planningBundle.includes('applyPriorityReward'));
 assert.ok(!planningBundle.includes('calculateDeterministicBasePoints'));
+assert.ok(!planningBundle.includes('actionEvidence'));
+assert.ok(!planningBundle.includes('SERVICE_ROLE'));
+assert.ok(!planningBundle.includes('service_role'));
+assert.ok(!planningBundle.includes('SUPABASE_SERVICE_ROLE_KEY'));
+
+const goalsAccess = readFileSync(join(planningDir, 'goalsAccess.ts'), 'utf8');
+assert.ok(goalsAccess.includes(".from('goals')"));
+assert.ok(goalsAccess.includes(".eq('user_id', ownerId)"));
+assert.equal(goalsAccess.includes('.delete('), false);
 
 console.log(
   JSON.stringify(

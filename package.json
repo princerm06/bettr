@@ -31,7 +31,8 @@
     "check:category-taxonomy": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/semantic/run-category-taxonomy-checks.js",
     "check:planning-invariants": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-invariant-checks.js",
     "check:planning-schema": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-schema-checks.js",
-    "check:planning": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-invariant-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-schema-checks.js"
+    "check:planning-goals": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-goal-checks.js",
+    "check:planning": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-invariant-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-schema-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-goal-checks.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
