@@ -1014,7 +1014,7 @@ export default function Home() {
       <nav className="tabs desktopTabs">
         <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}><BarChart3 size={17}/> Dashboard</button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}><CalendarDays size={17}/> History</button>
-        <button className={tab === 'goals' ? 'active' : ''} onClick={() => setTab('goals')}><Target size={17}/> Goals</button>
+        <button className={tab === 'goals' ? 'active' : ''} onClick={() => setTab('goals')}><Target size={17}/> Plan</button>
         <button className={tab === 'activity' ? 'active' : ''} onClick={openActivity}>
           <MessageCircle size={17}/> Activity
           {unreadNotifications > 0 && <span className="navBadge">{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>}
@@ -1141,7 +1141,7 @@ export default function Home() {
           <CalendarDays size={19}/>
           <span>History</span>
         </button>
-        <button className={tab === 'goals' ? 'active' : ''} onClick={() => setTab('goals')}><Target size={19}/><span>Goals</span></button>
+        <button className={tab === 'goals' ? 'active' : ''} onClick={() => setTab('goals')}><Target size={19}/><span>Plan</span></button>
         <button className="mobilePlus" onClick={() => openComposer()}><Plus size={23}/></button>
         <button className={tab === 'activity' ? 'active' : ''} onClick={openActivity}>
           <span className="mobileActivityIcon">
