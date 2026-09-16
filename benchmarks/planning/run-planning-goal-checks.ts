@@ -305,6 +305,22 @@ for (const column of GOAL_TABLE_COLUMNS) {
   assert.ok(sql.includes(column), `schema missing ${column}`);
 }
 
+const preparedInsert = prepareGoalCreate('user-a', {
+  title: 'Pass orgo',
+  categories: ['academics'],
+});
+assert.equal(preparedInsert.ok, true);
+if (preparedInsert.ok) {
+  assert.ok(!('goal_id' in preparedInsert.value));
+}
+
+const triggerFix = readFileSync(
+  join(root, 'supabase/v9_planning_goals_trigger_fix.sql'),
+  'utf8'
+);
+assert.ok(triggerFix.includes('planning_enforce_owner_integrity'));
+assert.ok(!/\bnew\.goal_id\b/.test(triggerFix));
+
 const planningDir = join(root, 'lib/planning');
 const planningBundle = readdirSync(planningDir)
   .filter((name) => name.endsWith('.ts'))

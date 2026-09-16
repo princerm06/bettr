@@ -25,6 +25,8 @@ const FIXTURES: Array<{
   { id: '11', text: 'Journaled about my career goals', selected: ['mind', 'career'], kind: 'multi' },
   { id: '12', text: 'Bought household supplies', selected: ['finance'], kind: 'noisy' },
   { id: '13', text: 'Went shopping at Walmart', selected: ['fashion'], kind: 'noisy' },
+  { id: '14', text: 'Read Catcher in the Rye', selected: ['mind'], kind: 'valid' },
+  { id: '15', text: 'lowk chopped asf', selected: ['appearance'], kind: 'noisy' },
 ];
 
 async function main() {

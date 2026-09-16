@@ -51,6 +51,7 @@ import {
 import {
   detectObviousCategoryMismatch,
   evaluateObviousCategoryMismatch,
+  isIndependentlySupportedSelectedCategory,
   MISMATCH_ALTERNATIVE_MIN,
   MISMATCH_MARGIN,
   MISMATCH_SELECTED_MAX,
@@ -702,6 +703,34 @@ function mainSync() {
   const allowedMulti = detectObviousCategoryMismatch(mealScores, ['nutrition', 'finance']);
   assert.equal(allowedMulti.mismatch, false);
 
+  // Independently supported selected (keyword) must not reject when another area is stronger.
+  const catcherPolicyScores: CategorySuggestionScore[] = [
+    { key: 'mind', similarity: 0.17, keyword: true, rankScore: 0.21 },
+    { key: 'social', similarity: 0.28, keyword: false, rankScore: 0.28 },
+    { key: 'fashion', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'appearance', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'academics', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'career', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'finance', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'nutrition', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'physical', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'inner', similarity: 0.05, keyword: false, rankScore: 0.05 },
+    { key: 'spirituality', similarity: 0.05, keyword: false, rankScore: 0.05 },
+  ];
+  assert.equal(
+    isIndependentlySupportedSelectedCategory(catcherPolicyScores[0]),
+    true
+  );
+  assert.equal(
+    detectObviousCategoryMismatch(catcherPolicyScores, ['mind']).mismatch,
+    false
+  );
+  // Social remains optional — selecting mind alone is enough.
+  assert.equal(
+    detectObviousCategoryMismatch(catcherPolicyScores, ['mind', 'social']).mismatch,
+    false
+  );
+
   const originalEdit = { points: 6, category: 'physical' };
   const rejectedEdit = applyEditIfAccepted({
     original: originalEdit,
@@ -1128,6 +1157,22 @@ async function mainAsync() {
     embedMany: embedTexts,
   });
   assert.equal(multiOk.mismatch, false);
+
+  // Exact Catcher fixture: Mind & Craft selected; Social optional only.
+  const catcherOk = await evaluateObviousCategoryMismatch({
+    text: 'Read Catcher in the Rye',
+    selected: ['mind'],
+    embedMany: embedTexts,
+  });
+  assert.equal(catcherOk.mismatch, false);
+
+  // Appearance control: slang vibe must keep existing mismatch behavior.
+  const choppedAppearance = await evaluateObviousCategoryMismatch({
+    text: 'lowk chopped asf',
+    selected: ['appearance'],
+    embedMany: embedTexts,
+  });
+  assert.equal(choppedAppearance.mismatch, false);
 }
 
 async function main() {
