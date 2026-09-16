@@ -16,7 +16,45 @@ const supabaseFiles = readdirSync(supabaseDir);
 const planningMigrations = supabaseFiles.filter((name) => /^v8_/.test(name));
 assert.deepEqual(planningMigrations, [migrationName]);
 assert.ok(supabaseFiles.includes('v7_inner_wellbeing_category.sql'));
-assert.equal(supabaseFiles.filter((name) => /^v9_/.test(name)).length, 0);
+const planningFixMigrations = supabaseFiles
+  .filter((name) => /^v9_/.test(name))
+  .sort();
+assert.deepEqual(planningFixMigrations, [
+  'v9_planning_goals_trigger_fix.sql',
+]);
+
+const goalsTriggerFix = readFileSync(
+  join(supabaseDir, 'v9_planning_goals_trigger_fix.sql'),
+  'utf8'
+);
+const goalsTriggerCompact = goalsTriggerFix.replace(/\s+/g, ' ').toLowerCase();
+assert.ok(
+  goalsTriggerCompact.includes('create or replace function public.planning_enforce_owner_integrity()')
+);
+assert.ok(goalsTriggerCompact.includes('to_jsonb(new)'));
+assert.ok(
+  goalsTriggerFix.includes('record "new" has no field "goal_id"'),
+  'v9 must document the Goal insert failure root cause'
+);
+assert.ok(goalsTriggerCompact.includes("tg_table_name in ('routines', 'todos')"));
+assert.ok(goalsTriggerCompact.includes("tg_table_name = 'planned_occurrences'"));
+assert.ok(!goalsTriggerCompact.includes('alter table public.goals'));
+assert.ok(!goalsTriggerCompact.includes('create table'));
+assert.ok(!goalsTriggerCompact.includes('xp_points'));
+assert.ok(!goalsTriggerCompact.includes('visibility'));
+assert.ok(goalsTriggerFix.includes('Do not apply to live Supabase until reviewed'));
+assert.ok(
+  !/\bnew\.goal_id\b/.test(goalsTriggerFix),
+  'v9 must not reference NEW.goal_id directly (fails on goals)'
+);
+assert.ok(
+  !/\bnew\.log_id\b/.test(goalsTriggerFix),
+  'v9 must not reference NEW.log_id directly (fails on goals)'
+);
+assert.ok(
+  !/\bnew\.completion_mode\b/.test(goalsTriggerFix),
+  'v9 must not reference NEW.completion_mode directly (fails on goals)'
+);
 
 const requiredTables = ['goals', 'routines', 'todos', 'planned_occurrences'] as const;
 for (const table of requiredTables) {
@@ -162,12 +200,17 @@ const goalsAccess = readFileSync(join(planningDir, 'goalsAccess.ts'), 'utf8');
 assert.ok(goalsAccess.includes(".from('goals')"));
 assert.ok(goalsAccess.includes(".eq('user_id', ownerId)"));
 assert.equal(goalsAccess.includes('.delete('), false);
+assert.ok(
+  !goalsAccess.includes('goal_id'),
+  'Goal create/update payloads must not send goal_id'
+);
 
 console.log(
   JSON.stringify(
     {
       ok: true,
       migration: migrationName,
+      followUpMigration: 'v9_planning_goals_trigger_fix.sql',
       tables: requiredTables,
       fieldNames: {
         recurrence: 'recurrence_type',
@@ -175,6 +218,7 @@ console.log(
       },
       logDelete: 'on delete set null',
       applied: false,
+      goalsTriggerFixApplied: false,
     },
     null,
     2

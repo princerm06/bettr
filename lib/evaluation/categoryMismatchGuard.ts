@@ -30,6 +30,17 @@ function bestRow(rows: CategorySuggestionScore[]) {
   , rows[0]);
 }
 
+/**
+ * A selected category is independently supported when its own evidence clears
+ * the selected floor or keyword signals back it. A stronger alternative alone
+ * must not reject that selection.
+ */
+export function isIndependentlySupportedSelectedCategory(
+  row: CategorySuggestionScore
+): boolean {
+  return row.keyword || row.similarity >= MISMATCH_SELECTED_MAX;
+}
+
 export function detectObviousCategoryMismatch(
   scores: CategorySuggestionScore[],
   selected: CategoryKey[]
@@ -41,10 +52,14 @@ export function detectObviousCategoryMismatch(
   const alternativeRows = scores.filter((row) => !selectedSet.has(row.key));
   if (!selectedRows.length || !alternativeRows.length) return { mismatch: false };
 
+  // Independently supported selection stands even if another area scores higher.
+  if (selectedRows.some(isIndependentlySupportedSelectedCategory)) {
+    return { mismatch: false };
+  }
+
   const bestSelected = bestRow(selectedRows);
   const bestAlternative = bestRow(alternativeRows);
   if (
-    bestSelected.similarity >= MISMATCH_SELECTED_MAX ||
     bestAlternative.similarity < MISMATCH_ALTERNATIVE_MIN ||
     bestAlternative.similarity - bestSelected.similarity < MISMATCH_MARGIN
   ) {

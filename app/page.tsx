@@ -4678,7 +4678,11 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
 
           <div className="feed">
             {feed.map((entry) => {
-              const cat = categoryFor(entry.category);
+              const logAreas = categoriesForLog({
+                category: entry.category,
+                categories: entry.categories,
+              });
+              const primary = categoryFor(logAreas[0] || entry.category);
               const owner = profiles.find(
                 (p) => p.id === entry.user_id
               );
@@ -4695,14 +4699,21 @@ function FriendsView({ user, profileName, onProfileName }: { user: User; profile
                   key={entry.id}
                 >
                   <div className="socialFeedTop">
-                    <div className="feedIcon">{cat.emoji}</div>
+                    <div className="feedIcon">{primary.emoji}</div>
 
                     <div>
                       <div className="feedHeadline">
                         <strong>
                           {owner?.display_name || 'Friend'}
                         </strong>
-                        <span>{cat.short}</span>
+                        <span>
+                          {logAreas
+                            .map(
+                              (key) =>
+                                `${categoryFor(key).emoji} ${categoryFor(key).short}`
+                            )
+                            .join(' · ')}
+                        </span>
                       </div>
 
                       <small>

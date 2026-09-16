@@ -14,6 +14,7 @@
   "include": [
     "benchmarks/semantic/**/*.ts",
     "benchmarks/planning/**/*.ts",
+    "benchmarks/social/**/*.ts",
     "lib/evaluation/**/*.ts",
     "lib/planning/**/*.ts"
   ]
