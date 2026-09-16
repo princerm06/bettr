@@ -1,0 +1,385 @@
+.page {
+  padding-top: 12px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.titleRow h2 {
+  font-size: 29px;
+  margin: 4px 0 5px;
+}
+
+.createButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.filters {
+  margin: 22px 0 16px;
+  width: max-content;
+  max-width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.card > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+}
+
+.editButton {
+  border: 0;
+  background: transparent;
+  color: #8d929c;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.editButton:hover {
+  color: var(--accent);
+}
+
+.status {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 8px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.status.active {
+  color: var(--accent);
+  border-color: #d7ff4f2d;
+  background: #d7ff4f09;
+}
+
+.status.archived {
+  color: #8d929c;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 11px;
+  display: grid;
+  gap: 3px;
+}
+
+.goalLink {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.pills span {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 999px;
+  padding: 5px 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.transitions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.transitions button {
+  border: 1px solid #343942;
+  background: #1c2025;
+  color: var(--text);
+  border-radius: 9px;
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.transitions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.empty {
+  padding: 36px 22px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.empty .primaryButton {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.loading {
+  padding: 36px 22px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.formModal {
+  width: min(520px, 100%);
+}
+
+.formModal :global(.textInput),
+.formModal :global(.textArea),
+.formModal :global(select.textInput) {
+  font-size: 16px;
+}
+
+.choice {
+  border: 1px solid #343942;
+  background: #15181d;
+  color: var(--muted);
+  border-radius: 11px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.choiceSelected {
+  border-color: #6d7e3c;
+  background: #202719;
+  color: var(--accent);
+  outline: 1px solid rgba(205, 255, 57, 0.65);
+  outline-offset: 0;
+}
+
+.recurrenceRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.weekdayBlock {
+  margin: 2px 0 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #12151a;
+}
+
+.weekdayRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.weekdayRow .choice {
+  min-width: 42px;
+  padding: 8px 9px;
+  font-size: 12px;
+  border-radius: 9px;
+}
+
+.emptyGoalHint {
+  margin: 0 0 12px;
+  padding: 12px 13px;
+  border: 1px dashed #343942;
+  border-radius: 11px;
+  background: #12151a;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.selectWrap {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.formSelect {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #343942;
+  background: #15181d;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 12px 40px 12px 14px;
+  font: inherit;
+  font-size: 16px;
+  appearance: none;
+  cursor: pointer;
+}
+
+.formSelect:focus {
+  outline: 1px solid rgba(205, 255, 57, 0.45);
+  border-color: #6d7e3c;
+}
+
+.selectWrap::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(-60%) rotate(45deg);
+  pointer-events: none;
+}
+
+.advancedToggle {
+  margin: 14px 0 8px;
+  border: 1px dashed #3a414c;
+  background: #12151a;
+  color: var(--accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  padding: 11px 13px;
+  text-align: left;
+  border-radius: 11px;
+  width: 100%;
+}
+
+.advancedToggle:hover {
+  border-color: #6d7e3c;
+  background: #1a2116;
+}
+
+.advancedBlock {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #12151a;
+}
+
+.timeLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.clearTime {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clearTime:hover {
+  color: var(--accent);
+}
+
+.timePicker {
+  margin-bottom: 10px;
+  grid-template-columns: minmax(72px, 1fr) auto minmax(82px, 1fr);
+}
+
+.timeSelect {
+  color-scheme: dark;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.timezoneHint {
+  margin: 2px 0 0;
+  color: #8d929c;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.saveButton {
+  width: 100%;
+  margin-top: 18px;
+}
+
+@media (max-width: 700px) {
+  .titleRow {
+    display: grid;
+  }
+
+  .titleRow h2 {
+    font-size: 26px;
+  }
+
+  .createButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filters {
+    width: 100%;
+    overflow: auto;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .formModal {
+    width: min(100%, 520px);
+  }
+}

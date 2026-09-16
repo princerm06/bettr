@@ -1,0 +1,516 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { X } from 'lucide-react';
+import {
+  PLANNING_CATEGORIES,
+  PLANNING_ISO_WEEKDAYS,
+  PLANNING_TITLE_MAX_LENGTH,
+  WEEKDAY_LABELS,
+  detectBrowserTimeZone,
+  filterTimeZoneOptions,
+  listIanaTimeZoneOptions,
+  planningCategoryDisplay,
+  prepareRoutineCreate,
+  type Goal,
+  type PlanningCategoryKey,
+  type PlanningIsoWeekday,
+  type PlanningRecurrenceType,
+  type Routine,
+} from '../../lib/planning';
+import styles from './routines.module.css';
+
+export type RoutineFormValues = {
+  title: string;
+  description: string;
+  categories: PlanningCategoryKey[];
+  goalId: string;
+  recurrenceType: PlanningRecurrenceType;
+  weekdays: PlanningIsoWeekday[];
+  scheduledTime: string;
+  durationMinutes: string;
+  timezone: string;
+};
+
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) =>
+  String(hour).padStart(2, '0')
+);
+const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, minute) =>
+  String(minute).padStart(2, '0')
+);
+
+function timeParts(value: string | null | undefined): {
+  hour: string;
+  minute: string;
+} {
+  if (!value || value.length < 5) return { hour: '', minute: '' };
+  return {
+    hour: value.slice(0, 2),
+    minute: value.slice(3, 5),
+  };
+}
+
+function composeScheduledTime(hour: string, minute: string): string {
+  if (!hour || !minute) return '';
+  return `${hour}:${minute}`;
+}
+
+export default function RoutineForm({
+  ownerId,
+  existing,
+  goals,
+  busy,
+  onClose,
+  onSubmit,
+}: {
+  ownerId: string;
+  existing?: Routine | null;
+  goals: Goal[];
+  busy: boolean;
+  onClose: () => void;
+  onSubmit: (values: RoutineFormValues) => void;
+}) {
+  const browserTimeZone = useMemo(() => detectBrowserTimeZone(), []);
+  const initialTime = timeParts(existing?.scheduledTime);
+  const [title, setTitle] = useState(existing?.title ?? '');
+  const [description, setDescription] = useState(existing?.description ?? '');
+  const [categories, setCategories] = useState<PlanningCategoryKey[]>(
+    existing?.categories ? [...existing.categories] : []
+  );
+  const [goalId, setGoalId] = useState(existing?.goalId ?? '');
+  const [recurrenceType, setRecurrenceType] = useState<PlanningRecurrenceType>(
+    existing?.recurrenceType ?? 'daily'
+  );
+  const [weekdays, setWeekdays] = useState<PlanningIsoWeekday[]>(
+    existing?.weekdays ? [...existing.weekdays] : []
+  );
+  const [timeHour, setTimeHour] = useState(initialTime.hour);
+  const [timeMinute, setTimeMinute] = useState(initialTime.minute);
+  const [durationMinutes, setDurationMinutes] = useState(
+    existing?.durationMinutes != null ? String(existing.durationMinutes) : ''
+  );
+  const [timezone, setTimezone] = useState(
+    existing?.timezone ?? browserTimeZone
+  );
+  const [timezoneQuery, setTimezoneQuery] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(
+    Boolean(
+      existing?.scheduledTime ||
+        existing?.durationMinutes != null ||
+        (existing?.timezone && existing.timezone !== browserTimeZone)
+    )
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const selected = useMemo(
+    () => categories.map((key) => planningCategoryDisplay(key)),
+    [categories]
+  );
+
+  const linkableGoals = useMemo(
+    () =>
+      goals.filter(
+        (goal) => goal.status === 'active' || goal.id === existing?.goalId
+      ),
+    [goals, existing?.goalId]
+  );
+
+  const timezoneOptions = useMemo(
+    () => listIanaTimeZoneOptions(timezone),
+    [timezone]
+  );
+
+  const filteredTimezoneOptions = useMemo(() => {
+    const filtered = filterTimeZoneOptions(timezoneOptions, timezoneQuery);
+    if (filtered.some((option) => option.value === timezone)) return filtered;
+    const current = timezoneOptions.find((option) => option.value === timezone);
+    return current ? [current, ...filtered] : filtered;
+  }, [timezoneOptions, timezoneQuery, timezone]);
+
+  const scheduledTime = composeScheduledTime(timeHour, timeMinute);
+
+  function toggleCategory(key: PlanningCategoryKey) {
+    setError(null);
+    setCategories((current) => {
+      if (current.includes(key)) return current.filter((item) => item !== key);
+      if (current.length >= 3) return current;
+      return [...current, key];
+    });
+  }
+
+  function toggleWeekday(day: PlanningIsoWeekday) {
+    setError(null);
+    setWeekdays((current) => {
+      if (current.includes(day)) return current.filter((item) => item !== day);
+      return [...current, day].sort((a, b) => a - b);
+    });
+  }
+
+  function chooseRecurrence(next: PlanningRecurrenceType) {
+    setError(null);
+    setRecurrenceType(next);
+    if (next === 'daily') setWeekdays([]);
+  }
+
+  function setHour(next: string) {
+    setError(null);
+    setTimeHour(next);
+    if (next && !timeMinute) setTimeMinute('00');
+    if (!next) setTimeMinute('');
+  }
+
+  function setMinute(next: string) {
+    setError(null);
+    setTimeMinute(next);
+    if (next && !timeHour) setTimeHour('07');
+    if (!next) setTimeHour('');
+  }
+
+  function clearUsualTime() {
+    setError(null);
+    setTimeHour('');
+    setTimeMinute('');
+  }
+
+  function submit() {
+    if ((timeHour && !timeMinute) || (!timeHour && timeMinute)) {
+      setError('Choose both an hour and minute, or clear Usual time.');
+      return;
+    }
+    const prepared = prepareRoutineCreate(ownerId, {
+      title,
+      description,
+      categories,
+      goalId: goalId || null,
+      recurrenceType,
+      weekdays: recurrenceType === 'daily' ? null : weekdays,
+      scheduledTime: scheduledTime || null,
+      durationMinutes: durationMinutes || null,
+      timezone,
+    });
+    if (!prepared.ok) {
+      setError(prepared.error);
+      return;
+    }
+    onSubmit({
+      title: prepared.value.title,
+      description: prepared.value.description ?? '',
+      categories: prepared.value.categories,
+      goalId: prepared.value.goal_id ?? '',
+      recurrenceType: prepared.value.recurrence_type,
+      weekdays: prepared.value.weekdays ?? [],
+      scheduledTime: prepared.value.scheduled_time
+        ? prepared.value.scheduled_time.slice(0, 5)
+        : '',
+      durationMinutes:
+        prepared.value.duration_minutes != null
+          ? String(prepared.value.duration_minutes)
+          : '',
+      timezone: prepared.value.timezone,
+    });
+  }
+
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div
+        className={`modal ${styles.formModal}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button className="close" type="button" onClick={onClose} aria-label="Close">
+          <X />
+        </button>
+        <p className="eyebrow">{existing ? 'EDIT ROUTINE' : 'NEW ROUTINE'}</p>
+        <h2>{existing ? 'Update this routine.' : 'What do you repeat?'}</h2>
+        <p>
+          Routines are private intention. Creating or archiving one does not award
+          XP — logs still record what you actually did.
+        </p>
+
+        <label className="fieldLabel" htmlFor="routine-title">
+          Name
+        </label>
+        <input
+          id="routine-title"
+          className="textInput"
+          value={title}
+          maxLength={PLANNING_TITLE_MAX_LENGTH}
+          autoFocus
+          placeholder="e.g. Morning lift"
+          onChange={(event) => {
+            setTitle(event.target.value);
+            setError(null);
+          }}
+        />
+
+        <label className="fieldLabel">
+          Categories <span>1–3 areas this routine supports</span>
+        </label>
+        <div className="categoryPicker multiCategoryPicker">
+          {PLANNING_CATEGORIES.map((item) => {
+            const isSelected = categories.includes(item.key);
+            const disabled = !isSelected && categories.length >= 3;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                className={isSelected ? 'selected' : ''}
+                disabled={disabled}
+                title={item.label}
+                onClick={() => toggleCategory(item.key)}
+              >
+                {item.emoji}
+                <span>{item.short}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="selectedCategorySummary">
+          {selected.map((item) => (
+            <span key={item.key} className="selectedCategoryPill">
+              {item.emoji} {item.short}
+              <button
+                type="button"
+                className="selectedCategoryRemove"
+                aria-label={`Remove ${item.short}`}
+                onClick={() => toggleCategory(item.key)}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+
+        <label className="fieldLabel" id="routine-recurrence-label">
+          Recurrence
+        </label>
+        <div
+          className={styles.recurrenceRow}
+          role="group"
+          aria-labelledby="routine-recurrence-label"
+        >
+          <button
+            type="button"
+            className={
+              recurrenceType === 'daily'
+                ? `${styles.choice} ${styles.choiceSelected}`
+                : styles.choice
+            }
+            aria-pressed={recurrenceType === 'daily'}
+            onClick={() => chooseRecurrence('daily')}
+          >
+            Daily
+          </button>
+          <button
+            type="button"
+            className={
+              recurrenceType === 'weekly'
+                ? `${styles.choice} ${styles.choiceSelected}`
+                : styles.choice
+            }
+            aria-pressed={recurrenceType === 'weekly'}
+            onClick={() => chooseRecurrence('weekly')}
+          >
+            Weekly
+          </button>
+        </div>
+
+        {recurrenceType === 'weekly' && (
+          <div className={styles.weekdayBlock}>
+            <label className="fieldLabel" id="routine-weekdays-label">
+              Weekdays <span>pick at least one</span>
+            </label>
+            <div
+              className={styles.weekdayRow}
+              role="group"
+              aria-labelledby="routine-weekdays-label"
+            >
+              {PLANNING_ISO_WEEKDAYS.map((day) => {
+                const isSelected = weekdays.includes(day);
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    className={
+                      isSelected
+                        ? `${styles.choice} ${styles.choiceSelected}`
+                        : styles.choice
+                    }
+                    aria-pressed={isSelected}
+                    onClick={() => toggleWeekday(day)}
+                  >
+                    {WEEKDAY_LABELS[day]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <label className="fieldLabel" htmlFor="routine-goal">
+          Linked goal <span>optional</span>
+        </label>
+        {linkableGoals.length === 0 ? (
+          <p className={styles.emptyGoalHint} id="routine-goal">
+            No active goals to link yet. You can still save this routine on its
+            own.
+          </p>
+        ) : (
+          <div className={styles.selectWrap}>
+            <select
+              id="routine-goal"
+              className={styles.formSelect}
+              value={goalId}
+              onChange={(event) => {
+                setGoalId(event.target.value);
+                setError(null);
+              }}
+            >
+              <option value="">No linked goal</option>
+              {linkableGoals.map((goal) => (
+                <option key={goal.id} value={goal.id}>
+                  {goal.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <label className="fieldLabel" htmlFor="routine-description">
+          Notes <span>optional</span>
+        </label>
+        <textarea
+          id="routine-description"
+          className="textArea"
+          value={description}
+          placeholder="When, where, or what good looks like."
+          onChange={(event) => setDescription(event.target.value)}
+        />
+
+        <button
+          type="button"
+          className={styles.advancedToggle}
+          aria-expanded={showAdvanced}
+          onClick={() => setShowAdvanced((open) => !open)}
+        >
+          {showAdvanced ? 'Hide schedule details' : '+ Add schedule details'}
+        </button>
+
+        {showAdvanced && (
+          <div className={styles.advancedBlock}>
+            <div className={styles.timeLabelRow}>
+              <label className="fieldLabel" id="routine-time-label">
+                Usual time <span>optional</span>
+              </label>
+              {(timeHour || timeMinute) && (
+                <button
+                  type="button"
+                  className={styles.clearTime}
+                  onClick={clearUsualTime}
+                >
+                  Clear time
+                </button>
+              )}
+            </div>
+            <div
+              className={`customTimePicker ${styles.timePicker}`}
+              role="group"
+              aria-labelledby="routine-time-label"
+            >
+              <select
+                id="routine-time-hour"
+                className={`textInput ${styles.timeSelect}`}
+                value={timeHour}
+                aria-label="Usual hour"
+                onChange={(event) => setHour(event.target.value)}
+              >
+                <option value="">Hour</option>
+                {HOUR_OPTIONS.map((hour) => (
+                  <option key={hour} value={hour}>
+                    {hour}
+                  </option>
+                ))}
+              </select>
+              <span className="timeSeparator" aria-hidden="true">
+                :
+              </span>
+              <select
+                id="routine-time-minute"
+                className={`textInput ${styles.timeSelect}`}
+                value={timeMinute}
+                aria-label="Usual minute"
+                onChange={(event) => setMinute(event.target.value)}
+              >
+                <option value="">Min</option>
+                {MINUTE_OPTIONS.map((minute) => (
+                  <option key={minute} value={minute}>
+                    {minute}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <label className="fieldLabel" htmlFor="routine-duration">
+              Duration (minutes) <span>optional</span>
+            </label>
+            <input
+              id="routine-duration"
+              className="textInput"
+              inputMode="numeric"
+              value={durationMinutes}
+              placeholder="e.g. 45"
+              onChange={(event) => {
+                setDurationMinutes(event.target.value);
+                setError(null);
+              }}
+            />
+
+            <label className="fieldLabel" htmlFor="routine-timezone-filter">
+              Timezone
+            </label>
+            <input
+              id="routine-timezone-filter"
+              className="textInput"
+              value={timezoneQuery}
+              placeholder="Search timezones"
+              autoComplete="off"
+              spellCheck={false}
+              onChange={(event) => setTimezoneQuery(event.target.value)}
+            />
+            <div className={styles.selectWrap}>
+              <select
+                id="routine-timezone"
+                className={styles.formSelect}
+                value={timezone}
+                aria-label="Timezone"
+                onChange={(event) => {
+                  setTimezone(event.target.value);
+                  setError(null);
+                }}
+              >
+                {filteredTimezoneOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <p className={styles.timezoneHint}>
+              Stored as an IANA timezone. Defaults to your current timezone.
+            </p>
+          </div>
+        )}
+
+        {error && <p className="composerFieldError">{error}</p>}
+
+        <button
+          className={`primaryButton submitLog ${styles.saveButton}`}
+          type="button"
+          disabled={busy}
+          onClick={submit}
+        >
+          {busy ? 'Saving…' : existing ? 'Save routine' : 'Create routine'}
+        </button>
+      </div>
+    </div>
+  );
+}

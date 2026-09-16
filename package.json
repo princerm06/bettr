@@ -32,7 +32,8 @@
     "check:planning-invariants": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-invariant-checks.js",
     "check:planning-schema": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-schema-checks.js",
     "check:planning-goals": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-goal-checks.js",
-    "check:planning": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-invariant-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-schema-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-goal-checks.js",
+    "check:planning-routines": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-routine-checks.js",
+    "check:planning": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-invariant-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-schema-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-goal-checks.js && node benchmarks/semantic/.compiled/benchmarks/planning/run-planning-routine-checks.js",
     "check:friend-activity-categories": "tsc -p tsconfig.benchmark.json && node benchmarks/semantic/.compiled/benchmarks/social/run-friend-activity-category-checks.js"
   },
   "dependencies": {

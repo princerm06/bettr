@@ -1,0 +1,12 @@
+.switch {
+  margin: 8px 0 0;
+  width: max-content;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .switch {
+    width: 100%;
+    overflow: auto;
+  }
+}
