@@ -85,7 +85,7 @@ import {
   Users,
   X,
   Settings,} from 'lucide-react';
-import GoalsView from './planning/GoalsView';
+import PlanningHome from './planning/PlanningHome';
 
 type Priority = PriorityLevel;
 
@@ -1115,7 +1115,7 @@ export default function Home() {
       )}
 
       {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog} onEdit={setEditingLog}/>}
-      {tab === 'goals' && <GoalsView user={user} onNotice={setToast} />}
+      {tab === 'goals' && <PlanningHome user={user} onNotice={setToast} />}
       {tab === 'activity' && user && (
         <ActivityView
           user={user}

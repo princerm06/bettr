@@ -179,7 +179,7 @@ export default function GoalsView({
       <div className={styles.titleRow}>
         <div>
           <p className="eyebrow">PLANNING</p>
-          <h2>Goals.</h2>
+          <h2>Goals</h2>
           <p className="subtitle">
             Private intention only. Completing a goal does not award XP or change
             progress.
