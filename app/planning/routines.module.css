@@ -335,7 +335,6 @@
 
 .timePicker {
   margin-bottom: 10px;
-  grid-template-columns: minmax(72px, 1fr) auto minmax(82px, 1fr);
 }
 
 .timeSelect {

@@ -155,6 +155,68 @@ export type RoutinePrepareResult<T> =
   | RoutinePrepareSuccess<T>
   | RoutinePrepareFailure;
 
+/** 12-hour picker period for routine scheduled-time UI. */
+export type LocalTimePeriod = 'AM' | 'PM';
+
+export type LocalTimePickerParts = {
+  hour12: string;
+  minute: string;
+  period: LocalTimePeriod;
+};
+
+/**
+ * Split a persisted local scheduled time (HH:MM or HH:MM:SS) into 12-hour
+ * picker parts. Empty/invalid values yield an empty hour/minute with AM.
+ */
+export function localScheduledTimeToPickerParts(
+  value: string | null | undefined
+): LocalTimePickerParts {
+  if (!value || value.length < 5) {
+    return { hour12: '', minute: '', period: 'AM' };
+  }
+  const hour24 = Number(value.slice(0, 2));
+  const minute = value.slice(3, 5);
+  if (
+    !Number.isInteger(hour24) ||
+    hour24 < 0 ||
+    hour24 > 23 ||
+    !/^[0-5]\d$/.test(minute)
+  ) {
+    return { hour12: '', minute: '', period: 'AM' };
+  }
+  const period: LocalTimePeriod = hour24 < 12 ? 'AM' : 'PM';
+  const hour12Num = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  return {
+    hour12: String(hour12Num).padStart(2, '0'),
+    minute,
+    period,
+  };
+}
+
+/**
+ * Compose HH:MM from 12-hour picker parts. Returns '' when hour or minute is
+ * missing so the form can treat time as optional/cleared.
+ */
+export function composeLocalScheduledTimeFromPickerParts(
+  hour12: string,
+  minute: string,
+  period: LocalTimePeriod
+): string {
+  if (!hour12 || !minute) return '';
+  if (!/^(0?[1-9]|1[0-2])$/.test(hour12) || !/^[0-5]\d$/.test(minute)) {
+    return '';
+  }
+  if (period !== 'AM' && period !== 'PM') return '';
+  const hour12Num = Number(hour12);
+  let hour24: number;
+  if (period === 'AM') {
+    hour24 = hour12Num === 12 ? 0 : hour12Num;
+  } else {
+    hour24 = hour12Num === 12 ? 12 : hour12Num + 12;
+  }
+  return `${String(hour24).padStart(2, '0')}:${minute}`;
+}
+
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.length > 0;
 }
