@@ -233,6 +233,34 @@
   border-radius: 9px;
 }
 
+.dayLabelBlock {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.dayLabelHint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.dayLabelRow {
+  display: grid;
+  gap: 6px;
+}
+
+.dayLabelRow > span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.dayLabelRow .textInput {
+  font-size: 16px;
+}
+
 .emptyGoalHint {
   margin: 0 0 12px;
   padding: 12px 13px;

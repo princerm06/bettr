@@ -6,6 +6,7 @@ import {
   PLANNING_CATEGORIES,
   PLANNING_ISO_WEEKDAYS,
   PLANNING_TITLE_MAX_LENGTH,
+  WEEKDAY_FULL_LABELS,
   WEEKDAY_LABELS,
   composeLocalScheduledTimeFromPickerParts,
   detectBrowserTimeZone,
@@ -30,6 +31,7 @@ export type RoutineFormValues = {
   goalId: string;
   recurrenceType: PlanningRecurrenceType;
   weekdays: PlanningIsoWeekday[];
+  weekdayLabels: Partial<Record<PlanningIsoWeekday, string>>;
   scheduledTime: string;
   durationMinutes: string;
   timezone: string;
@@ -70,6 +72,14 @@ export default function RoutineForm({
   );
   const [weekdays, setWeekdays] = useState<PlanningIsoWeekday[]>(
     existing?.weekdays ? [...existing.weekdays] : []
+  );
+  const [weekdayLabels, setWeekdayLabels] = useState<
+    Partial<Record<PlanningIsoWeekday, string>>
+  >(() => (existing?.weekdayLabels ? { ...existing.weekdayLabels } : {}));
+  const [showDayLabels, setShowDayLabels] = useState(
+    Boolean(
+      existing?.weekdayLabels && Object.keys(existing.weekdayLabels).length > 0
+    )
   );
   const [timeHour, setTimeHour] = useState(initialTime.hour12);
   const [timeMinute, setTimeMinute] = useState(initialTime.minute);
@@ -135,7 +145,15 @@ export default function RoutineForm({
   function toggleWeekday(day: PlanningIsoWeekday) {
     setError(null);
     setWeekdays((current) => {
-      if (current.includes(day)) return current.filter((item) => item !== day);
+      if (current.includes(day)) {
+        setWeekdayLabels((labels) => {
+          if (!(day in labels)) return labels;
+          const next = { ...labels };
+          delete next[day];
+          return next;
+        });
+        return current.filter((item) => item !== day);
+      }
       return [...current, day].sort((a, b) => a - b);
     });
   }
@@ -143,7 +161,24 @@ export default function RoutineForm({
   function chooseRecurrence(next: PlanningRecurrenceType) {
     setError(null);
     setRecurrenceType(next);
-    if (next === 'daily') setWeekdays([]);
+    if (next === 'daily') {
+      setWeekdays([]);
+      setWeekdayLabels({});
+      setShowDayLabels(false);
+    }
+  }
+
+  function setDayLabel(day: PlanningIsoWeekday, value: string) {
+    setError(null);
+    setWeekdayLabels((current) => {
+      const next = { ...current };
+      if (!value.trim()) {
+        delete next[day];
+        return next;
+      }
+      next[day] = value;
+      return next;
+    });
   }
 
   function setHour(next: string) {
@@ -184,6 +219,7 @@ export default function RoutineForm({
       goalId: goalId || null,
       recurrenceType,
       weekdays: recurrenceType === 'daily' ? null : weekdays,
+      weekdayLabels: recurrenceType === 'daily' ? null : weekdayLabels,
       scheduledTime: scheduledTime || null,
       durationMinutes: durationMinutes || null,
       timezone,
@@ -192,6 +228,12 @@ export default function RoutineForm({
       setError(prepared.error);
       return;
     }
+    const persistedLabels = prepared.value.weekday_labels ?? {};
+    const formLabels: Partial<Record<PlanningIsoWeekday, string>> = {};
+    for (const [key, value] of Object.entries(persistedLabels)) {
+      const day = Number(key) as PlanningIsoWeekday;
+      formLabels[day] = value;
+    }
     onSubmit({
       title: prepared.value.title,
       description: prepared.value.description ?? '',
@@ -199,6 +241,7 @@ export default function RoutineForm({
       goalId: prepared.value.goal_id ?? '',
       recurrenceType: prepared.value.recurrence_type,
       weekdays: prepared.value.weekdays ?? [],
+      weekdayLabels: formLabels,
       scheduledTime: prepared.value.scheduled_time
         ? prepared.value.scheduled_time.slice(0, 5)
         : '',
@@ -343,6 +386,47 @@ export default function RoutineForm({
                 );
               })}
             </div>
+
+            {weekdays.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  className={styles.advancedToggle}
+                  aria-expanded={showDayLabels}
+                  onClick={() => setShowDayLabels((open) => !open)}
+                >
+                  {showDayLabels
+                    ? 'Hide day-specific actions'
+                    : '+ Different action on some days?'}
+                </button>
+                {showDayLabels && (
+                  <div className={styles.dayLabelBlock}>
+                    <p className={styles.dayLabelHint}>
+                      Optional. Leave blank to use the routine name on that day.
+                    </p>
+                    {weekdays.map((day) => (
+                      <label
+                        key={day}
+                        className={styles.dayLabelRow}
+                        htmlFor={`routine-day-label-${day}`}
+                      >
+                        <span>{WEEKDAY_FULL_LABELS[day]}</span>
+                        <input
+                          id={`routine-day-label-${day}`}
+                          className="textInput"
+                          value={weekdayLabels[day] ?? ''}
+                          maxLength={PLANNING_TITLE_MAX_LENGTH}
+                          placeholder={title.trim() || 'Same as routine name'}
+                          onChange={(event) =>
+                            setDayLabel(day, event.target.value)
+                          }
+                        />
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 

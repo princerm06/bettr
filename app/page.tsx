@@ -1115,7 +1115,60 @@ export default function Home() {
       )}
 
       {tab === 'history' && <HistoryView logs={logs} onDelete={deleteLog} onEdit={setEditingLog}/>}
-      {tab === 'goals' && <PlanningHome user={user} onNotice={setToast} />}
+      {tab === 'goals' && (
+        <PlanningHome
+          user={user}
+          priorities={priorities}
+          onNotice={setToast}
+          getSavedLog={(logId) => {
+            const found = logs.find((item) => item.id === logId);
+            if (!found) return null;
+            return {
+              id: found.id,
+              activity: found.activity,
+              details: found.details,
+            };
+          }}
+          onCreditedLog={async (log) => {
+            const newLog: Log = {
+              id: log.id,
+              category: log.category,
+              categories: log.categories,
+              activity: log.activity,
+              details: log.details,
+              date: log.date,
+              timestamp: log.timestamp,
+              startTime: log.startTime,
+              durationMinutes: log.durationMinutes,
+              points: log.points,
+              custom: true,
+              visibility: log.visibility || 'private',
+            };
+            if (newLog.points <= 0) {
+              setToast('Could not award progress for this planned log.');
+              return;
+            }
+            setLogs((prev) => [newLog, ...prev.filter((item) => item.id !== newLog.id)]);
+            setRecentLogId(newLog.id);
+            window.setTimeout(() => setRecentLogId(null), 1200);
+            await persistCloudLog(newLog);
+          }}
+          onUpdatedLog={async (log) => {
+            await updateLog(log.id, {
+              category: log.category,
+              categories: log.categories,
+              activity: log.activity,
+              details: log.details,
+              date: log.date,
+              startTime: log.startTime,
+              durationMinutes: log.durationMinutes,
+              points: log.points,
+              custom: true,
+              visibility: log.visibility || 'private',
+            });
+          }}
+        />
+      )}
       {tab === 'activity' && user && (
         <ActivityView
           user={user}

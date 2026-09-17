@@ -80,6 +80,15 @@ export type Goal = {
   updatedAt: string;
 };
 
+/**
+ * Optional per-ISO-weekday occurrence/action labels for weekly Routines.
+ * Missing keys fall back to the parent Routine title. Null/empty means
+ * the same action applies on every selected weekday.
+ */
+export type RoutineWeekdayLabels = Partial<
+  Record<PlanningIsoWeekday, string>
+>;
+
 export type Routine = {
   id: string;
   userId: string;
@@ -89,6 +98,8 @@ export type Routine = {
   goalId: string | null;
   recurrenceType: PlanningRecurrenceType;
   weekdays: PlanningIsoWeekday[] | null;
+  /** Weekly only. Null for daily / same-action weekly Routines. */
+  weekdayLabels: RoutineWeekdayLabels | null;
   scheduledTime: string | null;
   durationMinutes: number | null;
   timezone: string;

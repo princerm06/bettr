@@ -31,6 +31,7 @@ export type {
   PlanningOccurrenceSource,
   PlanningRecurrenceType,
   Routine,
+  RoutineWeekdayLabels,
   Todo,
 } from './types';
 
@@ -70,11 +71,63 @@ export {
   isValidPlanningTitle,
   isValidRoutine,
   isValidRoutineRecurrence,
+  isValidRoutineWeekdayLabels,
   isValidTodo,
   normalizeLocalScheduledTime,
   reinterpretsLogBackedAsLightweight,
   samePlanningOwner,
 } from './invariants';
+
+export {
+  isoWeekdayFromLocalDate,
+  localCalendarDateInTimeZone,
+  localCalendarPartsInTimeZone,
+} from './localCalendar';
+
+export {
+  COMPLETION_VALIDATION_MESSAGES,
+  completionModeLabel,
+  decideLightCompletion,
+  decideLogLinkedCompletion,
+  goalAttributionFromSource,
+  linkedLogIdForReuse,
+} from './completion';
+
+export type { CompletionDecision } from './completion';
+
+export {
+  buildMissingTodayOccurrenceDrafts,
+  draftRoutineOccurrenceForDate,
+  draftTodoOccurrenceForDate,
+  logicalOccurrenceIdentityKey,
+  routineAppliesOnLocalDate,
+  selectLogicalTodayOccurrences,
+  todayScheduledDates,
+} from './materialize';
+
+export type {
+  MaterializeTodayInput,
+  OccurrenceInsertDraft,
+} from './materialize';
+
+export {
+  OCCURRENCE_TABLE_COLUMNS,
+  OCCURRENCE_VALIDATION_MESSAGES,
+  mapOwnedOccurrenceRows,
+  occurrenceCombinationFromRow,
+  occurrenceFromRow,
+  prepareOccurrenceCompletionUpdate,
+  prepareOccurrenceInsert,
+} from './occurrences';
+
+export type {
+  OccurrenceCompletionUpdateRow,
+  OccurrenceInsertRow,
+  OccurrencePrepareFailure,
+  OccurrencePrepareResult,
+  OccurrencePrepareSuccess,
+  OccurrenceRow,
+} from './occurrences';
 
 export {
   GOAL_CREATE_STATUS,
@@ -102,9 +155,11 @@ export {
   ROUTINE_DOMAIN_FIELDS,
   ROUTINE_TABLE_COLUMNS,
   ROUTINE_VALIDATION_MESSAGES,
+  WEEKDAY_FULL_LABELS,
   WEEKDAY_LABELS,
   composeLocalScheduledTimeFromPickerParts,
   detectBrowserTimeZone,
+  effectiveRoutineActionForLocalDate,
   filterTimeZoneOptions,
   formatRoutineRecurrence,
   formatTimeZoneLabel,
@@ -113,10 +168,12 @@ export {
   timeZoneShortAbbreviations,
   mapOwnedRoutineRows,
   normalizeRoutineCategories,
+  normalizeRoutineWeekdayLabels,
   normalizeRoutineWeekdays,
   prepareRoutineActiveTransition,
   prepareRoutineCreate,
   prepareRoutineUpdate,
+  presentRoutineOccurrence,
   routineFromRow,
 } from './routines';
 
@@ -125,6 +182,7 @@ export type {
   LocalTimePickerParts,
   RoutineActiveUpdateRow,
   RoutineInsertRow,
+  RoutineOccurrencePresentation,
   RoutineRow,
   RoutineUpdateRow,
   RoutineWriteInput,

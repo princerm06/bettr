@@ -11,6 +11,7 @@ import {
   ROUTINE_TABLE_COLUMNS,
   ROUTINE_VALIDATION_MESSAGES,
   detectBrowserTimeZone,
+  effectiveRoutineActionForLocalDate,
   filterTimeZoneOptions,
   formatRoutineRecurrence,
   formatTimeZoneLabel,
@@ -19,10 +20,12 @@ import {
   localScheduledTimeToPickerParts,
   mapOwnedRoutineRows,
   normalizeRoutineCategories,
+  normalizeRoutineWeekdayLabels,
   normalizeRoutineWeekdays,
   prepareRoutineActiveTransition,
   prepareRoutineCreate,
   prepareRoutineUpdate,
+  presentRoutineOccurrence,
   routineFromRow,
   timeZoneShortAbbreviations,
   type RoutineInsertRow,
@@ -33,6 +36,7 @@ import {
   isValidPlanningTitle,
   isValidRoutine,
   isValidRoutineRecurrence,
+  isValidRoutineWeekdayLabels,
   samePlanningOwner,
 } from '../../lib/planning/invariants';
 import {
@@ -412,11 +416,13 @@ if (insertRow.ok) {
     'timezone',
     'title',
     'user_id',
+    'weekday_labels',
     'weekdays',
   ]);
   assert.equal(insertRow.value.description, 'Heavy compounds.');
   assert.equal(insertRow.value.scheduled_time, '07:00:00');
   assert.equal(insertRow.value.duration_minutes, 45);
+  assert.equal(insertRow.value.weekday_labels, null);
   assert.ok(!('points' in insertRow.value));
   assert.ok(!('xp' in insertRow.value));
   assert.ok(!('priority' in insertRow.value));
@@ -429,6 +435,7 @@ if (insertRow.ok) {
       goalId: insertRow.value.goal_id,
       recurrenceType: insertRow.value.recurrence_type,
       weekdays: insertRow.value.weekdays,
+      weekdayLabels: null,
       scheduledTime: insertRow.value.scheduled_time,
       durationMinutes: insertRow.value.duration_minutes,
       timezone: insertRow.value.timezone,
@@ -561,6 +568,7 @@ if (updateRow.ok) {
     'timezone',
     'title',
     'updated_at',
+    'weekday_labels',
     'weekdays',
   ]);
   assert.ok(!('user_id' in updateRow.value));
@@ -610,6 +618,7 @@ assert.equal(mapped!.userId, 'user-a');
 assert.equal(mapped!.title, 'Morning lift');
 assert.equal(mapped!.goalId, 'goal-1');
 assert.deepEqual(mapped!.weekdays, [1, 3, 5]);
+assert.equal(mapped!.weekdayLabels, null);
 assert.equal(mapped!.isActive, true);
 assert.equal(formatRoutineRecurrence(mapped!), 'Weekly · Mon, Wed, Fri');
 
@@ -652,6 +661,7 @@ assert.deepEqual(ROUTINE_TABLE_COLUMNS, [
   'goal_id',
   'recurrence_type',
   'weekdays',
+  'weekday_labels',
   'scheduled_time',
   'duration_minutes',
   'timezone',
@@ -661,9 +671,22 @@ assert.deepEqual(ROUTINE_TABLE_COLUMNS, [
 ]);
 
 const sql = readFileSync(join(root, 'supabase/v8_planning_contract.sql'), 'utf8');
+const weekdayLabelMigration = readFileSync(
+  join(root, 'supabase/v11_routine_weekday_labels.sql'),
+  'utf8'
+);
 for (const column of ROUTINE_TABLE_COLUMNS) {
+  if (column === 'weekday_labels') {
+    assert.ok(
+      weekdayLabelMigration.includes(column),
+      `v11 missing ${column}`
+    );
+    continue;
+  }
   assert.ok(sql.includes(column), `schema missing ${column}`);
 }
+assert.ok(weekdayLabelMigration.includes('routines_weekday_labels_integrity'));
+assert.ok(weekdayLabelMigration.includes('Do not apply'));
 assert.ok(sql.includes('routines_recurrence_integrity'));
 assert.ok(sql.includes('on delete set null'));
 assert.ok(sql.includes('planned_occurrences_routine_owner_fk'));
@@ -746,6 +769,10 @@ assert.ok(routineForm.includes('routine-time-minute'));
 assert.ok(routineForm.includes('detectBrowserTimeZone'));
 assert.ok(routineForm.includes('styles.formSelect'));
 assert.ok(routineForm.includes('id="routine-timezone"'));
+assert.ok(routineForm.includes('+ Different action on some days?'));
+assert.ok(routineForm.includes('Hide day-specific actions'));
+assert.ok(routineForm.includes('weekdayLabels'));
+assert.ok(routineForm.includes('WEEKDAY_FULL_LABELS'));
 assert.ok(!routineForm.includes('monthly'));
 assert.ok(!routineForm.includes('RRULE'));
 assert.ok(!routineForm.includes('type="time"'));
@@ -763,6 +790,163 @@ const routineCss = readFileSync(
 assert.ok(routineCss.includes('.choiceSelected'));
 assert.ok(routineCss.includes('color: var(--accent)'));
 assert.ok(routineCss.includes('color-scheme: dark'));
+assert.ok(routineCss.includes('.dayLabelBlock'));
+
+// Same-action weekly fallback + per-weekday labels.
+assert.equal(
+  isValidRoutineWeekdayLabels('weekly', [1, 2, 3], null),
+  true
+);
+assert.equal(
+  isValidRoutineWeekdayLabels('daily', null, { 1: 'Chest' }),
+  false
+);
+assert.equal(
+  isValidRoutineWeekdayLabels(
+    'weekly',
+    [1, 2, 3, 4, 5],
+    {
+      1: 'Chest & Back',
+      2: 'Sharms',
+      3: 'Legs & Abs',
+      4: 'Chest & Back',
+      5: 'Sharms',
+    }
+  ),
+  true
+);
+assert.equal(
+  isValidRoutineWeekdayLabels('weekly', [2, 4], { 3: 'Legs' }),
+  false
+);
+
+const sameActionWeekly = prepareRoutineCreate('user-a', {
+  title: 'BJJ',
+  categories: ['physical'],
+  recurrenceType: 'weekly',
+  weekdays: [2, 4],
+  weekdayLabels: null,
+  timezone: 'America/New_York',
+});
+assert.equal(sameActionWeekly.ok, true);
+if (sameActionWeekly.ok) {
+  assert.equal(sameActionWeekly.value.weekday_labels, null);
+}
+
+const splitWeekly = prepareRoutineCreate('user-a', {
+  title: 'Lifting Split',
+  description: 'Mon Chest & Back / Tue Sharms / Wed Legs & Abs…',
+  categories: ['physical'],
+  recurrenceType: 'weekly',
+  weekdays: [1, 2, 3, 4, 5],
+  weekdayLabels: {
+    1: 'Chest & Back',
+    2: 'Sharms',
+    3: 'Legs & Abs',
+    4: 'Chest & Back',
+    5: 'Sharms',
+  },
+  timezone: 'America/New_York',
+});
+assert.equal(splitWeekly.ok, true);
+if (splitWeekly.ok) {
+  assert.deepEqual(splitWeekly.value.weekday_labels, {
+    '1': 'Chest & Back',
+    '2': 'Sharms',
+    '3': 'Legs & Abs',
+    '4': 'Chest & Back',
+    '5': 'Sharms',
+  });
+}
+
+const splitRoutine = {
+  title: 'Lifting Split',
+  recurrenceType: 'weekly' as const,
+  weekdayLabels: {
+    1: 'Chest & Back',
+    2: 'Sharms',
+    3: 'Legs & Abs',
+    4: 'Chest & Back',
+    5: 'Sharms',
+  },
+};
+// 2026-09-16 = Wednesday (3), 2026-09-17 = Thursday (4)
+assert.equal(
+  effectiveRoutineActionForLocalDate(splitRoutine, '2026-09-16'),
+  'Legs & Abs'
+);
+assert.equal(
+  effectiveRoutineActionForLocalDate(splitRoutine, '2026-09-17'),
+  'Chest & Back'
+);
+assert.equal(
+  effectiveRoutineActionForLocalDate(
+    { title: 'BJJ', recurrenceType: 'weekly', weekdayLabels: null },
+    '2026-09-17'
+  ),
+  'BJJ'
+);
+
+const wedPresentation = presentRoutineOccurrence(splitRoutine, '2026-09-16');
+assert.equal(wedPresentation.actionTitle, 'Legs & Abs');
+assert.equal(wedPresentation.contextLine, 'Lifting Split · Wednesday');
+assert.equal(wedPresentation.usesWeekdayLabel, true);
+assert.ok(!wedPresentation.actionTitle.includes('Mon Chest'));
+
+const bjjPresentation = presentRoutineOccurrence(
+  { title: 'BJJ', recurrenceType: 'weekly', weekdayLabels: null },
+  '2026-09-17'
+);
+assert.equal(bjjPresentation.actionTitle, 'BJJ');
+assert.equal(bjjPresentation.contextLine, null);
+assert.equal(bjjPresentation.usesWeekdayLabel, false);
+
+const trimmedLabels = normalizeRoutineWeekdayLabels(
+  'weekly',
+  [1, 3],
+  { 1: '  Push  ', 3: '   ' }
+);
+assert.equal(trimmedLabels.ok, true);
+if (trimmedLabels.ok) {
+  assert.deepEqual(trimmedLabels.value, { '1': 'Push' });
+}
+
+const mappedSplit = routineFromRow(
+  {
+    id: 'routine-split',
+    user_id: 'user-a',
+    title: 'Lifting Split',
+    description: 'Weekly plan notes — not today\'s action',
+    categories: ['physical'],
+    goal_id: null,
+    recurrence_type: 'weekly',
+    weekdays: [1, 2, 3, 4, 5],
+    weekday_labels: {
+      '1': 'Chest & Back',
+      '3': 'Legs & Abs',
+    },
+    scheduled_time: null,
+    duration_minutes: null,
+    timezone: 'America/New_York',
+    is_active: true,
+    created_at: '2026-09-14T12:00:00.000Z',
+    updated_at: '2026-09-14T12:00:00.000Z',
+  },
+  'user-a'
+);
+assert.ok(mappedSplit);
+assert.deepEqual(mappedSplit!.weekdayLabels, {
+  1: 'Chest & Back',
+  3: 'Legs & Abs',
+});
+assert.equal(
+  effectiveRoutineActionForLocalDate(mappedSplit!, '2026-09-16'),
+  'Legs & Abs'
+);
+assert.equal(
+  effectiveRoutineActionForLocalDate(mappedSplit!, '2026-09-15'),
+  'Lifting Split'
+); // Tuesday without label falls back to title
 
 console.log(
   JSON.stringify(
@@ -776,6 +960,7 @@ console.log(
       deletion: 'omitted-restrict',
       timezoneOptions: zoneOptions.length,
       browserTimeZone: browserZone,
+      weekdayLabels: true,
     },
     null,
     2
