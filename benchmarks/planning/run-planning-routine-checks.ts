@@ -15,6 +15,8 @@ import {
   formatRoutineRecurrence,
   formatTimeZoneLabel,
   listIanaTimeZoneOptions,
+  composeLocalScheduledTimeFromPickerParts,
+  localScheduledTimeToPickerParts,
   mapOwnedRoutineRows,
   normalizeRoutineCategories,
   normalizeRoutineWeekdays,
@@ -435,6 +437,98 @@ if (insertRow.ok) {
   );
 }
 
+// AM/PM picker conversion + persistence/reload (6:00 AM → 6:00 PM).
+assert.deepEqual(localScheduledTimeToPickerParts('06:00'), {
+  hour12: '06',
+  minute: '00',
+  period: 'AM',
+});
+assert.deepEqual(localScheduledTimeToPickerParts('06:00:00'), {
+  hour12: '06',
+  minute: '00',
+  period: 'AM',
+});
+assert.equal(
+  composeLocalScheduledTimeFromPickerParts('06', '00', 'AM'),
+  '06:00'
+);
+assert.equal(
+  composeLocalScheduledTimeFromPickerParts('06', '00', 'PM'),
+  '18:00'
+);
+assert.deepEqual(localScheduledTimeToPickerParts('18:00:00'), {
+  hour12: '06',
+  minute: '00',
+  period: 'PM',
+});
+assert.equal(
+  composeLocalScheduledTimeFromPickerParts('12', '00', 'AM'),
+  '00:00'
+);
+assert.equal(
+  composeLocalScheduledTimeFromPickerParts('12', '00', 'PM'),
+  '12:00'
+);
+assert.deepEqual(localScheduledTimeToPickerParts('00:30'), {
+  hour12: '12',
+  minute: '30',
+  period: 'AM',
+});
+assert.deepEqual(localScheduledTimeToPickerParts('12:15'), {
+  hour12: '12',
+  minute: '15',
+  period: 'PM',
+});
+
+const amParts = localScheduledTimeToPickerParts('06:00:00');
+const switchedToPm = composeLocalScheduledTimeFromPickerParts(
+  amParts.hour12,
+  amParts.minute,
+  'PM'
+);
+assert.equal(switchedToPm, '18:00');
+
+const amToPmUpdate = prepareRoutineUpdate('user-a', {
+  title: 'Evening lift',
+  categories: ['physical'],
+  recurrenceType: 'daily',
+  weekdays: null,
+  scheduledTime: switchedToPm,
+  timezone: 'America/New_York',
+});
+assert.equal(amToPmUpdate.ok, true);
+if (amToPmUpdate.ok) {
+  assert.equal(amToPmUpdate.value.scheduled_time, '18:00:00');
+}
+
+const reloadedAfterPm = routineFromRow(
+  {
+    id: 'routine-pm',
+    user_id: 'user-a',
+    title: 'Evening lift',
+    description: null,
+    categories: ['physical'],
+    goal_id: null,
+    recurrence_type: 'daily',
+    weekdays: null,
+    scheduled_time: amToPmUpdate.ok
+      ? amToPmUpdate.value.scheduled_time
+      : null,
+    duration_minutes: null,
+    timezone: 'America/New_York',
+    is_active: true,
+    created_at: '2026-09-14T12:00:00.000Z',
+    updated_at: '2026-09-14T12:00:00.000Z',
+  },
+  'user-a'
+);
+assert.ok(reloadedAfterPm);
+assert.equal(reloadedAfterPm!.scheduledTime, '18:00:00');
+assert.deepEqual(
+  localScheduledTimeToPickerParts(reloadedAfterPm!.scheduledTime),
+  { hour12: '06', minute: '00', period: 'PM' }
+);
+
 const createdInactive = prepareRoutineCreate('user-a', {
   title: 'Morning lift',
   categories: ['physical'],
@@ -642,6 +736,11 @@ assert.ok(routineForm.includes('No active goals to link yet'));
 assert.ok(routineForm.includes('listIanaTimeZoneOptions'));
 assert.ok(routineForm.includes('filterTimeZoneOptions'));
 assert.ok(routineForm.includes('customTimePicker'));
+assert.ok(routineForm.includes('periodToggle'));
+assert.ok(routineForm.includes("setPeriod('AM')"));
+assert.ok(routineForm.includes("setPeriod('PM')"));
+assert.ok(routineForm.includes('composeLocalScheduledTimeFromPickerParts'));
+assert.ok(routineForm.includes('localScheduledTimeToPickerParts'));
 assert.ok(routineForm.includes('routine-time-hour'));
 assert.ok(routineForm.includes('routine-time-minute'));
 assert.ok(routineForm.includes('detectBrowserTimeZone'));
@@ -650,6 +749,8 @@ assert.ok(routineForm.includes('id="routine-timezone"'));
 assert.ok(!routineForm.includes('monthly'));
 assert.ok(!routineForm.includes('RRULE'));
 assert.ok(!routineForm.includes('type="time"'));
+assert.ok(!routineForm.includes('HOUR_OPTIONS'));
+assert.ok(routineForm.includes('HOUR_12_OPTIONS'));
 assert.equal(
   /id="routine-timezone"[\s\S]*?className="textInput"/.test(routineForm),
   false

@@ -7,12 +7,15 @@ import {
   PLANNING_ISO_WEEKDAYS,
   PLANNING_TITLE_MAX_LENGTH,
   WEEKDAY_LABELS,
+  composeLocalScheduledTimeFromPickerParts,
   detectBrowserTimeZone,
   filterTimeZoneOptions,
   listIanaTimeZoneOptions,
+  localScheduledTimeToPickerParts,
   planningCategoryDisplay,
   prepareRoutineCreate,
   type Goal,
+  type LocalTimePeriod,
   type PlanningCategoryKey,
   type PlanningIsoWeekday,
   type PlanningRecurrenceType,
@@ -32,28 +35,12 @@ export type RoutineFormValues = {
   timezone: string;
 };
 
-const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) =>
-  String(hour).padStart(2, '0')
+const HOUR_12_OPTIONS = Array.from({ length: 12 }, (_, index) =>
+  String(index + 1).padStart(2, '0')
 );
 const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, minute) =>
   String(minute).padStart(2, '0')
 );
-
-function timeParts(value: string | null | undefined): {
-  hour: string;
-  minute: string;
-} {
-  if (!value || value.length < 5) return { hour: '', minute: '' };
-  return {
-    hour: value.slice(0, 2),
-    minute: value.slice(3, 5),
-  };
-}
-
-function composeScheduledTime(hour: string, minute: string): string {
-  if (!hour || !minute) return '';
-  return `${hour}:${minute}`;
-}
 
 export default function RoutineForm({
   ownerId,
@@ -71,7 +58,7 @@ export default function RoutineForm({
   onSubmit: (values: RoutineFormValues) => void;
 }) {
   const browserTimeZone = useMemo(() => detectBrowserTimeZone(), []);
-  const initialTime = timeParts(existing?.scheduledTime);
+  const initialTime = localScheduledTimeToPickerParts(existing?.scheduledTime);
   const [title, setTitle] = useState(existing?.title ?? '');
   const [description, setDescription] = useState(existing?.description ?? '');
   const [categories, setCategories] = useState<PlanningCategoryKey[]>(
@@ -84,8 +71,11 @@ export default function RoutineForm({
   const [weekdays, setWeekdays] = useState<PlanningIsoWeekday[]>(
     existing?.weekdays ? [...existing.weekdays] : []
   );
-  const [timeHour, setTimeHour] = useState(initialTime.hour);
+  const [timeHour, setTimeHour] = useState(initialTime.hour12);
   const [timeMinute, setTimeMinute] = useState(initialTime.minute);
+  const [timePeriod, setTimePeriod] = useState<LocalTimePeriod>(
+    initialTime.period
+  );
   const [durationMinutes, setDurationMinutes] = useState(
     existing?.durationMinutes != null ? String(existing.durationMinutes) : ''
   );
@@ -127,7 +117,11 @@ export default function RoutineForm({
     return current ? [current, ...filtered] : filtered;
   }, [timezoneOptions, timezoneQuery, timezone]);
 
-  const scheduledTime = composeScheduledTime(timeHour, timeMinute);
+  const scheduledTime = composeLocalScheduledTimeFromPickerParts(
+    timeHour,
+    timeMinute,
+    timePeriod
+  );
 
   function toggleCategory(key: PlanningCategoryKey) {
     setError(null);
@@ -166,10 +160,16 @@ export default function RoutineForm({
     if (!next) setTimeHour('');
   }
 
+  function setPeriod(next: LocalTimePeriod) {
+    setError(null);
+    setTimePeriod(next);
+  }
+
   function clearUsualTime() {
     setError(null);
     setTimeHour('');
     setTimeMinute('');
+    setTimePeriod('AM');
   }
 
   function submit() {
@@ -424,9 +424,9 @@ export default function RoutineForm({
                 onChange={(event) => setHour(event.target.value)}
               >
                 <option value="">Hour</option>
-                {HOUR_OPTIONS.map((hour) => (
+                {HOUR_12_OPTIONS.map((hour) => (
                   <option key={hour} value={hour}>
-                    {hour}
+                    {Number(hour)}
                   </option>
                 ))}
               </select>
@@ -447,6 +447,24 @@ export default function RoutineForm({
                   </option>
                 ))}
               </select>
+              <div className="periodToggle" role="group" aria-label="AM or PM">
+                <button
+                  type="button"
+                  className={timePeriod === 'AM' ? 'selected' : ''}
+                  aria-pressed={timePeriod === 'AM'}
+                  onClick={() => setPeriod('AM')}
+                >
+                  AM
+                </button>
+                <button
+                  type="button"
+                  className={timePeriod === 'PM' ? 'selected' : ''}
+                  aria-pressed={timePeriod === 'PM'}
+                  onClick={() => setPeriod('PM')}
+                >
+                  PM
+                </button>
+              </div>
             </div>
 
             <label className="fieldLabel" htmlFor="routine-duration">

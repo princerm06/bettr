@@ -103,11 +103,13 @@ export {
   ROUTINE_TABLE_COLUMNS,
   ROUTINE_VALIDATION_MESSAGES,
   WEEKDAY_LABELS,
+  composeLocalScheduledTimeFromPickerParts,
   detectBrowserTimeZone,
   filterTimeZoneOptions,
   formatRoutineRecurrence,
   formatTimeZoneLabel,
   listIanaTimeZoneOptions,
+  localScheduledTimeToPickerParts,
   timeZoneShortAbbreviations,
   mapOwnedRoutineRows,
   normalizeRoutineCategories,
@@ -119,6 +121,8 @@ export {
 } from './routines';
 
 export type {
+  LocalTimePeriod,
+  LocalTimePickerParts,
   RoutineActiveUpdateRow,
   RoutineInsertRow,
   RoutineRow,
