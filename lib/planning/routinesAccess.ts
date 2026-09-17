@@ -19,7 +19,7 @@ import {
 import type { Routine } from './types';
 
 const ROUTINE_SELECT =
-  'id, user_id, title, description, categories, goal_id, recurrence_type, weekdays, scheduled_time, duration_minutes, timezone, is_active, created_at, updated_at';
+  'id, user_id, title, description, categories, goal_id, recurrence_type, weekdays, weekday_labels, scheduled_time, duration_minutes, timezone, is_active, created_at, updated_at';
 
 type RoutineAccessResult<T> = { data: T; error: string | null };
 

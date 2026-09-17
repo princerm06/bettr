@@ -123,6 +123,8 @@ export default function RoutinesView({
       goalId: values.goalId || null,
       recurrenceType: values.recurrenceType,
       weekdays: values.recurrenceType === 'daily' ? null : values.weekdays,
+      weekdayLabels:
+        values.recurrenceType === 'daily' ? null : values.weekdayLabels,
       scheduledTime: values.scheduledTime || null,
       durationMinutes: values.durationMinutes || null,
       timezone: values.timezone,

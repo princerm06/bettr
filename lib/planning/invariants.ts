@@ -117,6 +117,47 @@ export function isValidRoutineRecurrence(
   return new Set(weekdays).size === weekdays.length;
 }
 
+/**
+ * Optional weekday action labels. Daily must be null. Weekly may be null
+ * (same action every selected day) or a non-empty map whose keys are a
+ * subset of the selected weekdays and whose values are valid titles.
+ */
+export function isValidRoutineWeekdayLabels(
+  recurrenceType: unknown,
+  weekdays: unknown,
+  weekdayLabels: unknown
+): boolean {
+  if (!isPlanningRecurrenceType(recurrenceType)) return false;
+  if (recurrenceType === 'daily') return weekdayLabels === null;
+  if (weekdayLabels === null) return true;
+  if (!isValidRoutineRecurrence(recurrenceType, weekdays)) return false;
+  if (
+    !weekdayLabels ||
+    typeof weekdayLabels !== 'object' ||
+    Array.isArray(weekdayLabels)
+  ) {
+    return false;
+  }
+  const allowed = new Set(weekdays as PlanningIsoWeekday[]);
+  const entries = Object.entries(weekdayLabels as Record<string, unknown>);
+  if (entries.length < 1) return false;
+  const seen = new Set<number>();
+  for (const [rawKey, value] of entries) {
+    const key =
+      typeof rawKey === 'string' && /^\d+$/.test(rawKey)
+        ? Number(rawKey)
+        : NaN;
+    if (!isPlanningIsoWeekday(key) || !allowed.has(key) || seen.has(key)) {
+      return false;
+    }
+    if (typeof value !== 'string' || !isValidPlanningTitle(value)) {
+      return false;
+    }
+    seen.add(key);
+  }
+  return true;
+}
+
 export function isValidDurationMinutes(value: unknown): value is number | null {
   if (value === null) return true;
   return typeof value === 'number' && Number.isInteger(value) && value > 0;
@@ -400,6 +441,7 @@ export function isValidRoutine(
     | 'goalId'
     | 'recurrenceType'
     | 'weekdays'
+    | 'weekdayLabels'
     | 'scheduledTime'
     | 'durationMinutes'
     | 'timezone'
@@ -413,6 +455,11 @@ export function isValidRoutine(
     isValidPlanningCategories(routine.categories) &&
     isNullableId(routine.goalId) &&
     isValidRoutineRecurrence(routine.recurrenceType, routine.weekdays) &&
+    isValidRoutineWeekdayLabels(
+      routine.recurrenceType,
+      routine.weekdays,
+      routine.weekdayLabels
+    ) &&
     (routine.scheduledTime === null || isLocalScheduledTime(routine.scheduledTime)) &&
     isValidDurationMinutes(routine.durationMinutes) &&
     isIanaTimeZone(routine.timezone) &&

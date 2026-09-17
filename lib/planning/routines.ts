@@ -13,6 +13,7 @@ import {
   isValidPlanningTitle,
   isValidRoutine,
   isValidRoutineRecurrence,
+  isValidRoutineWeekdayLabels,
   normalizeLocalScheduledTime,
   samePlanningOwner,
 } from './invariants';
@@ -23,7 +24,9 @@ import {
   type PlanningIsoWeekday,
   type PlanningRecurrenceType,
   type Routine,
+  type RoutineWeekdayLabels,
 } from './types';
+import { isoWeekdayFromLocalDate } from './localCalendar';
 
 export const ROUTINE_CREATE_IS_ACTIVE = true as const;
 
@@ -36,6 +39,7 @@ export const ROUTINE_TABLE_COLUMNS = [
   'goal_id',
   'recurrence_type',
   'weekdays',
+  'weekday_labels',
   'scheduled_time',
   'duration_minutes',
   'timezone',
@@ -53,6 +57,7 @@ export const ROUTINE_DOMAIN_FIELDS = [
   'goalId',
   'recurrenceType',
   'weekdays',
+  'weekdayLabels',
   'scheduledTime',
   'durationMinutes',
   'timezone',
@@ -71,6 +76,8 @@ export const ROUTINE_VALIDATION_MESSAGES = {
   recurrence: 'Choose daily or weekly.',
   weekdays: 'Pick at least one weekday for a weekly routine.',
   weekdaysDaily: 'Daily routines do not use weekdays.',
+  weekdayLabels: 'Day labels must match a selected weekday and stay under 200 characters.',
+  weekdayLabelsDaily: 'Daily routines do not use day-specific labels.',
   goal: 'That goal could not be linked.',
   scheduledTime: 'Use a real local time.',
   duration: 'Duration must be a whole number of minutes.',
@@ -88,6 +95,16 @@ export const WEEKDAY_LABELS: Record<PlanningIsoWeekday, string> = {
   7: 'Sun',
 };
 
+export const WEEKDAY_FULL_LABELS: Record<PlanningIsoWeekday, string> = {
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Friday',
+  6: 'Saturday',
+  7: 'Sunday',
+};
+
 export type RoutineRow = {
   id: string;
   user_id: string;
@@ -97,6 +114,7 @@ export type RoutineRow = {
   goal_id: string | null;
   recurrence_type: string;
   weekdays: number[] | null;
+  weekday_labels: Record<string, string> | null;
   scheduled_time: string | null;
   duration_minutes: number | null;
   timezone: string;
@@ -113,6 +131,7 @@ export type RoutineInsertRow = {
   goal_id: string | null;
   recurrence_type: PlanningRecurrenceType;
   weekdays: PlanningIsoWeekday[] | null;
+  weekday_labels: Record<string, string> | null;
   scheduled_time: string | null;
   duration_minutes: number | null;
   timezone: string;
@@ -126,6 +145,7 @@ export type RoutineUpdateRow = {
   goal_id: string | null;
   recurrence_type: PlanningRecurrenceType;
   weekdays: PlanningIsoWeekday[] | null;
+  weekday_labels: Record<string, string> | null;
   scheduled_time: string | null;
   duration_minutes: number | null;
   timezone: string;
@@ -144,6 +164,7 @@ export type RoutineWriteInput = {
   goalId?: unknown;
   recurrenceType: unknown;
   weekdays?: unknown;
+  weekdayLabels?: unknown;
   scheduledTime?: unknown;
   durationMinutes?: unknown;
   timezone: unknown;
@@ -310,6 +331,167 @@ export function normalizeRoutineWeekdays(
   }
 
   return { ok: true, value: unique };
+}
+
+/**
+ * Persistable shape: JSON object with string weekday keys, or null.
+ * Empty / whitespace-only labels are dropped. Daily always stores null.
+ */
+export function normalizeRoutineWeekdayLabels(
+  recurrenceType: PlanningRecurrenceType,
+  weekdays: PlanningIsoWeekday[] | null,
+  value: unknown
+): RoutinePrepareResult<Record<string, string> | null> {
+  if (recurrenceType === 'daily') {
+    if (value === null || value === undefined) {
+      return { ok: true, value: null };
+    }
+    if (
+      (Array.isArray(value) && value.length === 0) ||
+      (isPlainObject(value) && Object.keys(value).length === 0)
+    ) {
+      return { ok: true, value: null };
+    }
+    return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.weekdayLabelsDaily };
+  }
+
+  if (value === null || value === undefined) {
+    return { ok: true, value: null };
+  }
+
+  if (!isPlainObject(value)) {
+    return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.weekdayLabels };
+  }
+
+  const allowed = new Set(weekdays ?? []);
+  const normalized: Record<string, string> = {};
+
+  for (const [rawKey, rawValue] of Object.entries(value)) {
+    const weekday =
+      typeof rawKey === 'string' && /^\d+$/.test(rawKey)
+        ? Number(rawKey)
+        : NaN;
+    if (!isPlanningIsoWeekday(weekday) || !allowed.has(weekday)) {
+      return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.weekdayLabels };
+    }
+    if (rawValue === null || rawValue === undefined || rawValue === '') {
+      continue;
+    }
+    if (typeof rawValue !== 'string') {
+      return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.weekdayLabels };
+    }
+    const trimmed = rawValue.trim();
+    if (trimmed.length < 1) continue;
+    if (trimmed.length > PLANNING_TITLE_MAX_LENGTH) {
+      return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.weekdayLabels };
+    }
+    if (!isValidPlanningTitle(trimmed)) {
+      return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.weekdayLabels };
+    }
+    normalized[String(weekday)] = trimmed;
+  }
+
+  if (Object.keys(normalized).length === 0) {
+    return { ok: true, value: null };
+  }
+
+  const domainLabels = mapWeekdayLabelsFromPersisted(normalized);
+  if (!isValidRoutineWeekdayLabels(recurrenceType, weekdays, domainLabels)) {
+    return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.weekdayLabels };
+  }
+
+  return { ok: true, value: normalized };
+}
+
+function mapWeekdayLabelsFromPersisted(
+  value: unknown
+): RoutineWeekdayLabels | null {
+  if (value === null || value === undefined) return null;
+  if (!isPlainObject(value)) return null;
+  const labels: RoutineWeekdayLabels = {};
+  let count = 0;
+  for (const [rawKey, rawValue] of Object.entries(value)) {
+    const weekday =
+      typeof rawKey === 'string' && /^\d+$/.test(rawKey)
+        ? Number(rawKey)
+        : NaN;
+    if (!isPlanningIsoWeekday(weekday)) return null;
+    if (typeof rawValue !== 'string') return null;
+    const trimmed = rawValue.trim();
+    if (!trimmed || !isValidPlanningTitle(trimmed)) return null;
+    labels[weekday] = trimmed;
+    count += 1;
+  }
+  return count > 0 ? labels : null;
+}
+
+/**
+ * Deterministic occurrence action for a local calendar date.
+ * Uses the weekday-specific label when present; otherwise the Routine title.
+ */
+export function effectiveRoutineActionForLocalDate(
+  routine: Pick<Routine, 'title' | 'recurrenceType' | 'weekdayLabels'>,
+  localDate: string
+): string {
+  if (routine.recurrenceType !== 'weekly' || !routine.weekdayLabels) {
+    return routine.title;
+  }
+  const weekday = isoWeekdayFromLocalDate(localDate);
+  if (weekday === null) return routine.title;
+  const label = routine.weekdayLabels[weekday];
+  return label && label.trim() ? label.trim() : routine.title;
+}
+
+export type RoutineOccurrencePresentation = {
+  /** Primary Today title — today's effective action. */
+  actionTitle: string;
+  /** Parent Routine title when it differs from the effective action. */
+  parentRoutineTitle: string | null;
+  /** Full weekday name when a weekday-specific label is shown. */
+  weekdayFullLabel: string | null;
+  /** Secondary context line, e.g. "Lifting Split · Wednesday". */
+  contextLine: string | null;
+  usesWeekdayLabel: boolean;
+};
+
+/**
+ * Today/Planner presentation contract for a Routine occurrence.
+ * Does not use the Routine description as today's completed action.
+ */
+export function presentRoutineOccurrence(
+  routine: Pick<Routine, 'title' | 'recurrenceType' | 'weekdayLabels'>,
+  localDate: string
+): RoutineOccurrencePresentation {
+  const actionTitle = effectiveRoutineActionForLocalDate(routine, localDate);
+  const weekday = isoWeekdayFromLocalDate(localDate);
+  const weekdayLabel =
+    weekday !== null &&
+    routine.recurrenceType === 'weekly' &&
+    routine.weekdayLabels?.[weekday]
+      ? routine.weekdayLabels[weekday]!
+      : null;
+  const usesWeekdayLabel = Boolean(
+    weekdayLabel && weekdayLabel.trim() && weekdayLabel.trim() !== routine.title
+  );
+
+  if (!usesWeekdayLabel || weekday === null) {
+    return {
+      actionTitle,
+      parentRoutineTitle: null,
+      weekdayFullLabel: null,
+      contextLine: null,
+      usesWeekdayLabel: false,
+    };
+  }
+
+  const weekdayFullLabel = WEEKDAY_FULL_LABELS[weekday];
+  return {
+    actionTitle,
+    parentRoutineTitle: routine.title,
+    weekdayFullLabel,
+    contextLine: `${routine.title} · ${weekdayFullLabel}`,
+    usesWeekdayLabel: true,
+  };
 }
 
 function normalizeGoalId(value: unknown): RoutinePrepareResult<string | null> {
@@ -627,6 +809,13 @@ export function prepareRoutineCreate(
     };
   }
 
+  const weekdayLabels = normalizeRoutineWeekdayLabels(
+    input.recurrenceType,
+    weekdays.value,
+    input.weekdayLabels
+  );
+  if (!weekdayLabels.ok) return weekdayLabels;
+
   const goalId = normalizeGoalId(input.goalId);
   if (!goalId.ok) return goalId;
 
@@ -639,6 +828,8 @@ export function prepareRoutineCreate(
   const timezone = normalizeTimezone(input.timezone);
   if (!timezone.ok) return timezone;
 
+  const mappedLabels = mapWeekdayLabelsFromPersisted(weekdayLabels.value);
+
   const row: RoutineInsertRow = {
     user_id: owner.value,
     title: title.value,
@@ -647,6 +838,7 @@ export function prepareRoutineCreate(
     goal_id: goalId.value,
     recurrence_type: input.recurrenceType,
     weekdays: weekdays.value,
+    weekday_labels: weekdayLabels.value,
     scheduled_time: scheduledTime.value,
     duration_minutes: durationMinutes.value,
     timezone: timezone.value,
@@ -662,6 +854,7 @@ export function prepareRoutineCreate(
       goalId: row.goal_id,
       recurrenceType: row.recurrence_type,
       weekdays: row.weekdays,
+      weekdayLabels: mappedLabels,
       scheduledTime: row.scheduled_time,
       durationMinutes: row.duration_minutes,
       timezone: row.timezone,
@@ -690,6 +883,7 @@ export function prepareRoutineUpdate(
       goal_id: created.value.goal_id,
       recurrence_type: created.value.recurrence_type,
       weekdays: created.value.weekdays,
+      weekday_labels: created.value.weekday_labels,
       scheduled_time: created.value.scheduled_time,
       duration_minutes: created.value.duration_minutes,
       timezone: created.value.timezone,
@@ -738,6 +932,14 @@ export function routineFromRow(row: unknown, ownerId: string): Routine | null {
   const goalId = row.goal_id;
   const recurrenceType = row.recurrence_type;
   const weekdays = mapWeekdaysFromRow(row.weekdays);
+  // Backward compatible: missing column (pre-v11) reads as null.
+  const weekdayLabels =
+    row.weekday_labels === undefined
+      ? null
+      : mapWeekdayLabelsFromPersisted(row.weekday_labels);
+  if (row.weekday_labels !== undefined && row.weekday_labels !== null && weekdayLabels === null) {
+    return null;
+  }
   const scheduledTime = row.scheduled_time;
   const durationMinutes = row.duration_minutes;
   const timezone = row.timezone;
@@ -760,6 +962,9 @@ export function routineFromRow(row: unknown, ownerId: string): Routine | null {
   if (!isNonEmptyString(createdAt) || !isNonEmptyString(updatedAt)) return null;
   if (!isValidPlanningCategories(rawCategories)) return null;
   if (!isValidRoutineRecurrence(recurrenceType, weekdays)) return null;
+  if (!isValidRoutineWeekdayLabels(recurrenceType, weekdays, weekdayLabels)) {
+    return null;
+  }
 
   const routine: Routine = {
     id,
@@ -771,6 +976,7 @@ export function routineFromRow(row: unknown, ownerId: string): Routine | null {
     goalId,
     recurrenceType,
     weekdays,
+    weekdayLabels,
     scheduledTime,
     durationMinutes,
     timezone,
@@ -788,6 +994,7 @@ export function routineFromRow(row: unknown, ownerId: string): Routine | null {
       goalId: routine.goalId,
       recurrenceType: routine.recurrenceType,
       weekdays: routine.weekdays,
+      weekdayLabels: routine.weekdayLabels,
       scheduledTime: routine.scheduledTime,
       durationMinutes: routine.durationMinutes,
       timezone: routine.timezone,
