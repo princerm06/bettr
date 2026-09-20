@@ -1,0 +1,916 @@
+{
+  "identity": {
+    "v2Evaluator": "candidate-action-evidence-mpnet",
+    "v3Evaluator": "candidate-action-evidence-mpnet-v3",
+    "v2Fingerprint": "72c03aa4638160895cd0bc7d6bf06b1b2914f226208aad82a3ccfe01ccbe657a",
+    "v3Fingerprint": "c6f3c8002e3d8c375f8b14ca3462d14c943fdd5faca1764afbf7b7d038d43237",
+    "v2TrainCount": 204,
+    "v3TrainCount": 220,
+    "tNeg": 0.4407,
+    "tPos": 0.6165,
+    "productionUnchanged": true
+  },
+  "train": {
+    "v2": {
+      "nBinary": 204,
+      "goldPos_confidentPos": 91,
+      "goldPos_uncertain": 11,
+      "goldPos_confidentNeg": 0,
+      "goldNeg_confidentPos": 2,
+      "goldNeg_uncertain": 8,
+      "goldNeg_confidentNeg": 92
+    },
+    "v3": {
+      "nBinary": 204,
+      "goldPos_confidentPos": 89,
+      "goldPos_uncertain": 13,
+      "goldPos_confidentNeg": 0,
+      "goldNeg_confidentPos": 2,
+      "goldNeg_uncertain": 9,
+      "goldNeg_confidentNeg": 91
+    }
+  },
+  "val": {
+    "v2": {
+      "nBinary": 48,
+      "goldPos_confidentPos": 22,
+      "goldPos_uncertain": 2,
+      "goldPos_confidentNeg": 0,
+      "goldNeg_confidentPos": 0,
+      "goldNeg_uncertain": 9,
+      "goldNeg_confidentNeg": 15
+    },
+    "v3": {
+      "nBinary": 48,
+      "goldPos_confidentPos": 20,
+      "goldPos_uncertain": 4,
+      "goldPos_confidentNeg": 0,
+      "goldNeg_confidentPos": 0,
+      "goldNeg_uncertain": 8,
+      "goldNeg_confidentNeg": 16
+    }
+  },
+  "exam": {
+    "v2": {
+      "nBinary": 5,
+      "goldPos_confidentPos": 0,
+      "goldPos_uncertain": 0,
+      "goldPos_confidentNeg": 0,
+      "goldNeg_confidentPos": 0,
+      "goldNeg_uncertain": 1,
+      "goldNeg_confidentNeg": 4
+    },
+    "v3": {
+      "nBinary": 5,
+      "goldPos_confidentPos": 0,
+      "goldPos_uncertain": 0,
+      "goldPos_confidentNeg": 0,
+      "goldNeg_confidentPos": 0,
+      "goldNeg_uncertain": 1,
+      "goldNeg_confidentNeg": 4
+    }
+  },
+  "recoveredGoldPosUncertain": "0/13",
+  "existingGoldNegConfidentPosCorrected": 0,
+  "newFalsePositiveConfidentActions": [],
+  "newFalseNegativeConfidentNonActions": [],
+  "goldPosUncertain": [
+    {
+      "id": "AE2-0016",
+      "text": "Did the rotator-cuff band circuit my PT wrote down.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.616457,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.616153,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0023",
+      "text": "Read the lemma and restated it in my own words before the quiz.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.526734,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.534279,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0028",
+      "text": "Rewrote two bullets on my portfolio case study.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.604622,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.608927,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0029",
+      "text": "Practiced my opener and used it in a coffee chat.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.605554,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.602832,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0041",
+      "text": "Completed five discrete-math practice proofs.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.495782,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.522946,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0064",
+      "text": "Read the assigned passage and wrote a short reflection.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.568747,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.560684,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0089",
+      "text": "Practiced pairing belts and shoes I already own until two combinations looked intentional.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.591039,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.584012,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0107",
+      "text": "Updated the project README and linked it on my job profile.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.56443,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.576107,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0148",
+      "text": "I stood at the bathroom sink and inspected my hairline in the glass.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "NON_DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.615004,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.609821,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0179",
+      "text": "Ran the Spanish verb cards until I could say the irregulars aloud.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.596576,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.602576,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0191",
+      "text": "I wrote a one-page recap of the argument and marked what I would change.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "train",
+      "v2": {
+        "pAction": 0.555383,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.565231,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0214",
+      "text": "I inspected the name badge and pinned it level on the lapel.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "NON_DEVELOPMENTAL",
+      "split": "val",
+      "v2": {
+        "pAction": 0.604345,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.592273,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    },
+    {
+      "id": "AE2-0220",
+      "text": "Archived the three unread client threads after answering each one.",
+      "gold": "ACTION_POSITIVE",
+      "intent": "DEVELOPMENTAL",
+      "split": "val",
+      "v2": {
+        "pAction": 0.604527,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.597071,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "recovered": false
+    }
+  ],
+  "emptyCollisions": [
+    {
+      "id": "AE2-0171",
+      "text": "Got it done. No specifics.",
+      "gold": "ACTION_NEGATIVE",
+      "intent": "NOT_AN_ACTION",
+      "v2": {
+        "pAction": 0.614432,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.602616,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "becamePositive": false,
+      "movedTowardNegative": true
+    },
+    {
+      "id": "AE2-0249",
+      "text": "I looked finished. No adjustment.",
+      "gold": "ACTION_NEGATIVE",
+      "intent": "NOT_AN_ACTION",
+      "v2": {
+        "pAction": 0.577342,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.516907,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "becamePositive": false,
+      "movedTowardNegative": true
+    },
+    {
+      "id": "AE2-0261",
+      "text": "Made progress.",
+      "gold": "AMBIGUOUS",
+      "intent": "NOT_AN_ACTION",
+      "v2": {
+        "pAction": 0.51719,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.500264,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "becamePositive": false,
+      "movedTowardNegative": true
+    },
+    {
+      "id": "AE2-0242",
+      "text": "The setup looked correct. No assembly.",
+      "gold": "ACTION_NEGATIVE",
+      "intent": "NOT_AN_ACTION",
+      "v2": {
+        "pAction": 0.492764,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.463296,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "becamePositive": false,
+      "movedTowardNegative": true
+    },
+    {
+      "id": "AE2-0189",
+      "text": "Insight arrived. I did nothing.",
+      "gold": "ACTION_NEGATIVE",
+      "intent": "NOT_AN_ACTION",
+      "v2": {
+        "pAction": 0.484852,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.443659,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "becamePositive": false,
+      "movedTowardNegative": true
+    },
+    {
+      "id": "AE2-0187",
+      "text": "Clarity found me. No practice.",
+      "gold": "ACTION_NEGATIVE",
+      "intent": "NOT_AN_ACTION",
+      "v2": {
+        "pAction": 0.472585,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.451258,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "becamePositive": false,
+      "movedTowardNegative": true
+    },
+    {
+      "id": "AE2-0241",
+      "text": "It already worked. I was finished by existing.",
+      "gold": "ACTION_NEGATIVE",
+      "intent": "NOT_AN_ACTION",
+      "v2": {
+        "pAction": 0.467026,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.418404,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "becamePositive": false,
+      "movedTowardNegative": true
+    },
+    {
+      "id": "AE2-0235",
+      "text": "I have entered deep focus. No technique.",
+      "gold": "ACTION_NEGATIVE",
+      "intent": "NOT_AN_ACTION",
+      "v2": {
+        "pAction": 0.455373,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.445245,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "becamePositive": false,
+      "movedTowardNegative": true
+    }
+  ],
+  "existingGoldNegConfidentPos": [
+    {
+      "id": "AE2-0164",
+      "text": "Closed the whole slate.",
+      "gold": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.682368,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.673284,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "corrected": false
+    },
+    {
+      "id": "AE2-0176",
+      "text": "Did the work. That's the post.",
+      "gold": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.68747,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.664492,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "corrected": false
+    }
+  ],
+  "protectedControls": [
+    {
+      "id": "P01",
+      "expected": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.287411,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v3": {
+        "pAction": 0.292264,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P02",
+      "expected": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.338564,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v3": {
+        "pAction": 0.340583,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P03",
+      "expected": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.232551,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v3": {
+        "pAction": 0.254429,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P04",
+      "expected": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.295693,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v3": {
+        "pAction": 0.30543,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P05",
+      "expected": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.469945,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.47366,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P06",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.744775,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.752569,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P07",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.643494,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.624831,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P08",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.72293,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.70432,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P09",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.700624,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.696279,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P10",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.653234,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.629645,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P11",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.612785,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.609056,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P12",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.773752,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.760614,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P13",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.61683,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.596217,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P14",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.693394,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.675382,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P15",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.758904,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.742243,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P16",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.612816,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.604292,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P17",
+      "expected": "ACTION_POSITIVE",
+      "v2": {
+        "pAction": 0.503384,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.483714,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P18",
+      "expected": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.3139,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v3": {
+        "pAction": 0.317536,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P19",
+      "expected": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.410098,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v3": {
+        "pAction": 0.396875,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    },
+    {
+      "id": "P20",
+      "expected": "ACTION_NEGATIVE",
+      "v2": {
+        "pAction": 0.216254,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v3": {
+        "pAction": 0.231602,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v2Match": true,
+      "v3Match": true,
+      "v3ConfidentWrong": false
+    }
+  ],
+  "productProbes": [
+    {
+      "text": "Completed my CS homework",
+      "v2": {
+        "pAction": 0.612236,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.598597,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "182 Homework\nCompleted my CS homework",
+      "v2": {
+        "pAction": 0.586415,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.582358,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "Completed CS 182 homework",
+      "v2": {
+        "pAction": 0.615609,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.611189,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "Completed five CS 182 homework problems",
+      "v2": {
+        "pAction": 0.691906,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.692644,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      }
+    },
+    {
+      "text": "Finished a 90-minute CS 182 problem set",
+      "v2": {
+        "pAction": 0.656301,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.644191,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      }
+    },
+    {
+      "text": "school stuff",
+      "v2": {
+        "pAction": 0.487497,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.515472,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "Did school things",
+      "v2": {
+        "pAction": 0.618418,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      },
+      "v3": {
+        "pAction": 0.624889,
+        "band": "CONFIDENT_ACTION_POSITIVE"
+      }
+    },
+    {
+      "text": "worked on stuff",
+      "v2": {
+        "pAction": 0.5406,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.524267,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "productive day",
+      "v2": {
+        "pAction": 0.409002,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      },
+      "v3": {
+        "pAction": 0.401482,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      }
+    },
+    {
+      "text": "I learned pointer arithmetic",
+      "v2": {
+        "pAction": 0.475871,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.48927,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "Got it done. No specifics.",
+      "v2": {
+        "pAction": 0.614432,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.602616,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "I did nothing.",
+      "v2": {
+        "pAction": 0.606982,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.55272,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "Clarity found me. No practice.",
+      "v2": {
+        "pAction": 0.472585,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.451258,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "Insight arrived. I did nothing.",
+      "v2": {
+        "pAction": 0.484852,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.443659,
+        "band": "ACTION_UNCERTAIN"
+      }
+    },
+    {
+      "text": "I never practiced.",
+      "v2": {
+        "pAction": 0.444831,
+        "band": "ACTION_UNCERTAIN"
+      },
+      "v3": {
+        "pAction": 0.406884,
+        "band": "CONFIDENT_ACTION_NEGATIVE"
+      }
+    }
+  ]
+}
