@@ -202,6 +202,41 @@ export async function evaluatePlannerLogCredit(
   };
 }
 
+export type PlannerAddDetailsFormState = {
+  activity: string;
+  details: string;
+  clarificationText: string;
+  visibility: 'friends' | 'private';
+};
+
+/**
+ * New unsaved planned completions start with a blank actual-action field.
+ * Saved canonical Logs reopen with their stored action/details/visibility.
+ * Clarification is always a fresh pass.
+ */
+export function initialPlannerAddDetailsForm(
+  saved: {
+    activity?: string | null;
+    details?: string | null;
+    visibility?: 'friends' | 'private' | null;
+  } | null
+): PlannerAddDetailsFormState {
+  if (!saved) {
+    return {
+      activity: '',
+      details: '',
+      clarificationText: '',
+      visibility: 'private',
+    };
+  }
+  return {
+    activity: saved.activity?.trim() ? saved.activity : '',
+    details: saved.details || '',
+    clarificationText: '',
+    visibility: saved.visibility === 'friends' ? 'friends' : 'private',
+  };
+}
+
 export function buildPlannerLogDraft(options: {
   credit: Extract<PlannerCreditResult, { kind: 'credited' }>;
   request: PlannerCreditRequest;

@@ -9,7 +9,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   decideLightCompletion,
   decideLogLinkedCompletion,
+  todoIdToCloseOnOccurrenceCompletion,
 } from './completion';
+import { archiveOwnedTodoIfOpen } from './todosAccess';
 import {
   buildMissingTodayOccurrenceDrafts,
   selectLogicalTodayOccurrences,
@@ -314,28 +316,38 @@ export async function completeOwnedOccurrenceLight(
 
   const decision = decideLightCompletion(occurrence, resolvedAt);
   if (decision.kind === 'reject') return fail(decision.error, null);
-  if (decision.kind === 'noop') return { data: occurrence, error: null };
 
-  const prepared = prepareOccurrenceCompletionUpdate(
-    occurrence,
-    decision.next,
+  let mapped: PlannedOccurrence = occurrence;
+  if (decision.kind === 'apply') {
+    const prepared = prepareOccurrenceCompletionUpdate(
+      occurrence,
+      decision.next,
+      resolvedAt
+    );
+    if (!prepared.ok) return fail(prepared.error, null);
+
+    const { data, error } = await client
+      .from('planned_occurrences')
+      .update(prepared.value)
+      .eq('id', occurrence.id)
+      .eq('user_id', ownerId)
+      .select(OCCURRENCE_SELECT)
+      .maybeSingle();
+
+    if (error) return fail(error.message, null);
+    if (!data) return fail(OCCURRENCE_VALIDATION_MESSAGES.notFound, null);
+    const next = occurrenceFromRow(data, ownerId);
+    if (!next) return fail('Updated plan item could not be read back.', null);
+    mapped = next;
+  }
+
+  const todoError = await closeLinkedTodoIfNeeded(
+    client,
+    ownerId,
+    mapped,
     resolvedAt
   );
-  if (!prepared.ok) return fail(prepared.error, null);
-
-  const { data, error } = await client
-    .from('planned_occurrences')
-    .update(prepared.value)
-    .eq('id', occurrence.id)
-    .eq('user_id', ownerId)
-    .select(OCCURRENCE_SELECT)
-    .maybeSingle();
-
-  if (error) return fail(error.message, null);
-  if (!data) return fail(OCCURRENCE_VALIDATION_MESSAGES.notFound, null);
-  const mapped = occurrenceFromRow(data, ownerId);
-  if (!mapped) return fail('Updated plan item could not be read back.', null);
-  return { data: mapped, error: null };
+  return { data: mapped, error: todoError };
 }
 
 export async function linkOwnedOccurrenceLog(
@@ -355,26 +367,53 @@ export async function linkOwnedOccurrenceLog(
 
   const decision = decideLogLinkedCompletion(occurrence, logId, resolvedAt);
   if (decision.kind === 'reject') return fail(decision.error, null);
-  if (decision.kind === 'noop') return { data: occurrence, error: null };
 
-  const prepared = prepareOccurrenceCompletionUpdate(
-    occurrence,
-    decision.next,
+  let mapped: PlannedOccurrence = occurrence;
+  if (decision.kind === 'apply') {
+    const prepared = prepareOccurrenceCompletionUpdate(
+      occurrence,
+      decision.next,
+      resolvedAt
+    );
+    if (!prepared.ok) return fail(prepared.error, null);
+
+    const { data, error } = await client
+      .from('planned_occurrences')
+      .update(prepared.value)
+      .eq('id', occurrence.id)
+      .eq('user_id', ownerId)
+      .select(OCCURRENCE_SELECT)
+      .maybeSingle();
+
+    if (error) return fail(error.message, null);
+    if (!data) return fail(OCCURRENCE_VALIDATION_MESSAGES.notFound, null);
+    const next = occurrenceFromRow(data, ownerId);
+    if (!next) return fail('Updated plan item could not be read back.', null);
+    mapped = next;
+  }
+
+  const todoError = await closeLinkedTodoIfNeeded(
+    client,
+    ownerId,
+    mapped,
     resolvedAt
   );
-  if (!prepared.ok) return fail(prepared.error, null);
+  return { data: mapped, error: todoError };
+}
 
-  const { data, error } = await client
-    .from('planned_occurrences')
-    .update(prepared.value)
-    .eq('id', occurrence.id)
-    .eq('user_id', ownerId)
-    .select(OCCURRENCE_SELECT)
-    .maybeSingle();
-
-  if (error) return fail(error.message, null);
-  if (!data) return fail(OCCURRENCE_VALIDATION_MESSAGES.notFound, null);
-  const mapped = occurrenceFromRow(data, ownerId);
-  if (!mapped) return fail('Updated plan item could not be read back.', null);
-  return { data: mapped, error: null };
+async function closeLinkedTodoIfNeeded(
+  client: SupabaseClient,
+  ownerId: string,
+  occurrence: PlannedOccurrence,
+  resolvedAt: string
+): Promise<string | null> {
+  const todoId = todoIdToCloseOnOccurrenceCompletion(occurrence);
+  if (!todoId) return null;
+  const closed = await archiveOwnedTodoIfOpen(
+    client,
+    ownerId,
+    todoId,
+    resolvedAt
+  );
+  return closed.error;
 }

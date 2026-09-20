@@ -341,12 +341,13 @@ assert.ok(todosAccess.includes(".from('todos')"));
 assert.ok(todosAccess.includes(".eq('user_id', ownerId)"));
 assert.ok(todosAccess.includes('prepareTodoCreate'));
 assert.ok(todosAccess.includes('setOwnedTodoArchived'));
+assert.ok(todosAccess.includes('archiveOwnedTodoIfOpen'));
+assert.ok(todosAccess.includes(".is('archived_at', null)"));
 assert.ok(todosAccess.includes('ON DELETE RESTRICT'));
 assert.equal(todosAccess.includes('.delete('), false);
 assert.equal(todosAccess.includes('SERVICE_ROLE'), false);
 assert.equal(todosAccess.includes('service_role'), false);
 assert.equal(todosAccess.includes('SUPABASE_SERVICE_ROLE_KEY'), false);
-assert.ok(!todosAccess.includes('planned_occurrences'));
 assert.ok(!todosAccess.includes(".from('logs')"));
 assert.ok(!todosAccess.includes('completion_mode'));
 assert.ok(!todosAccess.includes('log_id'));
@@ -362,7 +363,6 @@ assert.ok(!uiBundle.includes('applyPriorityReward'));
 assert.ok(!uiBundle.includes('progressCredit'));
 assert.ok(!uiBundle.includes('actionEvidence'));
 assert.ok(!uiBundle.includes('calculateDisciplineScore'));
-assert.ok(!uiBundle.includes('planned_occurrences'));
 assert.ok(!uiBundle.includes(".from('logs')"));
 assert.ok(
   uiBundle.includes('does not award XP') ||
@@ -391,6 +391,8 @@ assert.ok(!todoForm.includes('type="date"'));
 const todosView = readFileSync(join(root, 'app/planning/TodosView.tsx'), 'utf8');
 assert.ok(todosView.includes('Mark done') || todosView.includes('Mark Done'));
 assert.ok(todosView.includes('Reopen'));
+assert.ok(todosView.includes('completeOwnedOccurrenceLight'));
+assert.ok(todosView.includes('listOwnedOccurrencesForSources'));
 assert.ok(
   todosView.includes('planning status') ||
     todosView.includes('does not award') ||

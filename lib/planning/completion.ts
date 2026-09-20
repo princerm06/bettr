@@ -141,6 +141,18 @@ export function goalAttributionFromSource(source: {
   return source.goalId;
 }
 
+/**
+ * One-off To-Do completion is `todos.archived_at`, not a second done flag.
+ * Completing a todo-sourced occurrence must close that To-Do.
+ */
+export function todoIdToCloseOnOccurrenceCompletion(occurrence: {
+  sourceType: string;
+  todoId: string | null;
+}): string | null {
+  if (occurrence.sourceType !== 'todo') return null;
+  return occurrence.todoId;
+}
+
 export function completionModeLabel(
   mode: PlanningCompletionMode | null
 ): string {

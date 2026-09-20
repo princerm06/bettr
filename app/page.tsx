@@ -1127,6 +1127,11 @@ export default function Home() {
               id: found.id,
               activity: found.activity,
               details: found.details,
+              visibility: found.visibility,
+              categories: found.categories,
+              points: found.points,
+              image: found.image,
+              imagePath: found.imagePath,
             };
           }}
           onCreditedLog={async (log) => {

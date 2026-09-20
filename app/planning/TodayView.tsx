@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Check, CalendarCheck, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Check, CalendarCheck, ChevronDown, ChevronUp, Users, X } from 'lucide-react';
 import { supabase, supabaseConfigured } from '../../lib/supabase';
 import {
   deriveOccurrenceState,
@@ -26,6 +26,7 @@ import {
 import {
   buildPlannerLogDraft,
   evaluatePlannerLogCredit,
+  initialPlannerAddDetailsForm,
   planLightOccurrenceCompletion,
   planLogLinkedOccurrenceCompletion,
 } from '../../lib/plannerExecution/completePlannedOccurrence';
@@ -53,6 +54,11 @@ export type PlannerSavedLogLookup = {
   id: string;
   activity: string;
   details?: string;
+  visibility?: 'friends' | 'private';
+  categories?: PlanningCategoryKey[];
+  points?: number;
+  image?: string;
+  imagePath?: string;
 };
 
 type TodayItem = {
@@ -92,6 +98,7 @@ export default function TodayView({
   const [details, setDetails] = useState('');
   const [clarificationText, setClarificationText] = useState('');
   const [awaitingClarification, setAwaitingClarification] = useState(false);
+  const [visibility, setVisibility] = useState<'friends' | 'private'>('private');
 
   const ownerId = user?.id ?? '';
 
@@ -204,11 +211,12 @@ export default function TodayView({
       item.occurrence.logId && getSavedLog
         ? getSavedLog(item.occurrence.logId)
         : null;
+    const form = initialPlannerAddDetailsForm(saved);
     setDetailsFor(item.occurrence.id);
-    setActivity(saved?.activity?.trim() ? saved.activity : item.title);
-    // New planned Log: details start blank. Saved Log: reopen its details.
-    setDetails(saved ? saved.details || '' : '');
-    setClarificationText('');
+    setActivity(form.activity);
+    setDetails(form.details);
+    setClarificationText(form.clarificationText);
+    setVisibility(form.visibility);
     setAwaitingClarification(false);
     setNotice(null);
   }
@@ -219,6 +227,7 @@ export default function TodayView({
     setActivity('');
     setDetails('');
     setClarificationText('');
+    setVisibility('private');
     setAwaitingClarification(false);
     setNotice(null);
   }
@@ -250,7 +259,7 @@ export default function TodayView({
       resolvedAt
     );
     setBusyId(null);
-    if (result.error || !result.data) {
+    if (!result.data) {
       setNotice(result.error || 'Could not mark this done.');
       return;
     }
@@ -261,6 +270,10 @@ export default function TodayView({
           : row
       )
     );
+    if (result.error) {
+      setNotice(result.error);
+      return;
+    }
     onNotice('Marked done — adherence only, no XP until you log details.');
   }
 
@@ -276,16 +289,31 @@ export default function TodayView({
     }
 
     setBusyId(item.occurrence.id);
+    const saved =
+      item.occurrence.logId && getSavedLog
+        ? getSavedLog(item.occurrence.logId)
+        : null;
     const credit = await evaluatePlannerLogCredit({
       activity: cleanActivity,
       details,
       categories: item.categories,
-      hasImage: false,
+      hasImage: Boolean(saved?.image || saved?.imagePath),
       logDate: item.occurrence.scheduledDate,
       startTime: item.occurrence.scheduledTime,
       durationMinutes: item.occurrence.durationMinutes,
+      visibility,
       clarificationPass: awaitingClarification,
       clarificationText,
+      existingLog: saved
+        ? {
+            id: saved.id,
+            activity: saved.activity,
+            details: saved.details,
+            categories: saved.categories || item.categories,
+            hasImage: Boolean(saved.image || saved.imagePath),
+            points: saved.points ?? 0,
+          }
+        : undefined,
       priorities,
     });
 
@@ -315,7 +343,7 @@ export default function TodayView({
           item.occurrence,
           resolvedAt
         );
-        if (light.error || !light.data) {
+        if (!light.data) {
           setBusyId(null);
           setNotice(light.error || 'Could not record adherence.');
           return;
@@ -327,6 +355,11 @@ export default function TodayView({
               : row
           )
         );
+        if (light.error) {
+          setBusyId(null);
+          setNotice(light.error);
+          return;
+        }
       }
       setBusyId(null);
       closeDetails();
@@ -344,10 +377,11 @@ export default function TodayView({
         activity: cleanActivity,
         details,
         categories: item.categories,
-        hasImage: false,
+        hasImage: Boolean(saved?.image || saved?.imagePath),
         logDate: item.occurrence.scheduledDate,
         startTime: item.occurrence.scheduledTime,
         durationMinutes: item.occurrence.durationMinutes,
+        visibility,
         priorities,
       },
       logId,
@@ -408,7 +442,7 @@ export default function TodayView({
       resolvedAt
     );
     setBusyId(null);
-    if (linked.error || !linked.data) {
+    if (!linked.data) {
       setNotice(linked.error || 'Log saved, but the plan link failed. Retry Add details.');
       return;
     }
@@ -420,6 +454,10 @@ export default function TodayView({
           : row
       )
     );
+    if (linked.error) {
+      setNotice(linked.error);
+      return;
+    }
     closeDetails();
     onNotice(
       reuseLogId
@@ -594,6 +632,23 @@ export default function TodayView({
                       onChange={(event) => setDetails(event.target.value)}
                       placeholder="Anything that helps prove the work…"
                     />
+                    <label className="fieldLabel">Who can see this?</label>
+                    <div className="visibilityPicker">
+                      <button
+                        type="button"
+                        className={visibility === 'friends' ? 'selected' : ''}
+                        onClick={() => setVisibility('friends')}
+                      >
+                        <Users size={15} /> Friends
+                      </button>
+                      <button
+                        type="button"
+                        className={visibility === 'private' ? 'selected' : ''}
+                        onClick={() => setVisibility('private')}
+                      >
+                        🔒 Private
+                      </button>
+                    </div>
                     {awaitingClarification && (
                       <>
                         <label
@@ -632,9 +687,6 @@ export default function TodayView({
                         Cancel
                       </button>
                     </div>
-                    <p className={styles.hint}>
-                      Uses the same checks and scoring as +Log.
-                    </p>
                   </div>
                 )}
               </article>

@@ -91,6 +91,7 @@ export {
   decideLogLinkedCompletion,
   goalAttributionFromSource,
   linkedLogIdForReuse,
+  todoIdToCloseOnOccurrenceCompletion,
 } from './completion';
 
 export type { CompletionDecision } from './completion';

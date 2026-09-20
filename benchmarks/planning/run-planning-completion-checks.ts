@@ -21,6 +21,7 @@ import {
   routineAppliesOnLocalDate,
   selectLogicalTodayOccurrences,
   todayScheduledDates,
+  todoIdToCloseOnOccurrenceCompletion,
   type PlannedOccurrence,
   type Routine,
   type Todo,
@@ -28,6 +29,7 @@ import {
 import {
   buildPlannerLogDraft,
   evaluatePlannerLogCredit,
+  initialPlannerAddDetailsForm,
   planLightOccurrenceCompletion,
   planLogLinkedOccurrenceCompletion,
 } from '../../lib/plannerExecution/completePlannedOccurrence';
@@ -445,7 +447,30 @@ async function main() {
     assert.equal(draft.points, 9);
     assert.equal(draft.id, 'log-new');
     assert.equal(draft.custom, true);
+    assert.equal(draft.visibility, 'private');
   }
+
+  const friendsDraft = buildPlannerLogDraft({
+    credit: {
+      kind: 'credited',
+      decision: { kind: 'save' },
+      points: 5,
+      details: '',
+      reuseLogId: null,
+    },
+    request: {
+      activity: 'Sent the AI major email',
+      details: '',
+      categories: ['career'],
+      hasImage: false,
+      logDate: '2026-09-17',
+      visibility: 'friends',
+      priorities: { career: 'normal' },
+    },
+    logId: 'log-vis',
+  });
+  assert.equal(friendsDraft.visibility, 'friends');
+  assert.equal(friendsDraft.activity, 'Sent the AI major email');
 
   const standardCredited = await evaluatePlannerLogCredit({
     activity: 'Studied organic chemistry',
@@ -563,6 +588,9 @@ async function main() {
   assert.ok(access.includes('selectLogicalTodayOccurrences'));
   assert.ok(access.includes('completeOwnedOccurrenceLight'));
   assert.ok(access.includes('linkOwnedOccurrenceLog'));
+  assert.ok(access.includes('archiveOwnedTodoIfOpen'));
+  assert.ok(access.includes('todoIdToCloseOnOccurrenceCompletion'));
+  assert.ok(access.includes('closeLinkedTodoIfNeeded'));
   assert.equal(access.includes('SERVICE_ROLE'), false);
   assert.equal(access.includes('service_role'), false);
   assert.ok(!access.includes('applyPriorityReward'));
@@ -598,10 +626,14 @@ async function main() {
   assert.ok(todayView.includes('cancelDetails'));
   assert.ok(todayView.includes('Cancel'));
   assert.ok(todayView.includes('getSavedLog'));
+  assert.ok(todayView.includes('initialPlannerAddDetailsForm'));
+  assert.ok(todayView.includes('visibilityPicker'));
+  assert.ok(todayView.includes('Who can see this?'));
+  assert.ok(!todayView.includes('Uses the same checks and scoring as +Log.'));
+  assert.ok(!todayView.includes("saved?.activity?.trim() ? saved.activity : item.title"));
   assert.ok(!todayView.includes('Retries enrich'));
   assert.ok(!todayView.includes('SERVICE_ROLE'));
   // New planned Log: details start blank; do not prefill Routine description.
-  assert.ok(todayView.includes("setDetails(saved ? saved.details || '' : '')"));
   assert.ok(!todayView.includes('item.description ||'));
 
   const liftingSplit: Routine = {
@@ -638,16 +670,49 @@ async function main() {
     'Lifting Split'
   );
 
-  // Planned Log default action uses effective weekday action, not parent description.
+  // Card title still uses weekday label; Add Details actual-action starts blank.
   const defaultPlannedActivity = wedPresent.actionTitle;
   assert.equal(defaultPlannedActivity, 'Legs & Abs');
-  const newPlannedDetails = '';
-  assert.equal(newPlannedDetails, '');
-  const savedDetailsReopen = {
+  const newPlannedForm = initialPlannerAddDetailsForm(null);
+  assert.equal(newPlannedForm.activity, '');
+  assert.equal(newPlannedForm.details, '');
+  assert.equal(newPlannedForm.clarificationText, '');
+  assert.equal(newPlannedForm.visibility, 'private');
+  assert.notEqual(newPlannedForm.activity, defaultPlannedActivity);
+
+  const savedDetailsReopen = initialPlannerAddDetailsForm({
     activity: 'Legs & Abs',
     details: 'Bench 185x5, incline DB…',
-  };
+    visibility: 'friends',
+  });
+  assert.equal(savedDetailsReopen.activity, 'Legs & Abs');
   assert.equal(savedDetailsReopen.details.includes('Bench'), true);
+  assert.equal(savedDetailsReopen.clarificationText, '');
+  assert.equal(savedDetailsReopen.visibility, 'friends');
+
+  assert.equal(
+    todoIdToCloseOnOccurrenceCompletion({
+      sourceType: 'todo',
+      todoId: 'todo-1',
+    }),
+    'todo-1'
+  );
+  assert.equal(
+    todoIdToCloseOnOccurrenceCompletion({
+      sourceType: 'routine',
+      todoId: null,
+    }),
+    null
+  );
+
+  const pageSource = readFileSync(join(root, 'app/page.tsx'), 'utf8');
+  assert.ok(pageSource.includes('visibilityPicker'));
+  assert.ok(pageSource.includes("existing?.visibility || 'private'"));
+
+  const todosView = readFileSync(join(root, 'app/planning/TodosView.tsx'), 'utf8');
+  assert.ok(todosView.includes('completeOwnedOccurrenceLight'));
+  assert.ok(todosView.includes('listOwnedOccurrencesForSources'));
+  assert.ok(todosView.includes('setOwnedTodoArchived'));
 
   // Cancel has no completion / Log / XP side effects (pure UI close).
   const cancelLeavesOccurrence = { ...planned };

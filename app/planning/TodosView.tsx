@@ -12,6 +12,10 @@ import {
 } from '../../lib/planning';
 import { listOwnedGoals } from '../../lib/planning/goalsAccess';
 import {
+  completeOwnedOccurrenceLight,
+  listOwnedOccurrencesForSources,
+} from '../../lib/planning/occurrencesAccess';
+import {
   createOwnedTodo,
   listOwnedTodos,
   setOwnedTodoArchived,
@@ -130,11 +134,40 @@ export default function TodosView({
       todo,
       nextDone
     );
-    setStatusBusy(null);
     if (result.error || !result.data) {
+      setStatusBusy(null);
       setNotice(result.error || 'Could not update to-do.');
       return;
     }
+
+    if (nextDone) {
+      const listed = await listOwnedOccurrencesForSources(supabase, ownerId, {
+        todoIds: [todo.id],
+      });
+      if (listed.error) {
+        setStatusBusy(null);
+        setNotice(listed.error);
+        await refresh();
+        return;
+      }
+      const resolvedAt = new Date().toISOString();
+      for (const occurrence of listed.data) {
+        const light = await completeOwnedOccurrenceLight(
+          supabase,
+          ownerId,
+          occurrence,
+          resolvedAt
+        );
+        if (light.error && !light.data) {
+          setStatusBusy(null);
+          setNotice(light.error);
+          await refresh();
+          return;
+        }
+      }
+    }
+
+    setStatusBusy(null);
     onNotice(
       nextDone
         ? 'To-do marked done (planning status only).'

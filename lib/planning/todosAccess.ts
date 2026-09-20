@@ -128,3 +128,36 @@ export async function setOwnedTodoArchived(
   if (!mapped) return fail('Updated to-do could not be read back.', null);
   return { data: mapped, error: null };
 }
+
+/**
+ * Close an open To-Do after its planned occurrence is completed.
+ * Idempotent: already-archived rows are left unchanged.
+ */
+export async function archiveOwnedTodoIfOpen(
+  client: SupabaseClient | null | undefined,
+  ownerId: string,
+  todoId: string,
+  resolvedAt: string
+): Promise<TodoAccessResult<Todo | null>> {
+  if (!ownerId) return fail(TODO_VALIDATION_MESSAGES.signedIn, null);
+  if (!todoId) return fail('That to-do could not be found.', null);
+  if (!requireClient(client)) return fail('Cloud sync is not available.', null);
+
+  const { data, error } = await client
+    .from('todos')
+    .update({
+      archived_at: resolvedAt,
+      updated_at: resolvedAt,
+    })
+    .eq('id', todoId)
+    .eq('user_id', ownerId)
+    .is('archived_at', null)
+    .select(TODO_SELECT)
+    .maybeSingle();
+
+  if (error) return fail(error.message, null);
+  if (!data) return { data: null, error: null };
+  const mapped = todoFromRow(data, ownerId);
+  if (!mapped) return fail('Updated to-do could not be read back.', null);
+  return { data: mapped, error: null };
+}
