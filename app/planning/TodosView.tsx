@@ -6,6 +6,7 @@ import { Check, ListTodo, Pencil, Plus, RotateCcw, X } from 'lucide-react';
 import { supabase, supabaseConfigured } from '../../lib/supabase';
 import {
   isTodoOpen,
+  detectBrowserTimeZone,
   planningCategoryDisplay,
   type Goal,
   type Todo,
@@ -14,6 +15,7 @@ import { listOwnedGoals } from '../../lib/planning/goalsAccess';
 import {
   completeOwnedOccurrenceLight,
   listOwnedOccurrencesForSources,
+  reopenOwnedTodoForAnotherAttempt,
 } from '../../lib/planning/occurrencesAccess';
 import {
   createOwnedTodo,
@@ -152,6 +154,7 @@ export default function TodosView({
       }
       const resolvedAt = new Date().toISOString();
       for (const occurrence of listed.data) {
+        if (occurrence.status !== 'planned') continue;
         const light = await completeOwnedOccurrenceLight(
           supabase,
           ownerId,
@@ -165,14 +168,25 @@ export default function TodosView({
           return;
         }
       }
+      onNotice('To-do marked done (planning status only).');
+    } else {
+      const reopened = await reopenOwnedTodoForAnotherAttempt(
+        supabase,
+        ownerId,
+        result.data,
+        new Date(),
+        detectBrowserTimeZone()
+      );
+      if (reopened.error) {
+        setStatusBusy(null);
+        setNotice(reopened.error);
+        await refresh();
+        return;
+      }
+      onNotice('To-do reopened for another attempt. Earlier history stays.');
     }
 
     setStatusBusy(null);
-    onNotice(
-      nextDone
-        ? 'To-do marked done (planning status only).'
-        : 'To-do reopened.'
-    );
     await refresh();
   }
 

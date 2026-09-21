@@ -9,15 +9,19 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   decideLightCompletion,
   decideLogLinkedCompletion,
+  decideSkip,
   todoIdToCloseOnOccurrenceCompletion,
 } from './completion';
-import { archiveOwnedTodoIfOpen } from './todosAccess';
+import { archiveOwnedTodoIfOpen, setOwnedTodoArchived } from './todosAccess';
 import {
   buildMissingTodayOccurrenceDrafts,
+  draftTodoOccurrenceForDate,
   selectLogicalTodayOccurrences,
   todayScheduledDates,
   type OccurrenceInsertDraft,
 } from './materialize';
+import { localCalendarDateInTimeZone } from './localCalendar';
+import { decideReschedule } from './reconciliation';
 import {
   OCCURRENCE_VALIDATION_MESSAGES,
   mapOwnedOccurrenceRows,
@@ -66,6 +70,28 @@ export async function listOwnedOccurrencesForDates(
     .eq('user_id', ownerId)
     .in('scheduled_date', [...dates])
     .order('scheduled_time', { ascending: true });
+
+  if (error) return fail(error.message, []);
+  return { data: mapOwnedOccurrenceRows(data, ownerId), error: null };
+}
+
+export async function listOwnedOccurrencesByIds(
+  client: SupabaseClient | null | undefined,
+  ownerId: string,
+  ids: readonly string[]
+): Promise<OccurrenceAccessResult<PlannedOccurrence[]>> {
+  if (!ownerId) return fail(OCCURRENCE_VALIDATION_MESSAGES.signedIn, []);
+  if (!requireClient(client)) {
+    return fail('Cloud sync is not available.', []);
+  }
+  const unique = [...new Set(ids.filter((id) => typeof id === 'string' && id))];
+  if (unique.length === 0) return { data: [], error: null };
+
+  const { data, error } = await client
+    .from('planned_occurrences')
+    .select(OCCURRENCE_SELECT)
+    .eq('user_id', ownerId)
+    .in('id', unique);
 
   if (error) return fail(error.message, []);
   return { data: mapOwnedOccurrenceRows(data, ownerId), error: null };
@@ -139,8 +165,8 @@ async function insertOccurrenceDraft(
 /**
  * Ensure today's routine/to-do expectations exist as planned_occurrences.
  * Does not rewrite historical rows. Idempotent via existing-row checks,
- * in-flight coalescing, a pre-insert re-list, and optional unique indexes
- * from v10. Returns at most one logical occurrence per intended expectation.
+ * in-flight coalescing, a pre-insert re-list, and unique indexes
+ * from v10/v12. Returns at most one logical occurrence per intended expectation.
  */
 export async function ensureTodayOccurrences(
   client: SupabaseClient | null | undefined,
@@ -272,24 +298,7 @@ async function ensureTodayOccurrencesUncoalesced(
   const refreshed = await listOwnedOccurrencesForDates(client, ownerId, dates);
   if (refreshed.error) return fail(refreshed.error, []);
 
-  // Include active to-do occurrences whose scheduled_date may differ when
-  // viewer timezone shifted, so Today still shows the open expectation.
-  const openTodoIds = new Set(
-    input.todos.filter((todo) => todo.archivedAt === null).map((todo) => todo.id)
-  );
-  const combined = [...refreshed.data];
-  for (const row of existingById.values()) {
-    if (
-      row.sourceType === 'todo' &&
-      row.todoId &&
-      openTodoIds.has(row.todoId) &&
-      !combined.some((item) => item.id === row.id)
-    ) {
-      combined.push(row);
-    }
-  }
-
-  const logical = selectLogicalTodayOccurrences(combined);
+  const logical = selectLogicalTodayOccurrences(refreshed.data);
   logical.sort((a, b) => {
     const timeA = a.scheduledTime || '99:99:99';
     const timeB = b.scheduledTime || '99:99:99';
@@ -416,4 +425,206 @@ async function closeLinkedTodoIfNeeded(
     resolvedAt
   );
   return closed.error;
+}
+
+export async function listOwnedPastPlannedOccurrences(
+  client: SupabaseClient | null | undefined,
+  ownerId: string,
+  beforeDate: string
+): Promise<OccurrenceAccessResult<PlannedOccurrence[]>> {
+  if (!ownerId) return fail(OCCURRENCE_VALIDATION_MESSAGES.signedIn, []);
+  if (!requireClient(client)) {
+    return fail('Cloud sync is not available.', []);
+  }
+
+  const { data, error } = await client
+    .from('planned_occurrences')
+    .select(OCCURRENCE_SELECT)
+    .eq('user_id', ownerId)
+    .eq('status', 'planned')
+    .lt('scheduled_date', beforeDate)
+    .order('scheduled_date', { ascending: true });
+
+  if (error) return fail(error.message, []);
+  return { data: mapOwnedOccurrenceRows(data, ownerId), error: null };
+}
+
+export async function skipOwnedOccurrence(
+  client: SupabaseClient | null | undefined,
+  ownerId: string,
+  occurrence: PlannedOccurrence,
+  resolvedAt: string
+): Promise<OccurrenceAccessResult<PlannedOccurrence | null>> {
+  if (!ownerId) return fail(OCCURRENCE_VALIDATION_MESSAGES.signedIn, null);
+  if (occurrence.userId !== ownerId) {
+    return fail(OCCURRENCE_VALIDATION_MESSAGES.owner, null);
+  }
+  if (!requireClient(client)) {
+    return fail('Cloud sync is not available.', null);
+  }
+
+  const decision = decideSkip(occurrence, resolvedAt);
+  if (decision.kind === 'reject') return fail(decision.error, null);
+
+  let mapped: PlannedOccurrence = occurrence;
+  if (decision.kind === 'apply') {
+    const prepared = prepareOccurrenceCompletionUpdate(
+      occurrence,
+      decision.next,
+      resolvedAt
+    );
+    if (!prepared.ok) return fail(prepared.error, null);
+
+    const { data, error } = await client
+      .from('planned_occurrences')
+      .update(prepared.value)
+      .eq('id', occurrence.id)
+      .eq('user_id', ownerId)
+      .select(OCCURRENCE_SELECT)
+      .maybeSingle();
+
+    if (error) return fail(error.message, null);
+    if (!data) return fail(OCCURRENCE_VALIDATION_MESSAGES.notFound, null);
+    const next = occurrenceFromRow(data, ownerId);
+    if (!next) return fail('Updated plan item could not be read back.', null);
+    mapped = next;
+  }
+
+  const todoError = await closeLinkedTodoIfNeeded(
+    client,
+    ownerId,
+    mapped,
+    resolvedAt
+  );
+  return { data: mapped, error: todoError };
+}
+
+export async function rescheduleOwnedOccurrence(
+  client: SupabaseClient | null | undefined,
+  ownerId: string,
+  occurrence: PlannedOccurrence,
+  targetDate: string,
+  resolvedAt: string
+): Promise<
+  OccurrenceAccessResult<{
+    source: PlannedOccurrence;
+    replacement: PlannedOccurrence | null;
+  } | null>
+> {
+  if (!ownerId) return fail(OCCURRENCE_VALIDATION_MESSAGES.signedIn, null);
+  if (occurrence.userId !== ownerId) {
+    return fail(OCCURRENCE_VALIDATION_MESSAGES.owner, null);
+  }
+  if (!requireClient(client)) {
+    return fail('Cloud sync is not available.', null);
+  }
+
+  const related = await listOwnedOccurrencesForSources(client, ownerId, {
+    routineIds: occurrence.routineId ? [occurrence.routineId] : [],
+    todoIds: occurrence.todoId ? [occurrence.todoId] : [],
+  });
+  if (related.error) return fail(related.error, null);
+
+  const replacementId =
+    occurrence.status === 'rescheduled' && occurrence.rescheduledToId
+      ? occurrence.rescheduledToId
+      : crypto.randomUUID();
+
+  const decision = decideReschedule({
+    source: occurrence,
+    targetDate,
+    replacementId,
+    resolvedAt,
+    existing: related.data,
+  });
+  if (decision.kind === 'reject') return fail(decision.error, null);
+
+  if (decision.kind === 'noop') {
+    const replacement = related.data.find(
+      (row) => row.id === decision.replacementId
+    );
+    return {
+      data: { source: occurrence, replacement: replacement ?? null },
+      error: null,
+    };
+  }
+
+  const { data, error } = await client.rpc('planning_reschedule_occurrence', {
+    p_occurrence_id: occurrence.id,
+    p_replacement_id: decision.replacementId,
+    p_target_date: targetDate,
+    p_target_time: occurrence.scheduledTime,
+    p_resolved_at: resolvedAt,
+  });
+
+  if (error) return fail(error.message, null);
+  const parsed = parseRescheduleRpc(data, ownerId);
+  if (!parsed) return fail('Moved item could not be read back.', null);
+  return { data: parsed, error: null };
+}
+
+export async function reopenOwnedTodoForAnotherAttempt(
+  client: SupabaseClient | null | undefined,
+  ownerId: string,
+  todo: Pick<Todo, 'id' | 'userId' | 'archivedAt'>,
+  now: Date,
+  viewerTimeZone: string
+): Promise<OccurrenceAccessResult<PlannedOccurrence | null>> {
+  if (!ownerId) return fail(OCCURRENCE_VALIDATION_MESSAGES.signedIn, null);
+  if (todo.userId !== ownerId) {
+    return fail(OCCURRENCE_VALIDATION_MESSAGES.owner, null);
+  }
+  if (!requireClient(client)) {
+    return fail('Cloud sync is not available.', null);
+  }
+
+  const opened = await setOwnedTodoArchived(client, ownerId, todo, false);
+  if (opened.error || !opened.data) {
+    return fail(opened.error || 'Could not reopen this to-do.', null);
+  }
+
+  const listed = await listOwnedOccurrencesForSources(client, ownerId, {
+    todoIds: [todo.id],
+  });
+  if (listed.error) return fail(listed.error, null);
+
+  const existingPlanned = listed.data.find((row) => row.status === 'planned');
+  if (existingPlanned) return { data: existingPlanned, error: null };
+
+  const localDate = localCalendarDateInTimeZone(now, viewerTimeZone);
+  if (!localDate) return fail('Could not determine today\'s date.', null);
+
+  const draft = draftTodoOccurrenceForDate(
+    opened.data,
+    localDate,
+    viewerTimeZone
+  );
+  if (!draft) return { data: null, error: null };
+
+  const inserted = await insertOccurrenceDraft(client, ownerId, draft);
+  if (inserted.error) return fail(inserted.error, null);
+  if (inserted.data) return { data: inserted.data, error: null };
+
+  const retry = await listOwnedOccurrencesForSources(client, ownerId, {
+    todoIds: [todo.id],
+  });
+  if (retry.error) return fail(retry.error, null);
+  const planned = retry.data.find((row) => row.status === 'planned');
+  return { data: planned ?? null, error: null };
+}
+
+function parseRescheduleRpc(
+  payload: unknown,
+  ownerId: string
+): { source: PlannedOccurrence; replacement: PlannedOccurrence | null } | null {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return null;
+  }
+  const record = payload as { source?: unknown; replacement?: unknown };
+  const source = occurrenceFromRow(record.source, ownerId);
+  if (!source) return null;
+  const replacement = record.replacement
+    ? occurrenceFromRow(record.replacement, ownerId)
+    : null;
+  return { source, replacement };
 }

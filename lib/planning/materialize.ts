@@ -60,9 +60,7 @@ function hasActiveTodoOccurrence(
     (row) =>
       row.sourceType === 'todo' &&
       row.todoId === todoId &&
-      (row.status === 'planned' ||
-        row.status === 'completed' ||
-        row.status === 'skipped')
+      row.status === 'planned'
   );
 }
 
@@ -184,7 +182,8 @@ export function todayScheduledDates(
 /**
  * Identity key for the Slice 5 uniqueness invariant:
  * - one routine expectation per (routine, local date)
- * - one active (non-rescheduled) expectation per to-do
+ * - one currently planned expectation per to-do (completed/skipped/rescheduled
+ *   are historical and do not occupy the live identity)
  *
  * Rescheduled rows keep per-id identity so historical reschedule chains
  * are never collapsed. This is deterministic uniqueness, not fuzzy dedupe.
@@ -199,10 +198,10 @@ export function logicalOccurrenceIdentityKey(
     return `routine:${row.routineId}:${row.scheduledDate}`;
   }
   if (row.sourceType === 'todo' && row.todoId) {
-    if (row.status === 'rescheduled') {
-      return `todo-rescheduled:${row.id}`;
+    if (row.status === 'planned') {
+      return `todo:${row.todoId}`;
     }
-    return `todo:${row.todoId}`;
+    return `todo-history:${row.id}`;
   }
   return `row:${row.id}`;
 }

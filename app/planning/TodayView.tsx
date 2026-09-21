@@ -2,13 +2,23 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Check, CalendarCheck, ChevronDown, ChevronUp, Users, X } from 'lucide-react';
+import { Check, CalendarCheck, CalendarRange, ChevronDown, ChevronUp, Minus, Users, X } from 'lucide-react';
 import { supabase, supabaseConfigured } from '../../lib/supabase';
 import {
+  MOVE_CHAIN_HOP_LIMIT,
+  changeDateTerminalId,
+  collapseTodayHistoryRows,
   deriveOccurrenceState,
   detectBrowserTimeZone,
+  formatMovedToLabel,
+  isTodayHistoryOccurrence,
+  localCalendarDateInTimeZone,
+  pendingReplacementIds,
   planningCategoryDisplay,
   presentRoutineOccurrence,
+  resolveMoveChain,
+  shiftLocalCalendarDate,
+  type CollapsedTodayHistoryRow,
   type Goal,
   type PlannedOccurrence,
   type PlanningCategoryKey,
@@ -22,6 +32,10 @@ import {
   completeOwnedOccurrenceLight,
   ensureTodayOccurrences,
   linkOwnedOccurrenceLog,
+  listOwnedOccurrencesByIds,
+  listOwnedPastPlannedOccurrences,
+  rescheduleOwnedOccurrence,
+  skipOwnedOccurrence,
 } from '../../lib/planning/occurrencesAccess';
 import {
   buildPlannerLogDraft,
@@ -89,6 +103,8 @@ export default function TodayView({
   getSavedLog?: (logId: string) => PlannerSavedLogLookup | null;
 }) {
   const [items, setItems] = useState<TodayItem[]>([]);
+  const [catchUp, setCatchUp] = useState<TodayItem[]>([]);
+  const [replacements, setReplacements] = useState<PlannedOccurrence[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -99,6 +115,8 @@ export default function TodayView({
   const [clarificationText, setClarificationText] = useState('');
   const [awaitingClarification, setAwaitingClarification] = useState(false);
   const [visibility, setVisibility] = useState<'friends' | 'private'>('private');
+  const [moveFor, setMoveFor] = useState<string | null>(null);
+  const [moveDate, setMoveDate] = useState('');
 
   const ownerId = user?.id ?? '';
 
@@ -157,6 +175,8 @@ export default function TodayView({
     async function load() {
       if (!ownerId) {
         setItems([]);
+        setCatchUp([]);
+        setReplacements([]);
         setGoals([]);
         setLoading(false);
         return;
@@ -190,13 +210,68 @@ export default function TodayView({
       if (ensured.error) {
         setNotice(ensured.error);
         setItems([]);
+        setReplacements([]);
         setGoals(goalResult.data);
         setLoading(false);
         return;
       }
 
       setGoals(goalResult.data);
-      setItems(buildItems(ensured.data, routineResult.data, todoResult.data));
+      const viewerTz = detectBrowserTimeZone();
+      const viewerDate = localCalendarDateInTimeZone(new Date(), viewerTz);
+      const todayItems = buildItems(
+        ensured.data,
+        routineResult.data,
+        todoResult.data
+      );
+      setItems(todayItems);
+
+      const pastPromise = viewerDate
+        ? listOwnedPastPlannedOccurrences(supabase, ownerId, viewerDate)
+        : Promise.resolve({ data: [] as PlannedOccurrence[], error: null });
+
+      const chainPromise = (async () => {
+        const byId = new Map(
+          ensured.data.map((row) => [row.id, row] as const)
+        );
+        for (let hop = 0; hop < MOVE_CHAIN_HOP_LIMIT; hop += 1) {
+          const missing = pendingReplacementIds(byId);
+          if (missing.length === 0) break;
+          const listed = await listOwnedOccurrencesByIds(
+            supabase,
+            ownerId,
+            missing
+          );
+          if (listed.error) break;
+          let added = 0;
+          for (const row of listed.data) {
+            if (!byId.has(row.id)) {
+              byId.set(row.id, row);
+              added += 1;
+            }
+          }
+          if (added === 0) break;
+        }
+        return Array.from(byId.values());
+      })();
+
+      const [past, chainRows] = await Promise.all([pastPromise, chainPromise]);
+      if (cancelled) return;
+
+      const todayIds = new Set(todayItems.map((row) => row.occurrence.id));
+      setReplacements(chainRows.filter((row) => !todayIds.has(row.id)));
+      if (!viewerDate || past.error) {
+        setCatchUp([]);
+      } else {
+        setCatchUp(
+          buildItems(past.data, routineResult.data, todoResult.data).filter(
+            (row) =>
+              !todayIds.has(row.occurrence.id) &&
+              deriveOccurrenceState(row.occurrence, new Date()) ===
+                'unresolved'
+          )
+        );
+      }
       setNotice(null);
       setLoading(false);
     }
@@ -236,6 +311,119 @@ export default function TodayView({
     cancelDetails();
   }
 
+  function applyOccurrence(next: PlannedOccurrence) {
+    const patch = (list: TodayItem[]) =>
+      list.map((row) =>
+        row.occurrence.id === next.id ? { ...row, occurrence: next } : row
+      );
+    setItems(patch);
+    setCatchUp((prev) =>
+      patch(prev).filter((row) => {
+        if (row.occurrence.id !== next.id) return true;
+        return (
+          next.status === 'planned' &&
+          deriveOccurrenceState(next, new Date()) === 'unresolved'
+        );
+      })
+    );
+  }
+
+  function defaultMoveDate(item: TodayItem): string {
+    const tz = detectBrowserTimeZone();
+    const today = localCalendarDateInTimeZone(new Date(), tz);
+    if (!today) return item.occurrence.scheduledDate;
+    if (item.occurrence.scheduledDate < today) return today;
+    return shiftLocalCalendarDate(today, 1) || today;
+  }
+
+  async function markSkip(item: TodayItem) {
+    if (!ownerId) {
+      setNotice('Sign in to update your plan.');
+      return;
+    }
+    const resolvedAt = new Date().toISOString();
+    setBusyId(item.occurrence.id);
+    const result = await skipOwnedOccurrence(
+      supabase,
+      ownerId,
+      item.occurrence,
+      resolvedAt
+    );
+    setBusyId(null);
+    if (!result.data) {
+      setNotice(result.error || 'Could not skip this item.');
+      return;
+    }
+    applyOccurrence(result.data);
+    if (result.error) {
+      setNotice(result.error);
+      return;
+    }
+    onNotice('Skipped — nothing logged, no XP.');
+  }
+
+  async function confirmMove(item: TodayItem) {
+    if (!ownerId) {
+      setNotice('Sign in to update your plan.');
+      return;
+    }
+    const resolvedAt = new Date().toISOString();
+    setBusyId(item.occurrence.id);
+    const result = await rescheduleOwnedOccurrence(
+      supabase,
+      ownerId,
+      item.occurrence,
+      moveDate,
+      resolvedAt
+    );
+    setBusyId(null);
+    if (!result.data) {
+      setNotice(result.error || 'Could not move this item.');
+      return;
+    }
+    applyOccurrence(result.data.source);
+    setReplacements((prev) => {
+      const next = new Map(prev.map((row) => [row.id, row] as const));
+      next.set(result.data!.source.id, result.data!.source);
+      if (result.data!.replacement) {
+        next.set(result.data!.replacement.id, result.data!.replacement);
+      }
+      return Array.from(next.values());
+    });
+    const viewerDate = localCalendarDateInTimeZone(
+      new Date(),
+      detectBrowserTimeZone()
+    );
+    if (
+      result.data.replacement &&
+      viewerDate &&
+      result.data.replacement.scheduledDate === viewerDate
+    ) {
+      setItems((prev) => {
+        if (prev.some((row) => row.occurrence.id === result.data!.replacement!.id)) {
+          return prev.map((row) =>
+            row.occurrence.id === result.data!.replacement!.id
+              ? { ...row, occurrence: result.data!.replacement! }
+              : row
+          );
+        }
+        return [
+          ...prev,
+          {
+            ...item,
+            occurrence: result.data!.replacement!,
+          },
+        ];
+      });
+    }
+    setMoveFor(null);
+    if (result.error) {
+      setNotice(result.error);
+      return;
+    }
+    onNotice('Moved — original day kept as history.');
+  }
+
   async function markDone(item: TodayItem) {
     if (!ownerId) {
       setNotice('Sign in to complete your plan.');
@@ -263,13 +451,7 @@ export default function TodayView({
       setNotice(result.error || 'Could not mark this done.');
       return;
     }
-    setItems((prev) =>
-      prev.map((row) =>
-        row.occurrence.id === item.occurrence.id
-          ? { ...row, occurrence: result.data! }
-          : row
-      )
-    );
+    applyOccurrence(result.data);
     if (result.error) {
       setNotice(result.error);
       return;
@@ -348,13 +530,7 @@ export default function TodayView({
           setNotice(light.error || 'Could not record adherence.');
           return;
         }
-        setItems((prev) =>
-          prev.map((row) =>
-            row.occurrence.id === item.occurrence.id
-              ? { ...row, occurrence: light.data! }
-              : row
-          )
-        );
+        applyOccurrence(light.data);
         if (light.error) {
           setBusyId(null);
           setNotice(light.error);
@@ -398,16 +574,7 @@ export default function TodayView({
       } else {
         await onCreditedLog(logPayload);
         // Stash log id locally before DB link so retries cannot create a second Log.
-        setItems((prev) =>
-          prev.map((row) =>
-            row.occurrence.id === item.occurrence.id
-              ? {
-                  ...row,
-                  occurrence: { ...row.occurrence, logId },
-                }
-              : row
-          )
-        );
+        applyOccurrence({ ...item.occurrence, logId });
       }
     } catch (error) {
       setBusyId(null);
@@ -447,13 +614,7 @@ export default function TodayView({
       return;
     }
 
-    setItems((prev) =>
-      prev.map((row) =>
-        row.occurrence.id === item.occurrence.id
-          ? { ...row, occurrence: linked.data! }
-          : row
-      )
-    );
+    applyOccurrence(linked.data);
     if (linked.error) {
       setNotice(linked.error);
       return;
@@ -467,6 +628,292 @@ export default function TodayView({
   }
 
   const now = new Date();
+  const occurrenceById = useMemo(() => {
+    const map = new Map<string, PlannedOccurrence>();
+    for (const row of replacements) map.set(row.id, row);
+    for (const item of items) map.set(item.occurrence.id, item.occurrence);
+    return map;
+  }, [items, replacements]);
+  const actionableItems = items.filter(
+    (item) => !isTodayHistoryOccurrence(item.occurrence.status)
+  );
+  const resolvedToday = collapseTodayHistoryRows(
+    items.map((item) => {
+      const chain = resolveMoveChain(item.occurrence, occurrenceById);
+      const destination = chain.ok ? chain.terminal : null;
+      return {
+        title: item.title,
+        sourceLabel: item.sourceLabel,
+        status: item.occurrence.status,
+        movedToLabel: formatMovedToLabel(destination),
+        changeDateTerminalId: changeDateTerminalId(chain),
+      };
+    })
+  );
+  const hasAny =
+    actionableItems.length > 0 || catchUp.length > 0 || resolvedToday.length > 0;
+
+  function historyItemForTerminal(
+    row: CollapsedTodayHistoryRow
+  ): TodayItem | null {
+    if (!row.changeDateTerminalId) return null;
+    const occurrence = occurrenceById.get(row.changeDateTerminalId);
+    if (!occurrence || occurrence.status !== 'planned') return null;
+    const sample = items.find(
+      (item) =>
+        item.title === row.title && item.sourceLabel === row.sourceLabel
+    );
+    return {
+      occurrence,
+      title: row.title,
+      parentContext: sample?.parentContext ?? null,
+      categories: sample?.categories ?? [],
+      goalId: sample?.goalId ?? null,
+      sourceLabel: row.sourceLabel === 'Routine' ? 'Routine' : 'To-Do',
+    };
+  }
+
+  function occurrenceBadge(occurrence: PlannedOccurrence) {
+    const state = deriveOccurrenceState(occurrence, now);
+    if (state === 'unresolved') {
+      return { label: 'Unresolved', className: styles.unresolved };
+    }
+    if (occurrence.status === 'skipped') {
+      return { label: 'Skipped', className: styles.skipped };
+    }
+    if (occurrence.status === 'rescheduled') {
+      return { label: 'Moved', className: styles.moved };
+    }
+    if (occurrence.completionMode === 'log') {
+      return { label: 'Logged', className: styles.done };
+    }
+    if (occurrence.status === 'completed') {
+      return { label: 'Done', className: styles.done };
+    }
+    return { label: 'Planned', className: styles.planned };
+  }
+
+  function renderCard(item: TodayItem, promptWhatHappened: boolean) {
+    const badge = occurrenceBadge(item.occurrence);
+    const linkedGoal = item.goalId ? goalTitleById.get(item.goalId) : null;
+    const openDetailsFor = detailsFor === item.occurrence.id;
+    const planned = item.occurrence.status === 'planned';
+    const unresolved =
+      deriveOccurrenceState(item.occurrence, now) === 'unresolved';
+
+    return (
+      <article className={`card ${styles.card}`} key={item.occurrence.id}>
+        <header className={styles.cardHead}>
+          <span className={`${styles.status} ${badge.className}`}>
+            {badge.label}
+          </span>
+          <span className={styles.source}>{item.sourceLabel}</span>
+        </header>
+
+        <h3>{item.title}</h3>
+        {item.parentContext && (
+          <p className={styles.parentContext}>{item.parentContext}</p>
+        )}
+        {item.occurrence.scheduledDate && (
+          <small className={styles.time}>{item.occurrence.scheduledDate}</small>
+        )}
+        {item.occurrence.scheduledTime && (
+          <small className={styles.time}>
+            {item.occurrence.scheduledTime.slice(0, 5)}
+          </small>
+        )}
+        {linkedGoal && (
+          <small className={styles.goalLink}>Supports · {linkedGoal}</small>
+        )}
+        <div className={styles.pills}>
+          {item.categories.map((key) => {
+            const display = planningCategoryDisplay(key);
+            return (
+              <span key={key}>
+                {display.emoji} {display.short}
+              </span>
+            );
+          })}
+        </div>
+
+        {planned && promptWhatHappened && unresolved && (
+          <p className={styles.whatHappened}>What happened?</p>
+        )}
+
+        {(planned || item.occurrence.completionMode === 'log') && (
+          <footer className={styles.actions}>
+            {planned && (
+              <button
+                type="button"
+                disabled={busyId === item.occurrence.id}
+                onClick={() => void markDone(item)}
+              >
+                <Check size={15} />
+                Done
+              </button>
+            )}
+            <button
+              type="button"
+              className={styles.detailsToggle}
+              disabled={busyId === item.occurrence.id}
+              onClick={() =>
+                openDetailsFor ? cancelDetails() : openDetails(item)
+              }
+            >
+              {openDetailsFor ? (
+                <>
+                  <ChevronUp size={15} /> Hide details
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={15} /> Add details
+                </>
+              )}
+            </button>
+            {planned && (
+              <>
+                <button
+                  type="button"
+                  disabled={busyId === item.occurrence.id}
+                  onClick={() => void markSkip(item)}
+                >
+                  <Minus size={15} />
+                  Skip
+                </button>
+                <button
+                  type="button"
+                  disabled={busyId === item.occurrence.id}
+                  onClick={() => {
+                    setMoveFor(item.occurrence.id);
+                    setMoveDate(defaultMoveDate(item));
+                  }}
+                >
+                  <CalendarRange size={15} />
+                  Move
+                </button>
+              </>
+            )}
+          </footer>
+        )}
+
+        {planned && moveFor === item.occurrence.id && (
+          <div className={styles.movePanel}>
+            <label className="fieldLabel" htmlFor={`move-${item.occurrence.id}`}>
+              Move to
+            </label>
+            <input
+              id={`move-${item.occurrence.id}`}
+              className="textInput"
+              type="date"
+              value={moveDate}
+              onChange={(event) => setMoveDate(event.target.value)}
+            />
+            <div className={styles.detailsActions}>
+              <button
+                type="button"
+                className="primaryButton"
+                disabled={busyId === item.occurrence.id}
+                onClick={() => void confirmMove(item)}
+              >
+                Save move
+              </button>
+              <button
+                type="button"
+                className={styles.cancelDetails}
+                onClick={() => setMoveFor(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {openDetailsFor && (
+          <div className={styles.detailsPanel}>
+            <label className="fieldLabel" htmlFor={`activity-${item.occurrence.id}`}>
+              What did you do?
+            </label>
+            <input
+              id={`activity-${item.occurrence.id}`}
+              className="textInput"
+              value={activity}
+              onChange={(event) => setActivity(event.target.value)}
+              placeholder="Short action…"
+            />
+            <label
+              className="fieldLabel"
+              htmlFor={`details-${item.occurrence.id}`}
+            >
+              Details <span>optional</span>
+            </label>
+            <textarea
+              id={`details-${item.occurrence.id}`}
+              className="textInput"
+              rows={3}
+              value={details}
+              onChange={(event) => setDetails(event.target.value)}
+              placeholder="Anything that helps prove the work…"
+            />
+            <label className="fieldLabel">Who can see this?</label>
+            <div className="visibilityPicker">
+              <button
+                type="button"
+                className={visibility === 'friends' ? 'selected' : ''}
+                onClick={() => setVisibility('friends')}
+              >
+                <Users size={15} /> Friends
+              </button>
+              <button
+                type="button"
+                className={visibility === 'private' ? 'selected' : ''}
+                onClick={() => setVisibility('private')}
+              >
+                🔒 Private
+              </button>
+            </div>
+            {awaitingClarification && (
+              <>
+                <label
+                  className="fieldLabel"
+                  htmlFor={`clarify-${item.occurrence.id}`}
+                >
+                  Clarification
+                </label>
+                <textarea
+                  id={`clarify-${item.occurrence.id}`}
+                  className="textInput"
+                  rows={2}
+                  value={clarificationText}
+                  onChange={(event) =>
+                    setClarificationText(event.target.value)
+                  }
+                  placeholder="What exactly did you do?"
+                />
+              </>
+            )}
+            <div className={styles.detailsActions}>
+              <button
+                type="button"
+                className={`primaryButton ${styles.saveDetails}`}
+                disabled={busyId === item.occurrence.id}
+                onClick={() => void submitDetails(item)}
+              >
+                Save log
+              </button>
+              <button
+                type="button"
+                className={styles.cancelDetails}
+                disabled={busyId === item.occurrence.id}
+                onClick={cancelDetails}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </article>
+    );
+  }
 
   return (
     <section className={`pageSection ${styles.page}`}>
@@ -506,7 +953,8 @@ export default function TodayView({
           </div>
           <p>Loading today&apos;s plan…</p>
         </div>
-      ) : items.length === 0 ? (
+
+      ) : !hasAny ? (
         <div className={`card emptyFriendState ${styles.empty}`}>
           <CalendarCheck />
           <h3>Nothing planned for today.</h3>
@@ -516,183 +964,104 @@ export default function TodayView({
           </p>
         </div>
       ) : (
-        <div className={styles.list}>
-          {items.map((item) => {
-            const state = deriveOccurrenceState(item.occurrence, now);
-            const linkedGoal = item.goalId
-              ? goalTitleById.get(item.goalId)
-              : null;
-            const openDetailsFor = detailsFor === item.occurrence.id;
-            const done =
-              item.occurrence.status === 'completed' ||
-              item.occurrence.status === 'skipped';
-
-            return (
-              <article className={`card ${styles.card}`} key={item.occurrence.id}>
-                <header className={styles.cardHead}>
-                  <span
-                    className={`${styles.status} ${
-                      state === 'unresolved'
-                        ? styles.unresolved
-                        : done
-                          ? styles.done
-                          : styles.planned
-                    }`}
-                  >
-                    {state === 'unresolved'
-                      ? 'Unresolved'
-                      : item.occurrence.completionMode === 'log'
-                        ? 'Logged'
-                        : done
-                          ? 'Done'
-                          : 'Planned'}
-                  </span>
-                  <span className={styles.source}>{item.sourceLabel}</span>
-                </header>
-
-                <h3>{item.title}</h3>
-                {item.parentContext && (
-                  <p className={styles.parentContext}>{item.parentContext}</p>
-                )}
-                {item.occurrence.scheduledTime && (
-                  <small className={styles.time}>
-                    {item.occurrence.scheduledTime.slice(0, 5)}
-                  </small>
-                )}
-                {linkedGoal && (
-                  <small className={styles.goalLink}>
-                    Supports · {linkedGoal}
-                  </small>
-                )}
-                <div className={styles.pills}>
-                  {item.categories.map((key) => {
-                    const display = planningCategoryDisplay(key);
-                    return (
-                      <span key={key}>
-                        {display.emoji} {display.short}
-                      </span>
-                    );
-                  })}
-                </div>
-
-                <footer className={styles.actions}>
-                  {item.occurrence.status === 'planned' && (
-                    <button
-                      type="button"
-                      disabled={busyId === item.occurrence.id}
-                      onClick={() => void markDone(item)}
-                    >
-                      <Check size={15} />
-                      Done
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    className={styles.detailsToggle}
-                    disabled={busyId === item.occurrence.id}
-                    onClick={() =>
-                      openDetailsFor ? cancelDetails() : openDetails(item)
-                    }
-                  >
-                    {openDetailsFor ? (
-                      <>
-                        <ChevronUp size={15} /> Hide details
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown size={15} /> Add details
-                      </>
-                    )}
-                  </button>
-                </footer>
-
-                {openDetailsFor && (
-                  <div className={styles.detailsPanel}>
-                    <label className="fieldLabel" htmlFor={`activity-${item.occurrence.id}`}>
-                      What did you do?
-                    </label>
-                    <input
-                      id={`activity-${item.occurrence.id}`}
-                      className="textInput"
-                      value={activity}
-                      onChange={(event) => setActivity(event.target.value)}
-                      placeholder="Short action…"
-                    />
-                    <label
-                      className="fieldLabel"
-                      htmlFor={`details-${item.occurrence.id}`}
-                    >
-                      Details <span>optional</span>
-                    </label>
-                    <textarea
-                      id={`details-${item.occurrence.id}`}
-                      className="textInput"
-                      rows={3}
-                      value={details}
-                      onChange={(event) => setDetails(event.target.value)}
-                      placeholder="Anything that helps prove the work…"
-                    />
-                    <label className="fieldLabel">Who can see this?</label>
-                    <div className="visibilityPicker">
-                      <button
-                        type="button"
-                        className={visibility === 'friends' ? 'selected' : ''}
-                        onClick={() => setVisibility('friends')}
-                      >
-                        <Users size={15} /> Friends
-                      </button>
-                      <button
-                        type="button"
-                        className={visibility === 'private' ? 'selected' : ''}
-                        onClick={() => setVisibility('private')}
-                      >
-                        🔒 Private
-                      </button>
-                    </div>
-                    {awaitingClarification && (
-                      <>
-                        <label
-                          className="fieldLabel"
-                          htmlFor={`clarify-${item.occurrence.id}`}
-                        >
-                          Clarification
-                        </label>
-                        <textarea
-                          id={`clarify-${item.occurrence.id}`}
-                          className="textInput"
-                          rows={2}
-                          value={clarificationText}
-                          onChange={(event) =>
-                            setClarificationText(event.target.value)
-                          }
-                          placeholder="What exactly did you do?"
-                        />
-                      </>
-                    )}
-                    <div className={styles.detailsActions}>
-                      <button
-                        type="button"
-                        className={`primaryButton ${styles.saveDetails}`}
-                        disabled={busyId === item.occurrence.id}
-                        onClick={() => void submitDetails(item)}
-                      >
-                        Save log
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.cancelDetails}
-                        disabled={busyId === item.occurrence.id}
-                        onClick={cancelDetails}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </article>
-            );
-          })}
-        </div>
+        <>
+          {catchUp.length > 0 && (
+            <div className={styles.catchUp}>
+              <h3>Catch up</h3>
+              <p className={styles.catchUpCopy}>What happened?</p>
+              <div className={styles.catchUpList}>
+                {catchUp.map((item) => renderCard(item, true))}
+              </div>
+            </div>
+          )}
+          {actionableItems.length > 0 ? (
+            <div className={styles.list}>
+              {actionableItems.map((item) =>
+                renderCard(
+                  item,
+                  deriveOccurrenceState(item.occurrence, now) === 'unresolved'
+                )
+              )}
+            </div>
+          ) : catchUp.length > 0 && resolvedToday.length === 0 ? (
+            <div className={`card emptyFriendState ${styles.empty}`}>
+              <CalendarCheck />
+              <h3>Nothing else planned for today.</h3>
+            </div>
+          ) : null}
+          {resolvedToday.length > 0 && (
+            <div className={styles.resolvedToday}>
+              <h3>Resolved today</h3>
+              <ul className={styles.resolvedList}>
+                {resolvedToday.map((row) => {
+                  const changeItem = historyItemForTerminal(row);
+                  const changing = Boolean(
+                    changeItem && moveFor === changeItem.occurrence.id
+                  );
+                  return (
+                    <li key={row.key} className={styles.resolvedRow}>
+                      <div className={styles.resolvedCopy}>
+                        <span className={styles.resolvedTitle}>{row.title}</span>
+                        <span className={styles.resolvedMeta}>
+                          {row.sourceLabel} · {row.labels.join(' · ')}
+                        </span>
+                        {changeItem && (
+                          <button
+                            type="button"
+                            className={styles.changeDate}
+                            disabled={busyId === changeItem.occurrence.id}
+                            onClick={() => {
+                              setMoveFor(changeItem.occurrence.id);
+                              setMoveDate(defaultMoveDate(changeItem));
+                            }}
+                          >
+                            Change date
+                          </button>
+                        )}
+                      </div>
+                      {changing && changeItem && (
+                        <div className={styles.resolvedMove}>
+                          <label
+                            className="fieldLabel"
+                            htmlFor={`change-${changeItem.occurrence.id}`}
+                          >
+                            Move to
+                          </label>
+                          <input
+                            id={`change-${changeItem.occurrence.id}`}
+                            className="textInput"
+                            type="date"
+                            value={moveDate}
+                            onChange={(event) =>
+                              setMoveDate(event.target.value)
+                            }
+                          />
+                          <div className={styles.detailsActions}>
+                            <button
+                              type="button"
+                              className="primaryButton"
+                              disabled={busyId === changeItem.occurrence.id}
+                              onClick={() => void confirmMove(changeItem)}
+                            >
+                              Save move
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.cancelDetails}
+                              onClick={() => setMoveFor(null)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </>
       )}
     </section>
   );

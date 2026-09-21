@@ -23,6 +23,7 @@ import {
   isValidRoutineRecurrence,
   isValidTodo,
   reinterpretsLogBackedAsLightweight,
+  reinterpretsResolvedAsPlanned,
   samePlanningOwner,
 } from '../../lib/planning/invariants';
 import {
@@ -377,6 +378,35 @@ assert.equal(
 );
 assert.equal(isValidOccurrenceWrite(afterLogDelete, lightCompleted), false);
 assert.equal(isValidOccurrenceCombination(lightCompleted), true);
+assert.equal(reinterpretsResolvedAsPlanned(lightCompleted, plannedCombo), true);
+assert.equal(isValidOccurrenceWrite(lightCompleted, plannedCombo), false);
+assert.equal(isValidOccurrenceWrite(logCompleted, plannedCombo), false);
+assert.equal(
+  isValidOccurrenceWrite(
+    {
+      status: 'skipped',
+      completionMode: null,
+      logId: null,
+      resolvedAt: '2026-09-12T12:00:00.000Z',
+      rescheduledToId: null,
+    },
+    plannedCombo
+  ),
+  false
+);
+assert.equal(
+  isValidOccurrenceWrite(
+    {
+      status: 'rescheduled',
+      completionMode: null,
+      logId: null,
+      resolvedAt: '2026-09-12T12:00:00.000Z',
+      rescheduledToId: 'occ-2',
+    },
+    plannedCombo
+  ),
+  false
+);
 
 const plannedOccurrence: PlannedOccurrence = {
   id: 'occ-1',

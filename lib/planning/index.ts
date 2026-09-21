@@ -75,6 +75,7 @@ export {
   isValidTodo,
   normalizeLocalScheduledTime,
   reinterpretsLogBackedAsLightweight,
+  reinterpretsResolvedAsPlanned,
   samePlanningOwner,
 } from './invariants';
 
@@ -82,6 +83,7 @@ export {
   isoWeekdayFromLocalDate,
   localCalendarDateInTimeZone,
   localCalendarPartsInTimeZone,
+  shiftLocalCalendarDate,
 } from './localCalendar';
 
 export {
@@ -89,12 +91,42 @@ export {
   completionModeLabel,
   decideLightCompletion,
   decideLogLinkedCompletion,
+  decideSkip,
   goalAttributionFromSource,
   linkedLogIdForReuse,
   todoIdToCloseOnOccurrenceCompletion,
 } from './completion';
 
 export type { CompletionDecision } from './completion';
+
+export {
+  RECONCILIATION_VALIDATION_MESSAGES,
+  decideReschedule,
+  routineMoveCollides,
+  todoHasOtherPlannedOccurrence,
+} from './reconciliation';
+
+export type { RescheduleDecision } from './reconciliation';
+
+export {
+  MOVE_CHAIN_HOP_LIMIT,
+  changeDateTerminalId,
+  collapseTodayHistoryRows,
+  formatCompactLocalDate,
+  formatCompactLocalTime,
+  formatMovedToLabel,
+  isTodayHistoryOccurrence,
+  pendingReplacementIds,
+  replacementForReschedule,
+  resolveMoveChain,
+  todayHistoryKind,
+  todayHistoryLabel,
+} from './todayPresentation';
+
+export type {
+  CollapsedTodayHistoryRow,
+  TodayHistoryRowInput,
+} from './todayPresentation';
 
 export {
   buildMissingTodayOccurrenceDrafts,

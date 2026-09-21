@@ -13,6 +13,7 @@ import type {
 
 export const COMPLETION_VALIDATION_MESSAGES = {
   notPlanned: 'Only a planned item can be completed.',
+  notReconcileable: 'Only a planned item can be skipped or moved.',
   missingLog: 'Log-backed completion requires a Log.',
   duplicateLog: 'This plan is already linked to a different Log.',
   cannotDowngrade: 'A Log-backed completion cannot become lightweight.',
@@ -23,7 +24,12 @@ export type CompletionDecision =
   | {
       kind: 'noop';
       previous: OccurrenceCombinationInput;
-      reason: 'already_light' | 'already_log' | 'same_log';
+      reason:
+        | 'already_light'
+        | 'already_log'
+        | 'same_log'
+        | 'already_skipped'
+        | 'already_rescheduled';
     }
   | { kind: 'apply'; next: OccurrenceCombinationInput }
   | { kind: 'reject'; error: string };
@@ -151,6 +157,39 @@ export function todoIdToCloseOnOccurrenceCompletion(occurrence: {
 }): string | null {
   if (occurrence.sourceType !== 'todo') return null;
   return occurrence.todoId;
+}
+
+/**
+ * Skip: planned → skipped. No Log, no XP. Idempotent when already skipped.
+ */
+export function decideSkip(
+  previous: OccurrenceCombinationInput,
+  resolvedAt: string
+): CompletionDecision {
+  const current = asCombination(previous);
+
+  if (current.status === 'skipped') {
+    return { kind: 'noop', previous: current, reason: 'already_skipped' };
+  }
+  if (current.status !== 'planned') {
+    return {
+      kind: 'reject',
+      error: COMPLETION_VALIDATION_MESSAGES.notReconcileable,
+    };
+  }
+
+  const next: OccurrenceCombinationInput = {
+    status: 'skipped',
+    completionMode: null,
+    logId: null,
+    resolvedAt,
+    rescheduledToId: null,
+  };
+
+  if (!isValidOccurrenceWrite(current, next)) {
+    return { kind: 'reject', error: COMPLETION_VALIDATION_MESSAGES.invalid };
+  }
+  return { kind: 'apply', next };
 }
 
 export function completionModeLabel(

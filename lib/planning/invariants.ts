@@ -333,18 +333,59 @@ export function reinterpretsLogBackedAsLightweight(
  * Distinguishes preserved post-deletion rows from fabricating a new
  * log-backed completion without a Log.
  */
+/**
+ * Historical rows are terminal. A resolved occurrence must not become planned.
+ */
+export function reinterpretsResolvedAsPlanned(
+  from: OccurrenceCombinationInput,
+  to: OccurrenceCombinationInput
+): boolean {
+  return from.status !== 'planned' && to.status === 'planned';
+}
+
 export function isValidOccurrenceWrite(
   previous: OccurrenceCombinationInput | null,
   next: OccurrenceCombinationInput
 ): boolean {
   if (!isValidOccurrenceCombination(next)) return false;
+
+  if (previous === null) {
+    if (isEnteringLogBackedCompletion(null, next)) {
+      return isValidLogBackedCompletionEntry(next);
+    }
+    return true;
+  }
+
+  if (reinterpretsResolvedAsPlanned(previous, next)) return false;
+
+  if (previous.status === 'skipped' && next.status !== 'skipped') return false;
+  if (previous.status === 'rescheduled' && next.status !== 'rescheduled') {
+    return false;
+  }
+
   if (
-    previous !== null &&
     previous.completionMode === 'log' &&
     next.completionMode !== 'log'
   ) {
     return false;
   }
+
+  if (
+    previous.status === 'completed' &&
+    previous.completionMode === 'log' &&
+    (next.status !== 'completed' || next.completionMode !== 'log')
+  ) {
+    return false;
+  }
+
+  if (
+    previous.status === 'completed' &&
+    previous.completionMode === 'light' &&
+    next.status !== 'completed'
+  ) {
+    return false;
+  }
+
   if (isEnteringLogBackedCompletion(previous, next)) {
     return isValidLogBackedCompletionEntry(next);
   }

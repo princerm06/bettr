@@ -20,6 +20,50 @@
   margin-top: 18px;
 }
 
+.catchUp {
+  margin-top: 14px;
+  padding: 12px 12px 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #16181c;
+}
+
+.catchUp h3 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.catchUpCopy {
+  margin: 4px 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.catchUpList {
+  display: grid;
+  gap: 10px;
+}
+
+.catchUpList .card {
+  padding: 14px;
+}
+
+.whatHappened {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.movePanel {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
 .card {
   padding: 18px;
   display: grid;
@@ -69,10 +113,16 @@
   background: #202719;
 }
 
-.status.unresolved {
-  color: #e8b4a0;
-  border-color: #6a4034;
-  background: #2a1c18;
+.status.skipped {
+  color: #c5c0b4;
+  border-color: #4a463c;
+  background: #1f1d18;
+}
+
+.status.moved {
+  color: #b7c9e4;
+  border-color: #3d4a5c;
+  background: #171c24;
 }
 
 .source {
@@ -193,12 +243,87 @@
   opacity: 0.7;
 }
 
+.resolvedToday {
+  margin-top: 16px;
+}
+
+.resolvedToday h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--muted);
+}
+
+.resolvedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.resolvedRow {
+  display: grid;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #16181c;
+}
+
+.resolvedCopy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+
+.resolvedTitle {
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.resolvedMeta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.changeDate {
+  justify-self: start;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.resolvedMove {
+  display: grid;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
 @media (max-width: 700px) {
   .titleRow h2 {
     font-size: 24px;
   }
 
+  .catchUp {
+    margin-top: 10px;
+    padding: 10px 10px 2px;
+  }
+
   .actions button {
+    min-height: 42px;
+  }
+
+  .changeDate {
     min-height: 42px;
   }
 

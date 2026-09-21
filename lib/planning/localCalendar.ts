@@ -63,8 +63,21 @@ export function isoWeekdayFromLocalDate(
   const year = Number(localDate.slice(0, 4));
   const month = Number(localDate.slice(5, 7));
   const day = Number(localDate.slice(8, 10));
-  const utc = new Date(Date.UTC(year, month - 1, day));
-  const jsDay = utc.getUTCDay(); // 0 = Sunday
+  const utc = Date.UTC(year, month - 1, day);
+  const jsDay = new Date(utc).getUTCDay(); // 0 = Sunday
   const iso = (jsDay === 0 ? 7 : jsDay) as PlanningIsoWeekday;
   return (PLANNING_ISO_WEEKDAYS as readonly number[]).includes(iso) ? iso : null;
+}
+
+/** Shift a YYYY-MM-DD civil date by whole days. Does not use Discipline helpers. */
+export function shiftLocalCalendarDate(
+  localDate: string,
+  days: number
+): string | null {
+  if (!isLocalScheduledDate(localDate) || !Number.isInteger(days)) return null;
+  const year = Number(localDate.slice(0, 4));
+  const month = Number(localDate.slice(5, 7));
+  const day = Number(localDate.slice(8, 10));
+  const shifted = new Date(Date.UTC(year, month - 1, day + days));
+  return shifted.toISOString().slice(0, 10);
 }

@@ -155,9 +155,9 @@ export function occurrenceFromRow(
   ) {
     return null;
   }
-  if (typeof row.scheduled_date !== 'string' || !isLocalScheduledDate(row.scheduled_date)) {
-    return null;
-  }
+  if (typeof row.scheduled_date !== 'string') return null;
+  const scheduledDate = row.scheduled_date.slice(0, 10);
+  if (!isLocalScheduledDate(scheduledDate)) return null;
   if (typeof row.timezone !== 'string' || !isIanaTimeZone(row.timezone)) {
     return null;
   }
@@ -169,7 +169,7 @@ export function occurrenceFromRow(
     sourceType: row.source_type,
     routineId: typeof row.routine_id === 'string' ? row.routine_id : null,
     todoId: typeof row.todo_id === 'string' ? row.todo_id : null,
-    scheduledDate: row.scheduled_date,
+    scheduledDate,
     scheduledTime: mapScheduledTime(row.scheduled_time),
     timezone: row.timezone,
     durationMinutes:
