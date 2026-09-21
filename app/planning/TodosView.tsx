@@ -5,11 +5,13 @@ import type { User } from '@supabase/supabase-js';
 import { Check, ListTodo, Pencil, Plus, RotateCcw, X } from 'lucide-react';
 import { supabase, supabaseConfigured } from '../../lib/supabase';
 import {
-  isTodoOpen,
+  deriveTodoPlanPresentation,
   detectBrowserTimeZone,
   planningCategoryDisplay,
   type Goal,
+  type PlannedOccurrence,
   type Todo,
+  type TodoPlanPresentation,
 } from '../../lib/planning';
 import { listOwnedGoals } from '../../lib/planning/goalsAccess';
 import {
@@ -26,7 +28,7 @@ import {
 import TodoForm, { type TodoFormValues } from './TodoForm';
 import styles from './todos.module.css';
 
-type StatusFilter = 'open' | 'done' | 'all';
+type StatusFilter = 'open' | 'done' | 'skipped' | 'all';
 
 export default function TodosView({
   user,
@@ -36,6 +38,7 @@ export default function TodosView({
   onNotice: (message: string) => void;
 }) {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [occurrences, setOccurrences] = useState<PlannedOccurrence[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -54,40 +57,74 @@ export default function TodosView({
   }, [goals]);
 
   async function refresh() {
-    if (!ownerId) {
-      setTodos([]);
-      setGoals([]);
+      if (!ownerId) {
+        setTodos([]);
+        setOccurrences([]);
+        setGoals([]);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      const [todoResult, goalResult] = await Promise.all([
+        listOwnedTodos(supabase, ownerId),
+        listOwnedGoals(supabase, ownerId),
+      ]);
+      setTodos(todoResult.data);
+      setGoals(goalResult.data);
+      if (todoResult.data.length > 0) {
+        const listed = await listOwnedOccurrencesForSources(supabase, ownerId, {
+          todoIds: todoResult.data.map((todo) => todo.id),
+        });
+        setOccurrences(listed.data);
+        setNotice(todoResult.error || goalResult.error || listed.error);
+      } else {
+        setOccurrences([]);
+        setNotice(todoResult.error || goalResult.error);
+      }
       setLoading(false);
-      return;
-    }
-    setLoading(true);
-    const [todoResult, goalResult] = await Promise.all([
-      listOwnedTodos(supabase, ownerId),
-      listOwnedGoals(supabase, ownerId),
-    ]);
-    setTodos(todoResult.data);
-    setGoals(goalResult.data);
-    setNotice(todoResult.error || goalResult.error);
-    setLoading(false);
   }
 
   useEffect(() => {
     void refresh();
   }, [ownerId]);
 
+  const presentationByTodoId = useMemo(() => {
+    const grouped = new Map<string, PlannedOccurrence[]>();
+    for (const occurrence of occurrences) {
+      if (!occurrence.todoId) continue;
+      const list = grouped.get(occurrence.todoId) ?? [];
+      list.push(occurrence);
+      grouped.set(occurrence.todoId, list);
+    }
+    const map = new Map<string, TodoPlanPresentation>();
+    for (const todo of todos) {
+      map.set(
+        todo.id,
+        deriveTodoPlanPresentation(todo, grouped.get(todo.id) ?? [])
+      );
+    }
+    return map;
+  }, [todos, occurrences]);
+
   const counts = useMemo(() => {
-    return {
-      open: todos.filter((todo) => isTodoOpen(todo)).length,
-      done: todos.filter((todo) => !isTodoOpen(todo)).length,
-      all: todos.length,
-    };
-  }, [todos]);
+    let open = 0;
+    let done = 0;
+    let skipped = 0;
+    for (const todo of todos) {
+      const presentation = presentationByTodoId.get(todo.id) ?? 'open';
+      if (presentation === 'done') done += 1;
+      else if (presentation === 'skipped') skipped += 1;
+      else open += 1;
+    }
+    return { open, done, skipped, all: todos.length };
+  }, [todos, presentationByTodoId]);
 
   const visible = useMemo(() => {
     if (filter === 'all') return todos;
-    if (filter === 'open') return todos.filter((todo) => isTodoOpen(todo));
-    return todos.filter((todo) => !isTodoOpen(todo));
-  }, [filter, todos]);
+    return todos.filter(
+      (todo) => (presentationByTodoId.get(todo.id) ?? 'open') === filter
+    );
+  }, [filter, todos, presentationByTodoId]);
 
   function openCreate() {
     setEditing(null);
@@ -201,7 +238,12 @@ export default function TodosView({
             title: 'Nothing marked done.',
             body: 'When you finish a planned item, mark it done. That does not award XP or create a log.',
           }
-        : {
+        : filter === 'skipped'
+          ? {
+              title: 'Nothing skipped.',
+              body: 'Skipped to-dos stay here until you try again. That does not award XP.',
+            }
+          : {
             title: 'No to-dos yet.',
             body: 'Create a private to-do for a one-off developmental intention.',
           };
@@ -249,6 +291,7 @@ export default function TodosView({
               [
                 ['open', 'Open'],
                 ['done', 'Done'],
+                ['skipped', 'Skipped'],
                 ['all', 'All'],
               ] as const
             ).map(([key, label]) => (
@@ -290,7 +333,8 @@ export default function TodosView({
           ) : (
             <div className={styles.grid}>
               {visible.map((todo) => {
-                const open = isTodoOpen(todo);
+                const presentation =
+                  presentationByTodoId.get(todo.id) ?? 'open';
                 const linkedTitle = todo.goalId
                   ? goalTitleById.get(todo.goalId)
                   : null;
@@ -299,10 +343,18 @@ export default function TodosView({
                     <header className={styles.cardHead}>
                       <span
                         className={`${styles.status} ${
-                          open ? styles.open : styles.done
+                          presentation === 'done'
+                            ? styles.done
+                            : presentation === 'skipped'
+                              ? styles.skipped
+                              : styles.open
                         }`}
                       >
-                        {open ? 'Open' : 'Done'}
+                        {presentation === 'done'
+                          ? 'Done'
+                          : presentation === 'skipped'
+                            ? 'Skipped'
+                            : 'Open'}
                       </span>
                       <div className={styles.cardActions}>
                         <button
@@ -334,7 +386,7 @@ export default function TodosView({
                       })}
                     </div>
                     <footer className={styles.transitions}>
-                      {open ? (
+                      {presentation === 'open' ? (
                         <button
                           type="button"
                           disabled={statusBusy === todo.id}
@@ -350,7 +402,7 @@ export default function TodosView({
                           onClick={() => void changeDone(todo, false)}
                         >
                           <RotateCcw size={15} />
-                          Reopen
+                          {presentation === 'skipped' ? 'Try again' : 'Reopen'}
                         </button>
                       )}
                     </footer>

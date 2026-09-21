@@ -102,6 +102,12 @@
   background: #202719;
 }
 
+.status.skipped {
+  color: #d7c48a;
+  border-color: #5a4e2f;
+  background: #241f16;
+}
+
 .goalLink {
   color: var(--muted);
   font-size: 12px;

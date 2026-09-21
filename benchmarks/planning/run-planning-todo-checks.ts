@@ -19,6 +19,8 @@ import {
   todoFromRow,
   type TodoInsertRow,
 } from '../../lib/planning/todos';
+import { deriveTodoPlanPresentation } from '../../lib/planning/todoPresentation';
+import type { PlannedOccurrence } from '../../lib/planning/types';
 import { PLANNING_CATEGORIES } from '../../lib/planning/categories';
 import {
   isValidPlanningTitle,
@@ -249,6 +251,163 @@ assert.equal(isTodoOpen({ archivedAt: '2026-09-16T12:00:00.000Z' }), false);
 assert.equal(isTodoOpen({ archived_at: null }), true);
 assert.equal(isTodoOpen({ archived_at: '2026-09-16T12:00:00.000Z' }), false);
 
+const occBase: PlannedOccurrence = {
+  id: 'occ-1',
+  userId: 'user-a',
+  sourceType: 'todo',
+  routineId: null,
+  todoId: 'todo-1',
+  scheduledDate: '2026-09-21',
+  scheduledTime: null,
+  timezone: 'UTC',
+  durationMinutes: null,
+  status: 'planned',
+  completionMode: null,
+  logId: null,
+  resolvedAt: null,
+  rescheduledToId: null,
+  createdAt: '2026-09-21T08:00:00.000Z',
+  updatedAt: '2026-09-21T08:00:00.000Z',
+};
+const todoOpen = { archivedAt: null };
+const todoArchived = { archivedAt: '2026-09-21T18:00:00.000Z' };
+
+assert.equal(deriveTodoPlanPresentation(todoOpen, []), 'open');
+assert.equal(deriveTodoPlanPresentation(todoArchived, []), 'done');
+assert.equal(
+  deriveTodoPlanPresentation(todoOpen, [occBase]),
+  'open'
+);
+
+const skippedOcc: PlannedOccurrence = {
+  ...occBase,
+  id: 'occ-skip',
+  status: 'skipped',
+  resolvedAt: '2026-09-21T12:00:00.000Z',
+  updatedAt: '2026-09-21T12:00:00.000Z',
+};
+assert.equal(
+  deriveTodoPlanPresentation(todoArchived, [skippedOcc]),
+  'skipped'
+);
+
+const completedLight: PlannedOccurrence = {
+  ...occBase,
+  id: 'occ-done',
+  status: 'completed',
+  completionMode: 'light',
+  resolvedAt: '2026-09-21T12:00:00.000Z',
+  updatedAt: '2026-09-21T12:00:00.000Z',
+};
+assert.equal(
+  deriveTodoPlanPresentation(todoArchived, [completedLight]),
+  'done'
+);
+
+const completedLog: PlannedOccurrence = {
+  ...completedLight,
+  id: 'occ-log',
+  completionMode: 'log',
+  logId: 'log-1',
+};
+assert.equal(
+  deriveTodoPlanPresentation(todoArchived, [completedLog]),
+  'done'
+);
+
+const reopenPlanned: PlannedOccurrence = {
+  ...occBase,
+  id: 'occ-retry',
+  createdAt: '2026-09-21T13:00:00.000Z',
+  updatedAt: '2026-09-21T13:00:00.000Z',
+};
+assert.equal(
+  deriveTodoPlanPresentation(todoOpen, [skippedOcc, reopenPlanned]),
+  'open'
+);
+assert.equal(
+  deriveTodoPlanPresentation(todoOpen, [completedLight, reopenPlanned]),
+  'open'
+);
+
+const movedSource: PlannedOccurrence = {
+  ...occBase,
+  id: 'occ-A',
+  status: 'rescheduled',
+  resolvedAt: '2026-09-21T12:00:00.000Z',
+  rescheduledToId: 'occ-B',
+  updatedAt: '2026-09-21T12:00:00.000Z',
+};
+const movedPlanned: PlannedOccurrence = {
+  ...occBase,
+  id: 'occ-B',
+  scheduledDate: '2026-09-23',
+  status: 'planned',
+};
+assert.equal(
+  deriveTodoPlanPresentation(todoOpen, [movedSource, movedPlanned]),
+  'open'
+);
+
+const movedCompleted: PlannedOccurrence = {
+  ...movedPlanned,
+  status: 'completed',
+  completionMode: 'light',
+  resolvedAt: '2026-09-23T12:00:00.000Z',
+  updatedAt: '2026-09-23T12:00:00.000Z',
+};
+assert.equal(
+  deriveTodoPlanPresentation(todoArchived, [movedSource, movedCompleted]),
+  'done'
+);
+
+const movedSkipped: PlannedOccurrence = {
+  ...movedPlanned,
+  status: 'skipped',
+  resolvedAt: '2026-09-23T12:00:00.000Z',
+  updatedAt: '2026-09-23T12:00:00.000Z',
+};
+assert.equal(
+  deriveTodoPlanPresentation(todoArchived, [movedSource, movedSkipped]),
+  'skipped'
+);
+
+assert.equal(
+  deriveTodoPlanPresentation(todoOpen, [
+    skippedOcc,
+    {
+      ...completedLight,
+      id: 'occ-later-done',
+      resolvedAt: '2026-09-22T12:00:00.000Z',
+      updatedAt: '2026-09-22T12:00:00.000Z',
+    },
+  ]),
+  'done'
+);
+
+const cyclicA: PlannedOccurrence = {
+  ...movedSource,
+  id: 'cyc-A',
+  rescheduledToId: 'cyc-B',
+};
+const cyclicB: PlannedOccurrence = {
+  ...movedSource,
+  id: 'cyc-B',
+  rescheduledToId: 'cyc-A',
+};
+assert.equal(
+  deriveTodoPlanPresentation(todoOpen, [cyclicA, cyclicB]),
+  'open'
+);
+assert.equal(
+  deriveTodoPlanPresentation(todoArchived, [cyclicA, cyclicB, skippedOcc]),
+  'skipped'
+);
+assert.equal(
+  deriveTodoPlanPresentation(todoOpen, [movedSource]),
+  'open'
+);
+
 const row = {
   id: 'todo-1',
   user_id: 'user-a',
@@ -391,6 +550,9 @@ assert.ok(!todoForm.includes('type="date"'));
 const todosView = readFileSync(join(root, 'app/planning/TodosView.tsx'), 'utf8');
 assert.ok(todosView.includes('Mark done') || todosView.includes('Mark Done'));
 assert.ok(todosView.includes('Reopen'));
+assert.ok(todosView.includes('Try again'));
+assert.ok(todosView.includes('Skipped'));
+assert.ok(todosView.includes('deriveTodoPlanPresentation'));
 assert.ok(todosView.includes('completeOwnedOccurrenceLight'));
 assert.ok(todosView.includes('listOwnedOccurrencesForSources'));
 assert.ok(

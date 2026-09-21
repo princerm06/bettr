@@ -236,6 +236,10 @@ export {
   todoFromRow,
 } from './todos';
 
+export { deriveTodoPlanPresentation } from './todoPresentation';
+
+export type { TodoPlanPresentation } from './todoPresentation';
+
 export type {
   TodoArchiveUpdateRow,
   TodoInsertRow,
