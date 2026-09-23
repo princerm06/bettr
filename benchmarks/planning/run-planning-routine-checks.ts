@@ -7,6 +7,7 @@ import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import {
   ROUTINE_CREATE_IS_ACTIVE,
+  ROUTINE_CREATE_EXTERNAL_CALENDAR_ENABLED,
   ROUTINE_DOMAIN_FIELDS,
   ROUTINE_TABLE_COLUMNS,
   ROUTINE_VALIDATION_MESSAGES,
@@ -24,6 +25,7 @@ import {
   normalizeRoutineWeekdays,
   prepareRoutineActiveTransition,
   prepareRoutineCreate,
+  prepareRoutineTombstone,
   prepareRoutineUpdate,
   presentRoutineOccurrence,
   routineFromRow,
@@ -87,6 +89,23 @@ const trimmedTitle = prepareRoutineCreate('user-a', {
 assert.equal(trimmedTitle.ok, true);
 if (trimmedTitle.ok) {
   assert.equal(trimmedTitle.value.title, 'Morning lift');
+  assert.equal(
+    trimmedTitle.value.external_calendar_enabled,
+    ROUTINE_CREATE_EXTERNAL_CALENDAR_ENABLED
+  );
+}
+
+const calendarOff = prepareRoutineCreate('user-a', {
+  title: 'Private lift',
+  categories: ['physical'],
+  recurrenceType: 'daily',
+  weekdays: null,
+  timezone: 'America/New_York',
+  externalCalendarEnabled: false,
+});
+assert.equal(calendarOff.ok, true);
+if (calendarOff.ok) {
+  assert.equal(calendarOff.value.external_calendar_enabled, false);
 }
 
 assert.equal(normalizeRoutineCategories(['career']).ok, true);
@@ -409,6 +428,7 @@ if (insertRow.ok) {
     'categories',
     'description',
     'duration_minutes',
+    'external_calendar_enabled',
     'goal_id',
     'is_active',
     'recurrence_type',
@@ -562,6 +582,7 @@ if (updateRow.ok) {
     'categories',
     'description',
     'duration_minutes',
+    'external_calendar_enabled',
     'goal_id',
     'recurrence_type',
     'scheduled_time',
@@ -580,6 +601,13 @@ assert.equal(archive.ok, true);
 if (archive.ok) {
   assert.equal(archive.value.is_active, false);
   assert.ok(archive.value.updated_at);
+}
+
+const tombstone = prepareRoutineTombstone('2026-09-23T18:00:00.000Z');
+assert.equal(tombstone.ok, true);
+if (tombstone.ok) {
+  assert.equal(tombstone.value.is_active, false);
+  assert.equal(tombstone.value.deleted_at, '2026-09-23T18:00:00.000Z');
 }
 
 const reactivate = prepareRoutineActiveTransition(true);
@@ -620,7 +648,15 @@ assert.equal(mapped!.goalId, 'goal-1');
 assert.deepEqual(mapped!.weekdays, [1, 3, 5]);
 assert.equal(mapped!.weekdayLabels, null);
 assert.equal(mapped!.isActive, true);
+assert.equal(mapped!.externalCalendarEnabled, true);
+assert.equal(mapped!.deletedAt, null);
 assert.equal(formatRoutineRecurrence(mapped!), 'Weekly · Mon, Wed, Fri');
+
+const mappedDeleted = mapOwnedRoutineRows(
+  [{ ...row, id: 'routine-gone', deleted_at: '2026-09-23T18:00:00.000Z' }],
+  'user-a'
+);
+assert.deepEqual(mappedDeleted, []);
 
 assert.equal(routineFromRow(row, 'user-b'), null);
 assert.equal(
@@ -666,6 +702,8 @@ assert.deepEqual(ROUTINE_TABLE_COLUMNS, [
   'duration_minutes',
   'timezone',
   'is_active',
+  'external_calendar_enabled',
+  'deleted_at',
   'created_at',
   'updated_at',
 ]);
@@ -675,11 +713,22 @@ const weekdayLabelMigration = readFileSync(
   join(root, 'supabase/v11_routine_weekday_labels.sql'),
   'utf8'
 );
+const lifecycleMigration = readFileSync(
+  join(root, 'supabase/v14_routine_lifecycle_and_external_calendar.sql'),
+  'utf8'
+);
 for (const column of ROUTINE_TABLE_COLUMNS) {
   if (column === 'weekday_labels') {
     assert.ok(
       weekdayLabelMigration.includes(column),
       `v11 missing ${column}`
+    );
+    continue;
+  }
+  if (column === 'external_calendar_enabled' || column === 'deleted_at') {
+    assert.ok(
+      lifecycleMigration.includes(column),
+      `v14 missing ${column}`
     );
     continue;
   }
@@ -719,6 +768,9 @@ assert.ok(routinesAccess.includes(".eq('user_id', ownerId)"));
 assert.ok(routinesAccess.includes('prepareRoutineCreate'));
 assert.ok(routinesAccess.includes('setOwnedRoutineActive'));
 assert.ok(routinesAccess.includes('ON DELETE RESTRICT'));
+assert.ok(routinesAccess.includes('permanentlyRemoveOwnedRoutine'));
+assert.ok(routinesAccess.includes('deleted_at'));
+assert.ok(routinesAccess.includes('skipOwnedPlannedOccurrencesForRoutine'));
 assert.equal(routinesAccess.includes('.delete('), false);
 assert.equal(routinesAccess.includes('SERVICE_ROLE'), false);
 assert.equal(routinesAccess.includes('service_role'), false);
@@ -739,11 +791,9 @@ assert.ok(!uiBundle.includes('actionEvidence'));
 assert.ok(!uiBundle.includes('calculateDisciplineScore'));
 assert.ok(!uiBundle.includes('planned_occurrences'));
 assert.ok(!uiBundle.includes('check off') && !uiBundle.includes('checkoff'));
-assert.ok(
-  uiBundle.includes('does not award XP') ||
-    uiBundle.includes('do not award XP') ||
-    uiBundle.includes('does not award')
-);
+assert.ok(uiBundle.includes('Delete permanently'));
+assert.ok(uiBundle.includes('Yes, delete permanently'));
+assert.ok(uiBundle.includes('permanentlyRemoveOwnedRoutine'));
 
 const routineForm = readFileSync(
   join(root, 'app/planning/RoutineForm.tsx'),
@@ -753,7 +803,9 @@ assert.ok(routineForm.includes("chooseRecurrence('daily')"));
 assert.ok(routineForm.includes("chooseRecurrence('weekly')"));
 assert.ok(routineForm.includes('aria-pressed'));
 assert.ok(routineForm.includes('choiceSelected'));
-assert.ok(routineForm.includes('+ Add schedule details'));
+assert.ok(routineForm.includes('Add to calendar'));
+assert.ok(routineForm.includes('connected calendar'));
+assert.ok(!routineForm.includes('google_calendar_enabled'));
 assert.ok(routineForm.includes('Hide schedule details'));
 assert.ok(routineForm.includes('No active goals to link yet'));
 assert.ok(routineForm.includes('listIanaTimeZoneOptions'));
@@ -957,7 +1009,7 @@ console.log(
       recurrenceTypes: PLANNING_RECURRENCE_TYPES,
       createIsActive: ROUTINE_CREATE_IS_ACTIVE,
       columns: ROUTINE_TABLE_COLUMNS,
-      deletion: 'omitted-restrict',
+      deletion: 'tombstone-restrict',
       timezoneOptions: zoneOptions.length,
       browserTimeZone: browserZone,
       weekdayLabels: true,

@@ -61,6 +61,39 @@ export function googleIdentityFromIdToken(idToken: string | undefined): {
   }
 }
 
+export async function refreshGoogleAccessToken(options: {
+  refreshToken: string;
+  clientId: string;
+  clientSecret: string;
+}): Promise<
+  | { ok: true; accessToken: string; rotatedRefreshToken?: string }
+  | { ok: false }
+> {
+  try {
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formBody({
+        grant_type: 'refresh_token',
+        refresh_token: options.refreshToken,
+        client_id: options.clientId,
+        client_secret: options.clientSecret,
+      }),
+    });
+    const payload = (await response.json().catch(() => ({}))) as GoogleTokenResponse;
+    if (!response.ok || !payload.access_token) {
+      return { ok: false };
+    }
+    return {
+      ok: true,
+      accessToken: payload.access_token,
+      rotatedRefreshToken: payload.refresh_token,
+    };
+  } catch {
+    return { ok: false };
+  }
+}
+
 export async function revokeGoogleToken(token: string): Promise<boolean> {
   if (!token) return false;
   try {

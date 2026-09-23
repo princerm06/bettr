@@ -4,6 +4,7 @@
  */
 import { isoWeekdayFromLocalDate, localCalendarDateInTimeZone } from './localCalendar';
 import { isTodoOpen } from './todos';
+import { isRoutineLiveForPlanning } from './routines';
 import type {
   PlannedOccurrence,
   PlanningOccurrenceSource,
@@ -48,7 +49,10 @@ function hasRoutineOccurrence(
     (row) =>
       row.sourceType === 'routine' &&
       row.routineId === routineId &&
-      row.scheduledDate === scheduledDate
+      row.scheduledDate === scheduledDate &&
+      (row.status === 'planned' ||
+        row.status === 'skipped' ||
+        row.status === 'completed')
   );
 }
 
@@ -65,10 +69,10 @@ function hasActiveTodoOccurrence(
 }
 
 export function routineAppliesOnLocalDate(
-  routine: Pick<Routine, 'isActive' | 'recurrenceType' | 'weekdays'>,
+  routine: Pick<Routine, 'isActive' | 'deletedAt' | 'recurrenceType' | 'weekdays'>,
   localDate: string
 ): boolean {
-  if (!routine.isActive) return false;
+  if (!isRoutineLiveForPlanning(routine)) return false;
   if (routine.recurrenceType === 'daily') return true;
   const weekday = isoWeekdayFromLocalDate(localDate);
   if (weekday === null) return false;
@@ -181,9 +185,15 @@ export function todayScheduledDates(
 
 /**
  * Identity key for the Slice 5 uniqueness invariant:
- * - one routine expectation per (routine, local date)
+ * - one live planned routine expectation per (routine, local date)
+ * - skipped/completed history shares that date key so Today collapse does
+ *   not show a duplicate planned twin
  * - one currently planned expectation per to-do (completed/skipped/rescheduled
  *   are historical and do not occupy the live identity)
+ *
+ * Archive skips planned rows; uniqueness is planned-only in v14 so a later
+ * rematerialize of a new date is not blocked by skipped history. Same-date
+ * rematerialize after skip remains blocked by hasRoutineOccurrence.
  *
  * Rescheduled rows keep per-id identity so historical reschedule chains
  * are never collapsed. This is deterministic uniqueness, not fuzzy dedupe.

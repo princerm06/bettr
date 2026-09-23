@@ -163,6 +163,21 @@ export type {
 } from './occurrences';
 
 export {
+  ROUTINE_SCHEDULE_PROPAGATION_ERROR,
+  isEligibleRoutineSchedulePropagation,
+  isMoveDestinationOccurrence,
+  occurrenceScheduleMatchesTemplate,
+  prepareOccurrenceRoutineScheduleUpdate,
+  routineScheduleTemplateFromRoutine,
+  selectOccurrencesForRoutineScheduleSync,
+} from './routineSchedulePropagation';
+
+export type {
+  OccurrenceScheduleUpdateRow,
+  RoutineScheduleTemplate,
+} from './routineSchedulePropagation';
+
+export {
   GOAL_CREATE_STATUS,
   GOAL_DOMAIN_FIELDS,
   GOAL_TABLE_COLUMNS,
@@ -185,6 +200,7 @@ export type {
 
 export {
   ROUTINE_CREATE_IS_ACTIVE,
+  ROUTINE_CREATE_EXTERNAL_CALENDAR_ENABLED,
   ROUTINE_DOMAIN_FIELDS,
   ROUTINE_TABLE_COLUMNS,
   ROUTINE_VALIDATION_MESSAGES,
@@ -196,6 +212,9 @@ export {
   filterTimeZoneOptions,
   formatRoutineRecurrence,
   formatTimeZoneLabel,
+  isRoutineInLibrary,
+  isRoutineLiveForPlanning,
+  isRoutineOccurrenceActionable,
   listIanaTimeZoneOptions,
   localScheduledTimeToPickerParts,
   timeZoneShortAbbreviations,
@@ -205,8 +224,10 @@ export {
   normalizeRoutineWeekdays,
   prepareRoutineActiveTransition,
   prepareRoutineCreate,
+  prepareRoutineTombstone,
   prepareRoutineUpdate,
   presentRoutineOccurrence,
+  routineAllowsExternalCalendar,
   routineFromRow,
 } from './routines';
 
@@ -217,6 +238,7 @@ export type {
   RoutineInsertRow,
   RoutineOccurrencePresentation,
   RoutineRow,
+  RoutineTombstoneUpdateRow,
   RoutineUpdateRow,
   RoutineWriteInput,
   TimeZoneOption,

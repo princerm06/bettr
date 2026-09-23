@@ -104,6 +104,10 @@ export type Routine = {
   durationMinutes: number | null;
   timezone: string;
   isActive: boolean;
+  /** Provider-neutral. Default true so existing timed Routines keep projecting. */
+  externalCalendarEnabled: boolean;
+  /** Tombstone for permanent library removal. Null while the Routine remains in the library. */
+  deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };

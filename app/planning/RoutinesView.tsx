@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Archive, Pencil, Plus, Repeat, RotateCcw, X } from 'lucide-react';
+import { Archive, Pencil, Plus, Repeat, RotateCcw, Trash2, X } from 'lucide-react';
 import { supabase, supabaseConfigured } from '../../lib/supabase';
 import {
   formatRoutineRecurrence,
@@ -14,9 +14,11 @@ import { listOwnedGoals } from '../../lib/planning/goalsAccess';
 import {
   createOwnedRoutine,
   listOwnedRoutines,
+  permanentlyRemoveOwnedRoutine,
   setOwnedRoutineActive,
   updateOwnedRoutine,
 } from '../../lib/planning/routinesAccess';
+import { requestCalendarReconcileAfterPlanning } from '../../lib/calendar/requestReconcile';
 import RoutineForm, { type RoutineFormValues } from './RoutineForm';
 import styles from './routines.module.css';
 
@@ -53,6 +55,7 @@ export default function RoutinesView({
   const [filter, setFilter] = useState<StatusFilter>('active');
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Routine | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<Routine | null>(null);
 
   const ownerId = user?.id ?? '';
 
@@ -128,6 +131,7 @@ export default function RoutinesView({
       scheduledTime: values.scheduledTime || null,
       durationMinutes: values.durationMinutes || null,
       timezone: values.timezone,
+      externalCalendarEnabled: values.externalCalendarEnabled,
     };
     const result = editing
       ? await updateOwnedRoutine(supabase, ownerId, editing.id, input)
@@ -140,6 +144,7 @@ export default function RoutinesView({
     setFormOpen(false);
     setEditing(null);
     onNotice(editing ? 'Routine updated.' : 'Routine created.');
+    requestCalendarReconcileAfterPlanning();
     await refresh();
   }
 
@@ -153,12 +158,37 @@ export default function RoutinesView({
       nextActive
     );
     setStatusBusy(null);
-    if (result.error || !result.data) {
-      setNotice(result.error || 'Could not update routine.');
+    if (result.data) {
+      requestCalendarReconcileAfterPlanning();
+      await refresh();
+    }
+    if (result.error) {
+      setNotice(result.error);
       return;
     }
     onNotice(nextActive ? 'Routine restored.' : 'Routine archived.');
-    await refresh();
+  }
+
+  async function confirmPermanentDelete() {
+    if (!ownerId || !deleteConfirm) return;
+    setStatusBusy(deleteConfirm.id);
+    const target = deleteConfirm;
+    const result = await permanentlyRemoveOwnedRoutine(
+      supabase,
+      ownerId,
+      target
+    );
+    setStatusBusy(null);
+    if (result.data || !result.error) {
+      setDeleteConfirm(null);
+      requestCalendarReconcileAfterPlanning();
+      await refresh();
+    }
+    if (result.error) {
+      setNotice(result.error);
+      return;
+    }
+    onNotice('Routine permanently removed from your library.');
   }
 
   const emptyCopy =
@@ -321,14 +351,28 @@ export default function RoutinesView({
                           Archive
                         </button>
                       ) : (
-                        <button
-                          type="button"
-                          disabled={statusBusy === routine.id}
-                          onClick={() => void changeActive(routine, true)}
-                        >
-                          <RotateCcw size={15} />
-                          Restore
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            disabled={statusBusy === routine.id}
+                            onClick={() => void changeActive(routine, true)}
+                          >
+                            <RotateCcw size={15} />
+                            Restore
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.deleteButton}
+                            disabled={statusBusy === routine.id}
+                            onClick={() => {
+                              setDeleteConfirm(routine);
+                              setNotice(null);
+                            }}
+                          >
+                            <Trash2 size={15} />
+                            Delete permanently
+                          </button>
+                        </>
                       )}
                     </footer>
                   </article>
@@ -337,6 +381,49 @@ export default function RoutinesView({
             </div>
           )}
         </>
+      )}
+
+      {deleteConfirm && (
+        <div className="overlay" onClick={() => setDeleteConfirm(null)}>
+          <div
+            className={`modal ${styles.formModal}`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="close"
+              type="button"
+              onClick={() => setDeleteConfirm(null)}
+              aria-label="Close"
+            >
+              <X />
+            </button>
+            <p className="eyebrow">DELETE ROUTINE</p>
+            <h2>Remove this routine permanently?</h2>
+            <p>
+              <strong>{deleteConfirm.title}</strong> will leave your library and
+              cannot be restored. Completed history, logs, XP, and progress stay
+              intact. This cannot be undone.
+            </p>
+            <div className={styles.deleteActions}>
+              <button
+                type="button"
+                className="textButton"
+                disabled={statusBusy === deleteConfirm.id}
+                onClick={() => setDeleteConfirm(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={styles.deleteConfirmButton}
+                disabled={statusBusy === deleteConfirm.id}
+                onClick={() => void confirmPermanentDelete()}
+              >
+                Yes, delete permanently
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {formOpen && user && (

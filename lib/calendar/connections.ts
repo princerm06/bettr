@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { isPersistedDedicatedCalendarId } from './destination';
 
 export type CalendarConnectionRow = {
   user_id: string;
@@ -18,6 +19,7 @@ export type CalendarConnectionStatus = {
   connected: boolean;
   googleEmail: string | null;
   syncEnabled: boolean;
+  hasDedicatedCalendar: boolean;
   connectedAt: string | null;
   lastError: string | null;
 };
@@ -30,6 +32,7 @@ export function toPublicConnectionStatus(
       connected: false,
       googleEmail: null,
       syncEnabled: false,
+      hasDedicatedCalendar: false,
       connectedAt: null,
       lastError: null,
     };
@@ -38,6 +41,7 @@ export function toPublicConnectionStatus(
     connected: true,
     googleEmail: row.google_email,
     syncEnabled: row.sync_enabled,
+    hasDedicatedCalendar: isPersistedDedicatedCalendarId(row.calendar_id),
     connectedAt: row.connected_at,
     lastError: row.last_error,
   };
@@ -69,21 +73,70 @@ export async function upsertCalendarConnection(
   }
 ): Promise<string | null> {
   const now = new Date().toISOString();
-  const { error } = await admin.from('google_calendar_connections').upsert(
-    {
-      user_id: row.userId,
-      sync_enabled: false,
-      google_sub: row.googleSub,
-      google_email: row.googleEmail,
-      calendar_id: 'primary',
-      refresh_token_ciphertext: row.refreshTokenCiphertext,
-      granted_scopes: row.grantedScopes,
-      connected_at: now,
-      updated_at: now,
-      last_error: null,
-    },
-    { onConflict: 'user_id' }
-  );
+  const existing = await selectCalendarConnection(admin, row.userId);
+  if (existing) {
+    const { error } = await admin
+      .from('google_calendar_connections')
+      .update({
+        google_sub: row.googleSub,
+        google_email: row.googleEmail,
+        refresh_token_ciphertext: row.refreshTokenCiphertext,
+        granted_scopes: row.grantedScopes,
+        updated_at: now,
+      })
+      .eq('user_id', row.userId);
+    return error?.message ?? null;
+  }
+  const { error } = await admin.from('google_calendar_connections').insert({
+    user_id: row.userId,
+    sync_enabled: false,
+    google_sub: row.googleSub,
+    google_email: row.googleEmail,
+    calendar_id: 'primary',
+    refresh_token_ciphertext: row.refreshTokenCiphertext,
+    granted_scopes: row.grantedScopes,
+    connected_at: now,
+    updated_at: now,
+    last_error: null,
+  });
+  return error?.message ?? null;
+}
+
+export async function updateCalendarDestination(
+  admin: SupabaseClient,
+  userId: string,
+  calendarId: string
+): Promise<string | null> {
+  const { error } = await admin
+    .from('google_calendar_connections')
+    .update({
+      calendar_id: calendarId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+  return error?.message ?? null;
+}
+
+export async function updateCalendarSyncEnabled(
+  admin: SupabaseClient,
+  userId: string,
+  options: { syncEnabled: boolean; lastError?: string | null }
+): Promise<string | null> {
+  const patch: {
+    sync_enabled: boolean;
+    updated_at: string;
+    last_error?: string | null;
+  } = {
+    sync_enabled: options.syncEnabled,
+    updated_at: new Date().toISOString(),
+  };
+  if (options.lastError !== undefined) {
+    patch.last_error = options.lastError;
+  }
+  const { error } = await admin
+    .from('google_calendar_connections')
+    .update(patch)
+    .eq('user_id', userId);
   return error?.message ?? null;
 }
 
@@ -94,6 +147,22 @@ export async function deleteCalendarConnection(
   const { error } = await admin
     .from('google_calendar_connections')
     .delete()
+    .eq('user_id', userId);
+  return error?.message ?? null;
+}
+
+export async function updateCalendarReconcileMeta(
+  admin: SupabaseClient,
+  userId: string,
+  meta: { lastReconcileAt: string; lastError: string | null }
+): Promise<string | null> {
+  const { error } = await admin
+    .from('google_calendar_connections')
+    .update({
+      last_reconcile_at: meta.lastReconcileAt,
+      last_error: meta.lastError,
+      updated_at: meta.lastReconcileAt,
+    })
     .eq('user_id', userId);
   return error?.message ?? null;
 }

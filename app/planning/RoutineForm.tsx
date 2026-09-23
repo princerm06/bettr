@@ -35,6 +35,7 @@ export type RoutineFormValues = {
   scheduledTime: string;
   durationMinutes: string;
   timezone: string;
+  externalCalendarEnabled: boolean;
 };
 
 const HOUR_12_OPTIONS = Array.from({ length: 12 }, (_, index) =>
@@ -91,6 +92,9 @@ export default function RoutineForm({
   );
   const [timezone, setTimezone] = useState(
     existing?.timezone ?? browserTimeZone
+  );
+  const [externalCalendarEnabled, setExternalCalendarEnabled] = useState(
+    existing?.externalCalendarEnabled !== false
   );
   const [timezoneQuery, setTimezoneQuery] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(
@@ -223,6 +227,7 @@ export default function RoutineForm({
       scheduledTime: scheduledTime || null,
       durationMinutes: durationMinutes || null,
       timezone,
+      externalCalendarEnabled,
     });
     if (!prepared.ok) {
       setError(prepared.error);
@@ -250,6 +255,7 @@ export default function RoutineForm({
           ? String(prepared.value.duration_minutes)
           : '',
       timezone: prepared.value.timezone,
+      externalCalendarEnabled: prepared.value.external_calendar_enabled,
     });
   }
 
@@ -469,6 +475,24 @@ export default function RoutineForm({
           placeholder="When, where, or what good looks like."
           onChange={(event) => setDescription(event.target.value)}
         />
+
+        <label className={`aiToggle ${styles.calendarToggle}`}>
+          <input
+            type="checkbox"
+            checked={externalCalendarEnabled}
+            onChange={(event) => setExternalCalendarEnabled(event.target.checked)}
+          />
+          <span className="toggleTrack">
+            <i />
+          </span>
+          <div>
+            <strong>Add to calendar</strong>
+            <small>
+              Show this routine on your connected calendar when it has a
+              scheduled time.
+            </small>
+          </div>
+        </label>
 
         <button
           type="button"

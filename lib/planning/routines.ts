@@ -29,6 +29,7 @@ import {
 import { isoWeekdayFromLocalDate } from './localCalendar';
 
 export const ROUTINE_CREATE_IS_ACTIVE = true as const;
+export const ROUTINE_CREATE_EXTERNAL_CALENDAR_ENABLED = true as const;
 
 export const ROUTINE_TABLE_COLUMNS = [
   'id',
@@ -44,6 +45,8 @@ export const ROUTINE_TABLE_COLUMNS = [
   'duration_minutes',
   'timezone',
   'is_active',
+  'external_calendar_enabled',
+  'deleted_at',
   'created_at',
   'updated_at',
 ] as const;
@@ -62,6 +65,8 @@ export const ROUTINE_DOMAIN_FIELDS = [
   'durationMinutes',
   'timezone',
   'isActive',
+  'externalCalendarEnabled',
+  'deletedAt',
   'createdAt',
   'updatedAt',
 ] as const;
@@ -83,6 +88,13 @@ export const ROUTINE_VALIDATION_MESSAGES = {
   duration: 'Duration must be a whole number of minutes.',
   timezone: 'Choose a real timezone.',
   active: 'That routine status is not available.',
+  calendar: 'Choose whether this routine should appear on a connected calendar.',
+  deleteActive: 'Archive this routine before deleting it permanently.',
+  alreadyDeleted: 'That routine is already removed.',
+  archiveOccurrences:
+    'Routine archived, but some planned days could not be updated. Try again.',
+  deleteOccurrences:
+    'Could not close remaining planned days before removing this routine. Try again.',
 } as const;
 
 export const WEEKDAY_LABELS: Record<PlanningIsoWeekday, string> = {
@@ -119,6 +131,8 @@ export type RoutineRow = {
   duration_minutes: number | null;
   timezone: string;
   is_active: boolean;
+  external_calendar_enabled: boolean;
+  deleted_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -136,6 +150,7 @@ export type RoutineInsertRow = {
   duration_minutes: number | null;
   timezone: string;
   is_active: boolean;
+  external_calendar_enabled: boolean;
 };
 
 export type RoutineUpdateRow = {
@@ -149,11 +164,18 @@ export type RoutineUpdateRow = {
   scheduled_time: string | null;
   duration_minutes: number | null;
   timezone: string;
+  external_calendar_enabled: boolean;
   updated_at: string;
 };
 
 export type RoutineActiveUpdateRow = {
   is_active: boolean;
+  updated_at: string;
+};
+
+export type RoutineTombstoneUpdateRow = {
+  is_active: false;
+  deleted_at: string;
   updated_at: string;
 };
 
@@ -168,6 +190,7 @@ export type RoutineWriteInput = {
   scheduledTime?: unknown;
   durationMinutes?: unknown;
   timezone: unknown;
+  externalCalendarEnabled?: unknown;
 };
 
 export type RoutinePrepareSuccess<T> = { ok: true; value: T };
@@ -551,6 +574,44 @@ function requireOwnerId(ownerId: unknown): RoutinePrepareResult<string> {
   return { ok: true, value: ownerId };
 }
 
+function normalizeExternalCalendarEnabled(
+  value: unknown
+): RoutinePrepareResult<boolean> {
+  if (value === undefined) {
+    return { ok: true, value: ROUTINE_CREATE_EXTERNAL_CALENDAR_ENABLED };
+  }
+  if (typeof value !== 'boolean') {
+    return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.calendar };
+  }
+  return { ok: true, value };
+}
+
+/** Still listed in Active or Archived. Tombstoned routines are not. */
+export function isRoutineInLibrary(
+  routine: Pick<Routine, 'deletedAt'>
+): boolean {
+  return routine.deletedAt == null;
+}
+
+export function isRoutineLiveForPlanning(
+  routine: Pick<Routine, 'isActive' | 'deletedAt'>
+): boolean {
+  return routine.isActive && isRoutineInLibrary(routine);
+}
+
+export function routineAllowsExternalCalendar(
+  routine: Pick<Routine, 'isActive' | 'deletedAt' | 'externalCalendarEnabled'>
+): boolean {
+  return isRoutineLiveForPlanning(routine) && routine.externalCalendarEnabled;
+}
+
+export function isRoutineOccurrenceActionable(
+  routine: Pick<Routine, 'isActive' | 'deletedAt'>,
+  occurrence: Pick<{ status: string }, 'status'>
+): boolean {
+  return occurrence.status === 'planned' && isRoutineLiveForPlanning(routine);
+}
+
 export function detectBrowserTimeZone(): string {
   try {
     const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -828,6 +889,11 @@ export function prepareRoutineCreate(
   const timezone = normalizeTimezone(input.timezone);
   if (!timezone.ok) return timezone;
 
+  const externalCalendarEnabled = normalizeExternalCalendarEnabled(
+    input.externalCalendarEnabled
+  );
+  if (!externalCalendarEnabled.ok) return externalCalendarEnabled;
+
   const mappedLabels = mapWeekdayLabelsFromPersisted(weekdayLabels.value);
 
   const row: RoutineInsertRow = {
@@ -843,6 +909,7 @@ export function prepareRoutineCreate(
     duration_minutes: durationMinutes.value,
     timezone: timezone.value,
     is_active: ROUTINE_CREATE_IS_ACTIVE,
+    external_calendar_enabled: externalCalendarEnabled.value,
   };
 
   if (
@@ -887,6 +954,7 @@ export function prepareRoutineUpdate(
       scheduled_time: created.value.scheduled_time,
       duration_minutes: created.value.duration_minutes,
       timezone: created.value.timezone,
+      external_calendar_enabled: created.value.external_calendar_enabled,
       updated_at: new Date().toISOString(),
     },
   };
@@ -903,6 +971,22 @@ export function prepareRoutineActiveTransition(
     value: {
       is_active: nextActive,
       updated_at: new Date().toISOString(),
+    },
+  };
+}
+
+export function prepareRoutineTombstone(
+  nowIso: string
+): RoutinePrepareResult<RoutineTombstoneUpdateRow> {
+  if (!isNonEmptyString(nowIso)) {
+    return { ok: false, error: ROUTINE_VALIDATION_MESSAGES.active };
+  }
+  return {
+    ok: true,
+    value: {
+      is_active: false,
+      deleted_at: nowIso,
+      updated_at: nowIso,
     },
   };
 }
@@ -944,6 +1028,14 @@ export function routineFromRow(row: unknown, ownerId: string): Routine | null {
   const durationMinutes = row.duration_minutes;
   const timezone = row.timezone;
   const isActive = row.is_active;
+  const externalCalendarEnabled =
+    row.external_calendar_enabled === undefined
+      ? ROUTINE_CREATE_EXTERNAL_CALENDAR_ENABLED
+      : row.external_calendar_enabled;
+  const deletedAt =
+    row.deleted_at === undefined || row.deleted_at === null
+      ? null
+      : row.deleted_at;
   const createdAt = row.created_at;
   const updatedAt = row.updated_at;
 
@@ -959,6 +1051,8 @@ export function routineFromRow(row: unknown, ownerId: string): Routine | null {
   if (durationMinutes !== null && typeof durationMinutes !== 'number') return null;
   if (typeof timezone !== 'string') return null;
   if (typeof isActive !== 'boolean') return null;
+  if (typeof externalCalendarEnabled !== 'boolean') return null;
+  if (deletedAt !== null && typeof deletedAt !== 'string') return null;
   if (!isNonEmptyString(createdAt) || !isNonEmptyString(updatedAt)) return null;
   if (!isValidPlanningCategories(rawCategories)) return null;
   if (!isValidRoutineRecurrence(recurrenceType, weekdays)) return null;
@@ -981,6 +1075,8 @@ export function routineFromRow(row: unknown, ownerId: string): Routine | null {
     durationMinutes,
     timezone,
     isActive,
+    externalCalendarEnabled,
+    deletedAt,
     createdAt,
     updatedAt,
   };
@@ -1012,7 +1108,7 @@ export function mapOwnedRoutineRows(rows: unknown, ownerId: string): Routine[] {
   const routines: Routine[] = [];
   for (const row of rows) {
     const routine = routineFromRow(row, ownerId);
-    if (routine) routines.push(routine);
+    if (routine && isRoutineInLibrary(routine)) routines.push(routine);
   }
   return routines;
 }

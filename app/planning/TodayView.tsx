@@ -16,6 +16,7 @@ import {
   pendingReplacementIds,
   planningCategoryDisplay,
   presentRoutineOccurrence,
+  isRoutineOccurrenceActionable,
   resolveMoveChain,
   shiftLocalCalendarDate,
   type CollapsedTodayHistoryRow,
@@ -37,6 +38,7 @@ import {
   rescheduleOwnedOccurrence,
   skipOwnedOccurrence,
 } from '../../lib/planning/occurrencesAccess';
+import { requestCalendarReconcileAfterPlanning } from '../../lib/calendar/requestReconcile';
 import {
   buildPlannerLogDraft,
   evaluatePlannerLogCredit,
@@ -139,6 +141,9 @@ export default function TodayView({
       if (occurrence.sourceType === 'routine' && occurrence.routineId) {
         const routine = routineById.get(occurrence.routineId);
         if (!routine) continue;
+        if (!isRoutineOccurrenceActionable(routine, occurrence) && occurrence.status === 'planned') {
+          continue;
+        }
         const presentation = presentRoutineOccurrence(
           routine,
           occurrence.scheduledDate
@@ -215,6 +220,7 @@ export default function TodayView({
         setLoading(false);
         return;
       }
+      requestCalendarReconcileAfterPlanning();
 
       setGoals(goalResult.data);
       const viewerTz = detectBrowserTimeZone();
@@ -355,6 +361,7 @@ export default function TodayView({
       return;
     }
     applyOccurrence(result.data);
+    requestCalendarReconcileAfterPlanning();
     if (result.error) {
       setNotice(result.error);
       return;
@@ -417,6 +424,7 @@ export default function TodayView({
       });
     }
     setMoveFor(null);
+    requestCalendarReconcileAfterPlanning();
     if (result.error) {
       setNotice(result.error);
       return;
@@ -452,6 +460,7 @@ export default function TodayView({
       return;
     }
     applyOccurrence(result.data);
+    requestCalendarReconcileAfterPlanning();
     if (result.error) {
       setNotice(result.error);
       return;
@@ -531,6 +540,7 @@ export default function TodayView({
           return;
         }
         applyOccurrence(light.data);
+        requestCalendarReconcileAfterPlanning();
         if (light.error) {
           setBusyId(null);
           setNotice(light.error);
@@ -615,6 +625,7 @@ export default function TodayView({
     }
 
     applyOccurrence(linked.data);
+    requestCalendarReconcileAfterPlanning();
     if (linked.error) {
       setNotice(linked.error);
       return;

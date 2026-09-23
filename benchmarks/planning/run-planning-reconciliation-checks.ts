@@ -339,6 +339,8 @@ const dailyRoutine: Routine = {
   durationMinutes: 45,
   timezone: 'UTC',
   isActive: true,
+  externalCalendarEnabled: true,
+  deletedAt: null,
   createdAt: resolvedAt,
   updatedAt: resolvedAt,
 };

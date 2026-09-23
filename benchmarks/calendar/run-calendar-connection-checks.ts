@@ -132,14 +132,30 @@ const calendarBundle = readdirSync(calendarDir)
   .join('\n');
 assert.ok(!calendarBundle.includes("from 'googleapis'"));
 assert.ok(!calendarBundle.includes('require("googleapis")'));
-assert.ok(!calendarBundle.includes('/calendar/v3/'));
-assert.ok(!calendarBundle.includes('events.insert'));
 assert.ok(!calendarBundle.includes('lib/evaluation'));
 assert.ok(!calendarBundle.includes("from '../planning"));
 assert.ok(!calendarBundle.includes("from '../../planning"));
 assert.ok(!calendarBundle.includes("from 'lib/planning"));
 assert.ok(calendarBundle.includes('calendar.events'));
-assert.ok(calendarBundle.includes('calendar.calendarlist.readonly'));
+assert.ok(calendarBundle.includes('https://www.googleapis.com/auth/calendar'));
+assert.ok(
+  readdirSync(calendarDir)
+    .filter(
+      (name) =>
+        name.endsWith('.ts') &&
+        name !== 'googleEvents.ts' &&
+        name !== 'googleCalendars.ts'
+    )
+    .every(
+      (name) =>
+        !readFileSync(join(calendarDir, name), 'utf8').includes('/calendar/v3')
+    )
+);
+assert.ok(
+  readFileSync(join(calendarDir, 'googleEvents.ts'), 'utf8').includes(
+    '/calendar/v3'
+  )
+);
 
 const callback = readFileSync(
   join(root, 'app/api/calendar/google/callback/route.ts'),
@@ -149,7 +165,7 @@ assert.ok(callback.includes('bindOAuthCallback'));
 assert.ok(callback.includes('parseOAuthHandshake'));
 assert.ok(!callback.includes("searchParams.get('user_id')"));
 assert.ok(!callback.includes('searchParams.get("user_id")'));
-assert.ok(!callback.includes('/calendar/v3/'));
+assert.ok(!callback.includes('/calendar/v3'));
 assert.ok(!callback.includes('events.insert'));
 assert.ok(callback.includes('tokens.refresh_token'));
 assert.ok(callback.includes('existing?.refresh_token_ciphertext'));
@@ -166,8 +182,7 @@ const disconnect = readFileSync(
   join(root, 'app/api/calendar/disconnect/route.ts'),
   'utf8'
 );
-assert.ok(disconnect.includes('revokeGoogleToken'));
-assert.ok(disconnect.includes('deleteCalendarConnection'));
+assert.ok(disconnect.includes('disconnectCalendarSync'));
 assert.ok(!disconnect.includes('from(\'goals\')'));
 assert.ok(!disconnect.includes('planned_occurrences'));
 
@@ -189,7 +204,8 @@ assert.ok(!/GOOGLE_CALENDAR_CLIENT_SECRET=.+./.test(envExample.split('\n').find(
 const ui = readFileSync(join(root, 'app/calendar/GoogleCalendarSettings.tsx'), 'utf8');
 assert.ok(ui.includes('Connect Google Calendar'));
 assert.ok(ui.includes('Disconnect'));
-assert.ok(ui.includes('Sync: Off'));
+assert.ok(ui.includes('Sync:'));
+assert.ok(ui.includes('Turn on'));
 assert.ok(!ui.includes('Sync now'));
 
 console.log(

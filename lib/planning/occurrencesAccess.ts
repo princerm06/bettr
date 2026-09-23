@@ -30,6 +30,11 @@ import {
   prepareOccurrenceInsert,
   type OccurrenceRow,
 } from './occurrences';
+import {
+  prepareOccurrenceRoutineScheduleUpdate,
+  routineScheduleTemplateFromRoutine,
+  selectOccurrencesForRoutineScheduleSync,
+} from './routineSchedulePropagation';
 import type { PlannedOccurrence, Routine, Todo } from './types';
 
 const OCCURRENCE_SELECT =
@@ -611,6 +616,89 @@ export async function reopenOwnedTodoForAnotherAttempt(
   if (retry.error) return fail(retry.error, null);
   const planned = retry.data.find((row) => row.status === 'planned');
   return { data: planned ?? null, error: null };
+}
+
+/**
+ * Copy the Routine schedule template onto owned planned occurrences.
+ * Does not change dates, status, Move history, Logs, or XP.
+ */
+export async function propagateOwnedRoutineScheduleToPlannedOccurrences(
+  client: SupabaseClient,
+  ownerId: string,
+  routine: Routine
+): Promise<string | null> {
+  const listed = await listOwnedOccurrencesForSources(client, ownerId, {
+    routineIds: [routine.id],
+  });
+  if (listed.error) return listed.error;
+
+  const template = routineScheduleTemplateFromRoutine(routine);
+  const pending = selectOccurrencesForRoutineScheduleSync(listed.data, {
+    ownerId,
+    routineId: routine.id,
+    template,
+  });
+  if (pending.length === 0) return null;
+
+  const updatedAt = new Date().toISOString();
+  const ids: string[] = [];
+  for (const occurrence of pending) {
+    const prepared = prepareOccurrenceRoutineScheduleUpdate(
+      occurrence,
+      template,
+      updatedAt
+    );
+    if (!prepared.ok) return prepared.error;
+    ids.push(occurrence.id);
+  }
+
+  const { error } = await client
+    .from('planned_occurrences')
+    .update({
+      scheduled_time: template.scheduledTime,
+      duration_minutes: template.durationMinutes,
+      timezone: template.timezone,
+      updated_at: updatedAt,
+    })
+    .eq('user_id', ownerId)
+    .eq('routine_id', routine.id)
+    .eq('status', 'planned')
+    .in('id', ids);
+
+  return error?.message ?? null;
+}
+
+/**
+ * Skip remaining owned planned occurrences for a Routine after archive or
+ * tombstone. Does not touch completed, skipped, or rescheduled history.
+ * Idempotent. Does not mutate Logs, XP, or other users.
+ */
+export async function skipOwnedPlannedOccurrencesForRoutine(
+  client: SupabaseClient | null | undefined,
+  ownerId: string,
+  routineId: string
+): Promise<string | null> {
+  if (!ownerId || !routineId) return OCCURRENCE_VALIDATION_MESSAGES.signedIn;
+  const listed = await listOwnedOccurrencesForSources(client, ownerId, {
+    routineIds: [routineId],
+    todoIds: [],
+  });
+  if (listed.error) return listed.error;
+  const resolvedAt = new Date().toISOString();
+  for (const occurrence of listed.data) {
+    if (occurrence.userId !== ownerId) continue;
+    if (occurrence.routineId !== routineId) continue;
+    if (occurrence.sourceType !== 'routine') continue;
+    if (occurrence.status !== 'planned') continue;
+    const skipped = await skipOwnedOccurrence(
+      client,
+      ownerId,
+      occurrence,
+      resolvedAt
+    );
+    if (skipped.error) return skipped.error;
+  }
+  return null;
 }
 
 function parseRescheduleRpc(

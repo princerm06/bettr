@@ -25,6 +25,7 @@ import {
   setOwnedTodoArchived,
   updateOwnedTodo,
 } from '../../lib/planning/todosAccess';
+import { requestCalendarReconcileAfterPlanning } from '../../lib/calendar/requestReconcile';
 import TodoForm, { type TodoFormValues } from './TodoForm';
 import styles from './todos.module.css';
 
@@ -161,6 +162,7 @@ export default function TodosView({
     setFormOpen(false);
     setEditing(null);
     onNotice(editing ? 'To-do updated.' : 'To-do created.');
+    if (editing) requestCalendarReconcileAfterPlanning();
     await refresh();
   }
 
@@ -223,6 +225,7 @@ export default function TodosView({
       onNotice('To-do reopened for another attempt. Earlier history stays.');
     }
 
+    requestCalendarReconcileAfterPlanning();
     setStatusBusy(null);
     await refresh();
   }

@@ -383,6 +383,42 @@
   margin-top: 18px;
 }
 
+.calendarToggle {
+  margin: 14px 0 4px;
+  align-items: flex-start;
+}
+
+.calendarToggle small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.deleteButton {
+  color: #c98484;
+}
+
+.deleteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.deleteConfirmButton {
+  border: 0;
+  background: #5a2424;
+  color: #f3d4d4;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
 @media (max-width: 700px) {
   .titleRow {
     display: grid;
