@@ -17,6 +17,8 @@
     "benchmarks/social/**/*.ts",
     "lib/evaluation/**/*.ts",
     "lib/planning/**/*.ts",
-    "lib/plannerExecution/**/*.ts"
+    "lib/plannerExecution/**/*.ts",
+    "lib/calendar/**/*.ts",
+    "benchmarks/calendar/**/*.ts"
   ]
 }

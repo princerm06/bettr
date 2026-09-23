@@ -86,6 +86,7 @@ import {
   X,
   Settings,} from 'lucide-react';
 import PlanningHome from './planning/PlanningHome';
+import GoogleCalendarSettings from './calendar/GoogleCalendarSettings';
 
 type Priority = PriorityLevel;
 
@@ -402,6 +403,22 @@ export default function Home() {
       active = false;
       listener.subscription.unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const gcal = params.get('gcal');
+    if (!gcal) return;
+    if (gcal === 'connected') setToast('Google Calendar connected.');
+    if (gcal === 'error') setToast('Could not connect Google Calendar.');
+    params.delete('gcal');
+    const query = params.toString();
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.pathname}${query ? `?${query}` : ''}`
+    );
   }, []);
 
   useEffect(() => {
@@ -1398,6 +1415,8 @@ export default function Home() {
                 </div>
               )}
             </section>
+
+            <GoogleCalendarSettings />
 
             <section className="futureSecurityCard">
               <div>

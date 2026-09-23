@@ -103,6 +103,13 @@
   background: rgba(255,255,255,.03);
 }
 
+.calendarConnectCopy {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .securityEmailField {
   display: grid;
   gap: 8px;

@@ -195,6 +195,8 @@ assert.ok(!planningBundle.includes('actionEvidence'));
 assert.ok(!planningBundle.includes('SERVICE_ROLE'));
 assert.ok(!planningBundle.includes('service_role'));
 assert.ok(!planningBundle.includes('SUPABASE_SERVICE_ROLE_KEY'));
+assert.ok(!planningBundle.includes('lib/calendar'));
+assert.ok(!planningBundle.includes('google_calendar'));
 
 const goalsAccess = readFileSync(join(planningDir, 'goalsAccess.ts'), 'utf8');
 assert.ok(goalsAccess.includes(".from('goals')"));

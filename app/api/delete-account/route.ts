@@ -36,6 +36,30 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  try {
+    const { decryptSecret } = await import('../../../lib/calendar/crypto');
+    const { revokeGoogleToken } = await import('../../../lib/calendar/googleOAuth');
+    const { data: connection } = await admin
+      .from('google_calendar_connections')
+      .select('refresh_token_ciphertext')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const ciphertext =
+      connection && typeof connection.refresh_token_ciphertext === 'string'
+        ? connection.refresh_token_ciphertext
+        : '';
+    if (ciphertext) {
+      try {
+        const refresh = decryptSecret(ciphertext);
+        await revokeGoogleToken(refresh);
+      } catch {
+        // Continue deleting the Bettr account.
+      }
+    }
+  } catch {
+    // Calendar cleanup must not block account deletion.
+  }
+
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
   if (deleteError) return NextResponse.json({ error: deleteError.message }, { status: 500 });
 
