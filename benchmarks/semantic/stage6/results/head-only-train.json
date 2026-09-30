@@ -1,0 +1,95 @@
+{
+  "condition": "head_only",
+  "modelId": "distilbert-base-uncased",
+  "selectedEpoch": 7,
+  "devScore": 0.6842481417953116,
+  "history": [
+    {
+      "supportRecall": 0.7028301886792453,
+      "falseSupports": 141,
+      "falseSupportRate": 0.120926243567753,
+      "score": 0.4609777015437393,
+      "n": 1802,
+      "epoch": 1,
+      "trainLoss": 0.5928839549573655,
+      "rssMb": 458
+    },
+    {
+      "supportRecall": 0.7924528301886793,
+      "falseSupports": 159,
+      "falseSupportRate": 0.13636363636363635,
+      "score": 0.5197255574614066,
+      "n": 1802,
+      "epoch": 2,
+      "trainLoss": 0.32912733060874166,
+      "rssMb": 457
+    },
+    {
+      "supportRecall": 0.8050314465408805,
+      "falseSupports": 108,
+      "falseSupportRate": 0.09262435677530018,
+      "score": 0.6197827329902802,
+      "n": 1802,
+      "epoch": 3,
+      "trainLoss": 0.2508408959646789,
+      "rssMb": 453
+    },
+    {
+      "supportRecall": 0.8946540880503144,
+      "falseSupports": 174,
+      "falseSupportRate": 0.14922813036020582,
+      "score": 0.5961978273299028,
+      "n": 1802,
+      "epoch": 4,
+      "trainLoss": 0.2124226721536222,
+      "rssMb": 452
+    },
+    {
+      "supportRecall": 0.860062893081761,
+      "falseSupports": 139,
+      "falseSupportRate": 0.11921097770154374,
+      "score": 0.6216409376786736,
+      "n": 1802,
+      "epoch": 5,
+      "trainLoss": 0.18358786988068043,
+      "rssMb": 450
+    },
+    {
+      "supportRecall": 0.8883647798742138,
+      "falseSupports": 135,
+      "falseSupportRate": 0.11578044596912522,
+      "score": 0.6568038879359633,
+      "n": 1802,
+      "epoch": 6,
+      "trainLoss": 0.16811439684215063,
+      "rssMb": 443
+    },
+    {
+      "supportRecall": 0.8694968553459119,
+      "falseSupports": 108,
+      "falseSupportRate": 0.09262435677530018,
+      "score": 0.6842481417953116,
+      "n": 1802,
+      "epoch": 7,
+      "trainLoss": 0.15161288325527497,
+      "rssMb": 438
+    },
+    {
+      "supportRecall": 0.8537735849056604,
+      "falseSupports": 106,
+      "falseSupportRate": 0.09090909090909091,
+      "score": 0.6719554030874786,
+      "n": 1802,
+      "epoch": 8,
+      "trainLoss": 0.14264643056310053,
+      "rssMb": 384
+    }
+  ],
+  "peakRssMb": 474,
+  "ruMaxRssMb": 484.1,
+  "head": "dropout(0.1)+linear(768,3)",
+  "lr": 0.001,
+  "weightDecay": 0.01,
+  "devSelection": "support_recall - 2.0 * false_support_rate",
+  "threshold": 0.5
+}

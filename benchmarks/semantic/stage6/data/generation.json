@@ -1,0 +1,107 @@
+{
+  "frames": 106,
+  "train": {
+    "n": 5512,
+    "seed": 42,
+    "byLabel": {
+      "SUPPORTS": 2014,
+      "DENIES": 954,
+      "INSUFFICIENT": 2544
+    }
+  },
+  "dev": {
+    "n": 1802,
+    "seed": 43,
+    "byLabel": {
+      "SUPPORTS": 636,
+      "DENIES": 318,
+      "INSUFFICIENT": 848
+    }
+  },
+  "operators": {
+    "supports": [
+      "full",
+      "telegraph",
+      "duration",
+      "slang",
+      "typo",
+      "purchase_identity"
+    ],
+    "denies": [
+      "negation",
+      "quit",
+      "contradiction"
+    ],
+    "insufficient": [
+      "future",
+      "plan",
+      "almost",
+      "purchase",
+      "wrong_object",
+      "vague",
+      "unrelated",
+      "junk"
+    ]
+  },
+  "pairEncoding": "premise [SEP] criterion. Criterion is the raw target, not an MNLI hypothesis.",
+  "samples": {
+    "train": [
+      {
+        "id": "train-slack-negation-1",
+        "split": "train",
+        "frame_id": "slack",
+        "operator": "negation",
+        "premise": "I did not balance on the slackline",
+        "criterion": "balanced on the slackline",
+        "label": "DENIES"
+      },
+      {
+        "id": "train-poem-full-0",
+        "split": "train",
+        "frame_id": "poem",
+        "operator": "full",
+        "premise": "I annotated a short poem",
+        "criterion": "annotated a short poem",
+        "label": "SUPPORTS"
+      },
+      {
+        "id": "train-crane-quit-2",
+        "split": "train",
+        "frame_id": "crane",
+        "operator": "quit",
+        "premise": "Started to fold three paper cranes but quit halfway",
+        "criterion": "folded three paper cranes",
+        "label": "DENIES"
+      }
+    ],
+    "dev": [
+      {
+        "id": "dev-botany-typo",
+        "split": "dev",
+        "frame_id": "botany",
+        "operator": "typo",
+        "premise": "tbh summarized a btoany page",
+        "criterion": "summarized a botany page",
+        "label": "SUPPORTS"
+      },
+      {
+        "id": "dev-cornbread-plan",
+        "split": "dev",
+        "frame_id": "cornbread",
+        "operator": "plan",
+        "premise": "The plan for later is to bake a pan of cornbread",
+        "criterion": "baked a pan of cornbread",
+        "label": "INSUFFICIENT"
+      },
+      {
+        "id": "dev-penned-quit",
+        "split": "dev",
+        "frame_id": "penned",
+        "operator": "quit",
+        "premise": "Attempted to pen a photo caption line then quit",
+        "criterion": "penned a photo caption line",
+        "label": "DENIES"
+      }
+    ]
+  }
+}

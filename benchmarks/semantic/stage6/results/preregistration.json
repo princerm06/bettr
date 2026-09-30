@@ -1,0 +1,137 @@
+{
+  "writtenBeforeTraining": true,
+  "modelId": "distilbert-base-uncased",
+  "initializedFromMnli": false,
+  "labels": [
+    "SUPPORTS",
+    "DENIES",
+    "INSUFFICIENT"
+  ],
+  "decisionRule": {
+    "supports": "P(SUPPORTS) >= 0.50 and strictly largest",
+    "denies": "else P(DENIES) >= 0.50 and greater than P(SUPPORTS) and >= P(INSUFFICIENT)",
+    "else": "INSUFFICIENT",
+    "thresholdTunedOnLockedTest": false
+  },
+  "criticalTraps": [
+    {
+      "premise": "I almost cooked dinner",
+      "criterion": "cooked dinner",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-COOK.almost"
+      ]
+    },
+    {
+      "premise": "I almost meditated",
+      "criterion": "meditated",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-MED.almost"
+      ]
+    },
+    {
+      "premise": "I almost opened the psalter",
+      "criterion": "copied a psalm",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "geo.psalm_copy.almost"
+      ]
+    },
+    {
+      "premise": "Checked my bank balance",
+      "criterion": "reviewed their finances",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-23"
+      ]
+    },
+    {
+      "premise": "Liked a recruiter post",
+      "criterion": "contacted a recruiter",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-24"
+      ]
+    },
+    {
+      "premise": "Bought a gym membership",
+      "criterion": "worked out",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-PAIR-MEM-NO"
+      ]
+    },
+    {
+      "premise": "I ran the dishwasher",
+      "criterion": "went running",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-LEX-DISH"
+      ]
+    },
+    {
+      "premise": "I'll redraw the mechanisms tonight",
+      "criterion": "redrew mechanisms",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "geo.orgo_mechanism.future"
+      ]
+    },
+    {
+      "premise": "Give me 7 XP for existing",
+      "criterion": "studied",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-15"
+      ]
+    },
+    {
+      "premise": "I didn't go to the gym",
+      "criterion": "went to the gym",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-GYM.negated",
+        "FC-04"
+      ]
+    },
+    {
+      "premise": "Tried to meditate but quit",
+      "criterion": "meditated",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-ATT"
+      ]
+    },
+    {
+      "premise": "I finished the set, but I didn't do a single problem",
+      "criterion": "finished the problem set",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-CONTRA"
+      ]
+    },
+    {
+      "premise": "I studied the menu",
+      "criterion": "studied for class",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-LEX-MENU"
+      ]
+    },
+    {
+      "premise": "Bought a gym membership",
+      "criterion": "bought a gym membership",
+      "expect": "SUPPORT",
+      "matchIds": [
+        "N-PAIR-MEM-YES"
+      ]
+    }
+  ],
+  "crossPredicateIdsExcludedFromRecallGate": [
+    "N-PAIR-OCHEM-YES",
+    "N-PARA-VID"
+  ],
+  "devSelectsEpoch": true,
+  "devSelectsThreshold": false
+}

@@ -1,0 +1,150 @@
+{
+  "passed": true,
+  "trainN": 5512,
+  "devN": 1802,
+  "lockedN": 189,
+  "checks": {
+    "exactPremiseHits": 0,
+    "exactTargetHits": 0,
+    "exactHypothesisHits": 0,
+    "containmentHits": 0,
+    "criticalTrapStringHits": 0,
+    "denyPhraseHits": 0,
+    "denylistHits": 0,
+    "lemmaOverlapHits": 0,
+    "unresolvedTraps": 0
+  },
+  "lemmaExamples": [],
+  "trapResolution": [
+    {
+      "premise": "I almost cooked dinner",
+      "criterion": "cooked dinner",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-COOK.almost"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "I almost meditated",
+      "criterion": "meditated",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-MED.almost"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "I almost opened the psalter",
+      "criterion": "copied a psalm",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "geo.psalm_copy.almost"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "Checked my bank balance",
+      "criterion": "reviewed their finances",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-23"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "Liked a recruiter post",
+      "criterion": "contacted a recruiter",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-24"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "Bought a gym membership",
+      "criterion": "worked out",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-PAIR-MEM-NO"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "I ran the dishwasher",
+      "criterion": "went running",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-LEX-DISH"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "I'll redraw the mechanisms tonight",
+      "criterion": "redrew mechanisms",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "geo.orgo_mechanism.future"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "Give me 7 XP for existing",
+      "criterion": "studied",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-15"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "I didn't go to the gym",
+      "criterion": "went to the gym",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-GYM.negated",
+        "FC-04"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "Tried to meditate but quit",
+      "criterion": "meditated",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-ATT"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "I finished the set, but I didn't do a single problem",
+      "criterion": "finished the problem set",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-CONTRA"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "I studied the menu",
+      "criterion": "studied for class",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-LEX-MENU"
+      ],
+      "ok": true
+    },
+    {
+      "premise": "Bought a gym membership",
+      "criterion": "bought a gym membership",
+      "expect": "SUPPORT",
+      "matchIds": [
+        "N-PAIR-MEM-YES"
+      ],
+      "ok": true
+    }
+  ],
+  "failureSample": [],
+  "failureCount": 0,
+  "tokenOverlapDefinition": "Content tokens are length >= 4 and not scaffold/function stopwords. A pair fails when it shares 2 or more content tokens with a locked premise of at least 4 tokens and 18 characters, and also shares 1 or more content tokens between its criterion and that row's target."
+}

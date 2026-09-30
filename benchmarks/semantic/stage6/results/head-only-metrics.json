@@ -1,0 +1,613 @@
+{
+  "criticalTrapSupports": 1,
+  "swapControlOk": true,
+  "unsafeFalseSupports": 25,
+  "unsafeN": 128,
+  "samePredicateN": 52,
+  "samePredicateHits": 47,
+  "samePredicateRecall": 0.9038,
+  "negationSupports": 0,
+  "negationNotSupports": 12,
+  "negationN": 12,
+  "attemptedContradictoryFalseSupports": 1,
+  "crossPredicate": [
+    {
+      "id": "N-PAIR-OCHEM-YES",
+      "text": "Watched 6 ochem videos",
+      "target": "studied organic chemistry",
+      "gold": "entails",
+      "decision": "SUPPORTS",
+      "probs": {
+        "SUPPORTS": 0.8343,
+        "DENIES": 0.0006,
+        "INSUFFICIENT": 0.1651
+      }
+    },
+    {
+      "id": "N-PARA-VID",
+      "text": "chem vids x6 and took notes",
+      "target": "studied chemistry",
+      "gold": "entails",
+      "decision": "SUPPORTS",
+      "probs": {
+        "SUPPORTS": 0.8708,
+        "DENIES": 0.0185,
+        "INSUFFICIENT": 0.1107
+      }
+    }
+  ],
+  "implausibleVolume": [
+    {
+      "id": "FC-18",
+      "text": "Read 400 books before lunch",
+      "target": "read books",
+      "decision": "INSUFFICIENT",
+      "probs": {
+        "SUPPORTS": 0.1502,
+        "DENIES": 0.0,
+        "INSUFFICIENT": 0.8498
+      }
+    },
+    {
+      "id": "N-IMP-BOOKS",
+      "text": "Read 400 books before lunch",
+      "target": "read books",
+      "decision": "INSUFFICIENT",
+      "probs": {
+        "SUPPORTS": 0.1502,
+        "DENIES": 0.0,
+        "INSUFFICIENT": 0.8498
+      }
+    }
+  ],
+  "supportPrecision": 0.6795,
+  "precisionGap": 0.2622,
+  "confusion": {
+    "SUPPORTS->SUPPORTS": 53,
+    "SUPPORTS->DENIES": 3,
+    "SUPPORTS->INSUFFICIENT": 7,
+    "DENIES->SUPPORTS": 1,
+    "DENIES->DENIES": 22,
+    "DENIES->INSUFFICIENT": 8,
+    "INSUFFICIENT->SUPPORTS": 24,
+    "INSUFFICIENT->DENIES": 1,
+    "INSUFFICIENT->INSUFFICIENT": 70
+  },
+  "bySlice": {
+    "almost": {
+      "n": 14,
+      "falseSupports": 4,
+      "supportRecall": null,
+      "supports": 4
+    },
+    "attempted": {
+      "n": 5,
+      "falseSupports": 0,
+      "supportRecall": null,
+      "supports": 0
+    },
+    "attendance": {
+      "n": 1,
+      "falseSupports": 0,
+      "supportRecall": null,
+      "supports": 0
+    },
+    "category_adjacent": {
+      "n": 4,
+      "falseSupports": 2,
+      "supportRecall": null,
+      "supports": 2
+    },
+    "completed": {
+      "n": 14,
+      "falseSupports": 0,
+      "supportRecall": 0.9285714285714286,
+      "supports": 13
+    },
+    "contradictory": {
+      "n": 6,
+      "falseSupports": 1,
+      "supportRecall": null,
+      "supports": 1
+    },
+    "desire": {
+      "n": 8,
+      "falseSupports": 0,
+      "supportRecall": null,
+      "supports": 0
+    },
+    "future": {
+      "n": 19,
+      "falseSupports": 2,
+      "supportRecall": null,
+      "supports": 2
+    },
+    "gaming": {
+      "n": 2,
+      "falseSupports": 1,
+      "supportRecall": null,
+      "supports": 1
+    },
+    "implausible": {
+      "n": 2,
+      "falseSupports": 1,
+      "supportRecall": null,
+      "supports": 1
+    },
+    "implausible_volume": {
+      "n": 2,
+      "falseSupports": 0,
+      "supportRecall": 0.0,
+      "supports": 0
+    },
+    "insufficient": {
+      "n": 2,
+      "falseSupports": 1,
+      "supportRecall": null,
+      "supports": 1
+    },
+    "intention": {
+      "n": 3,
+      "falseSupports": 0,
+      "supportRecall": null,
+      "supports": 0
+    },
+    "junk": {
+      "n": 3,
+      "falseSupports": 3,
+      "supportRecall": null,
+      "supports": 3
+    },
+    "lexical_overlap": {
+      "n": 4,
+      "falseSupports": 1,
+      "supportRecall": null,
+      "supports": 1
+    },
+    "negated": {
+      "n": 6,
+      "falseSupports": 0,
+      "supportRecall": null,
+      "supports": 0
+    },
+    "negation": {
+      "n": 12,
+      "falseSupports": 0,
+      "supportRecall": null,
+      "supports": 0
+    },
+    "negation_scope": {
+      "n": 2,
+      "falseSupports": 0,
+      "supportRecall": 0.0,
+      "supports": 0
+    },
+    "noisy": {
+      "n": 4,
+      "falseSupports": 0,
+      "supportRecall": 0.75,
+      "supports": 3
+    },
+    "observation": {
+      "n": 1,
+      "falseSupports": 1,
+      "supportRecall": null,
+      "supports": 1
+    },
+    "ongoing": {
+      "n": 1,
+      "falseSupports": 0,
+      "supportRecall": 1.0,
+      "supports": 1
+    },
+    "paraphrase": {
+      "n": 33,
+      "falseSupports": 0,
+      "supportRecall": 0.9090909090909091,
+      "supports": 30
+    },
+    "partial": {
+      "n": 4,
+      "falseSupports": 1,
+      "supportRecall": 0.5,
+      "supports": 2
+    },
+    "passive": {
+      "n": 11,
+      "falseSupports": 4,
+      "supportRecall": null,
+      "supports": 4
+    },
+    "plan": {
+      "n": 6,
+      "falseSupports": 0,
+      "supportRecall": null,
+      "supports": 0
+    },
+    "purchase": {
+      "n": 10,
+      "falseSupports": 1,
+      "supportRecall": null,
+      "supports": 1
+    },
+    "purchase_control": {
+      "n": 1,
+      "falseSupports": 0,
+      "supportRecall": 1.0,
+      "supports": 1
+    },
+    "short": {
+      "n": 3,
+      "falseSupports": 0,
+      "supportRecall": 1.0,
+      "supports": 3
+    },
+    "vague": {
+      "n": 6,
+      "falseSupports": 2,
+      "supportRecall": 1.0,
+      "supports": 3
+    }
+  },
+  "gates": {
+    "criticalTrapSupports": {
+      "value": 1,
+      "gate": "== 0",
+      "pass": false
+    },
+    "swapControl": {
+      "value": true,
+      "gate": "reported control; not part of the section-13 pass rule",
+      "pass": true,
+      "countsTowardStage6Pass": false
+    },
+    "unsafeFalseSupports": {
+      "value": 25,
+      "gate": "<= 3",
+      "pass": false
+    },
+    "samePredicateRecall": {
+      "value": 0.9038461538461539,
+      "gate": ">= 0.75",
+      "pass": true
+    },
+    "explicitNegation": {
+      "value": {
+        "supports": 0,
+        "notSupports": 12,
+        "n": 12
+      },
+      "gate": "0 supports and at least 11/12 not SUPPORTS",
+      "pass": true
+    },
+    "attemptedContradictory": {
+      "value": 1,
+      "gate": "== 0",
+      "pass": false
+    },
+    "precisionGap": {
+      "value": 0.2621714511782014,
+      "gate": "<= 0.25",
+      "pass": false
+    },
+    "all": {
+      "pass": false
+    }
+  },
+  "criticalTraps": [
+    {
+      "premise": "I almost cooked dinner",
+      "criterion": "cooked dinner",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-COOK.almost"
+      ],
+      "decisions": {
+        "NP-COOK.almost": "INSUFFICIENT"
+      },
+      "probs": {
+        "NP-COOK.almost": {
+          "SUPPORTS": 0.0657,
+          "DENIES": 0.0012,
+          "INSUFFICIENT": 0.9331
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "I almost meditated",
+      "criterion": "meditated",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-MED.almost"
+      ],
+      "decisions": {
+        "NP-MED.almost": "INSUFFICIENT"
+      },
+      "probs": {
+        "NP-MED.almost": {
+          "SUPPORTS": 0.1346,
+          "DENIES": 0.0119,
+          "INSUFFICIENT": 0.8535
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "I almost opened the psalter",
+      "criterion": "copied a psalm",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "geo.psalm_copy.almost"
+      ],
+      "decisions": {
+        "geo.psalm_copy.almost": "INSUFFICIENT"
+      },
+      "probs": {
+        "geo.psalm_copy.almost": {
+          "SUPPORTS": 0.1592,
+          "DENIES": 0.0029,
+          "INSUFFICIENT": 0.8379
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "Checked my bank balance",
+      "criterion": "reviewed their finances",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-23"
+      ],
+      "decisions": {
+        "FC-23": "INSUFFICIENT"
+      },
+      "probs": {
+        "FC-23": {
+          "SUPPORTS": 0.4247,
+          "DENIES": 0.0168,
+          "INSUFFICIENT": 0.5585
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "Liked a recruiter post",
+      "criterion": "contacted a recruiter",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-24"
+      ],
+      "decisions": {
+        "FC-24": "SUPPORTS"
+      },
+      "probs": {
+        "FC-24": {
+          "SUPPORTS": 0.803,
+          "DENIES": 0.0089,
+          "INSUFFICIENT": 0.1881
+        }
+      },
+      "ok": false
+    },
+    {
+      "premise": "Bought a gym membership",
+      "criterion": "worked out",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-PAIR-MEM-NO"
+      ],
+      "decisions": {
+        "N-PAIR-MEM-NO": "INSUFFICIENT"
+      },
+      "probs": {
+        "N-PAIR-MEM-NO": {
+          "SUPPORTS": 0.4035,
+          "DENIES": 0.0004,
+          "INSUFFICIENT": 0.5961
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "I ran the dishwasher",
+      "criterion": "went running",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-LEX-DISH"
+      ],
+      "decisions": {
+        "N-LEX-DISH": "INSUFFICIENT"
+      },
+      "probs": {
+        "N-LEX-DISH": {
+          "SUPPORTS": 0.1637,
+          "DENIES": 0.0481,
+          "INSUFFICIENT": 0.7882
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "I'll redraw the mechanisms tonight",
+      "criterion": "redrew mechanisms",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "geo.orgo_mechanism.future"
+      ],
+      "decisions": {
+        "geo.orgo_mechanism.future": "INSUFFICIENT"
+      },
+      "probs": {
+        "geo.orgo_mechanism.future": {
+          "SUPPORTS": 0.0036,
+          "DENIES": 0.0004,
+          "INSUFFICIENT": 0.996
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "Give me 7 XP for existing",
+      "criterion": "studied",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "FC-15"
+      ],
+      "decisions": {
+        "FC-15": "INSUFFICIENT"
+      },
+      "probs": {
+        "FC-15": {
+          "SUPPORTS": 0.378,
+          "DENIES": 0.0008,
+          "INSUFFICIENT": 0.6212
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "I didn't go to the gym",
+      "criterion": "went to the gym",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "NP-GYM.negated",
+        "FC-04"
+      ],
+      "decisions": {
+        "NP-GYM.negated": "DENIES",
+        "FC-04": "DENIES"
+      },
+      "probs": {
+        "NP-GYM.negated": {
+          "SUPPORTS": 0.0306,
+          "DENIES": 0.9599,
+          "INSUFFICIENT": 0.0094
+        },
+        "FC-04": {
+          "SUPPORTS": 0.0306,
+          "DENIES": 0.9599,
+          "INSUFFICIENT": 0.0094
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "Tried to meditate but quit",
+      "criterion": "meditated",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-ATT"
+      ],
+      "decisions": {
+        "N-ATT": "DENIES"
+      },
+      "probs": {
+        "N-ATT": {
+          "SUPPORTS": 0.0255,
+          "DENIES": 0.9375,
+          "INSUFFICIENT": 0.037
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "I finished the set, but I didn't do a single problem",
+      "criterion": "finished the problem set",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-CONTRA"
+      ],
+      "decisions": {
+        "N-CONTRA": "DENIES"
+      },
+      "probs": {
+        "N-CONTRA": {
+          "SUPPORTS": 0.0015,
+          "DENIES": 0.9981,
+          "INSUFFICIENT": 0.0004
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "I studied the menu",
+      "criterion": "studied for class",
+      "expect": "NOT_SUPPORT",
+      "matchIds": [
+        "N-LEX-MENU"
+      ],
+      "decisions": {
+        "N-LEX-MENU": "INSUFFICIENT"
+      },
+      "probs": {
+        "N-LEX-MENU": {
+          "SUPPORTS": 0.1966,
+          "DENIES": 0.0049,
+          "INSUFFICIENT": 0.7984
+        }
+      },
+      "ok": true
+    },
+    {
+      "premise": "Bought a gym membership",
+      "criterion": "bought a gym membership",
+      "expect": "SUPPORT",
+      "matchIds": [
+        "N-PAIR-MEM-YES"
+      ],
+      "decisions": {
+        "N-PAIR-MEM-YES": "SUPPORTS"
+      },
+      "probs": {
+        "N-PAIR-MEM-YES": {
+          "SUPPORTS": 0.9939,
+          "DENIES": 0.0,
+          "INSUFFICIENT": 0.006
+        }
+      },
+      "ok": true
+    }
+  ],
+  "unsafeSupportIds": [
+    "geo.lap_swim.passive",
+    "geo.cold_email.purchase",
+    "NP-STUDY.almost",
+    "NP-APPLY.future",
+    "NP-APPLY.almost",
+    "NP-BUDGET.almost",
+    "NP-SKIN.almost",
+    "FC-07",
+    "FC-08",
+    "FC-12",
+    "FC-14",
+    "FC-16",
+    "FC-19",
+    "FC-24",
+    "S3-H14",
+    "S3-H19",
+    "S3-C01",
+    "S3-C02",
+    "N-PAIR-OCHEM-NO",
+    "N-LEX-LOTION",
+    "N-PART-QTY",
+    "N-ADJ-SHOES",
+    "N-IMP-MOON",
+    "N-JUNK",
+    "N-JUNK-WORDS"
+  ],
+  "trainPrecision": 0.9416586306653809,
+  "selectedEpoch": 7,
+  "latency": {
+    "measured": true,
+    "n": 40,
+    "p50Ms": 20.97,
+    "p95Ms": 27.94,
+    "meanMs": 21.68
+  },
+  "authorization": {
+    "loraAuthorized": false,
+    "case": 1,
+    "reason": "Head-only predicted SUPPORTS on a must-not-support critical trap."
+  }
+}
