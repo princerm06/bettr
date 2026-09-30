@@ -1,0 +1,1276 @@
+{
+  "stage": 5,
+  "generatedAt": "2026-09-30T08:41:21Z",
+  "productionFrozen": true,
+  "productionHashes": {
+    "threeAFile": "69a7d9c8d8e1ec170b263f908c7463137aa8fa3f7272eb82ffc2f91d913db595",
+    "aeFile": "ad5fd348f8a99f2514fb461c88cf3c05ff8f36c447f901138541d036c6fde782",
+    "candidateDevelopmentalTs": "1aeb99ed4e427d73f1a2a3ccd987afdb94683c4330216b62708d2fd242a51a10",
+    "actionEvidenceTs": "bcaa89d56498bf3b9023f1625c5dae90d9447366c4e87b6114095306b78cce7c"
+  },
+  "stage4WeightReferenceMatch": true,
+  "recoveryAudit": {
+    "gitAtStart": {
+      "branch": "main",
+      "head": "ee531c8 checkpoint Phase 1 semantic revamp stages 1-4",
+      "workingTree": "clean",
+      "aheadOfOrigin": 1,
+      "checkpointTouchedProduction": false,
+      "note": "ee531c8 adds only benchmarks/semantic stage 1-4 files. No app/, lib/, or components/ paths."
+    },
+    "stageArtifactsFound": [
+      "benchmarks/semantic/results/phase1-stage1-audit/summary.json",
+      "benchmarks/semantic/results/phase1-stage1-audit/full.json",
+      "benchmarks/semantic/results/phase1-stage2-experiments/summary.json",
+      "benchmarks/semantic/results/phase1-stage2-experiments/ae-sweep.json",
+      "benchmarks/semantic/results/phase1-stage2-experiments/rows-compact.json",
+      "benchmarks/semantic/results/phase1-stage3-experiments/summary.json",
+      "benchmarks/semantic/results/phase1-stage4-experiments/summary.json",
+      "benchmarks/semantic/results/phase1-stage4-experiments/comparison-table.json",
+      "benchmarks/semantic/stage2/",
+      "benchmarks/semantic/stage3/",
+      "benchmarks/semantic/stage4/"
+    ],
+    "preExistingStage5": "none",
+    "stages1to4Rerun": false,
+    "productionUnchanged": true
+  },
+  "stage1to4FindingsUsed": {
+    "whyStage5": "Stages 1-4 showed bi-encoder geometry and linear probes do not separate action state. Cosine between a completion and its negation/almost/future neighbor stays high, and retrained developmental heads move pDev by about 0.00-0.04. Loosening thresholds to escape abstention creates false credit on future plans and purchases. A cosine-to-template probe can name a state sometimes, but it is not a joint reading of the log against a criterion, and the completed class is the weak one.",
+    "evidence": [
+      "Stage 2 MiniLM cosine: gym vs did-not-go 0.821, studied vs almost-studied 0.909, gym vs tomorrow 0.710.",
+      "Stage 4 mean completed-vs-negated cosine: MiniLM 0.35, but gte-small 0.81 and e5-small-v2 0.81. Probe mean delta pDev on negation is 0.008 MiniLM and 0.044 e5.",
+      "Stage 4 template-probe completed hits out of 14: MiniLM 5, MPNet 8, gte-small 11, e5-small-v2 9, MiniLM-L12 10. Future/almost/negated hits are higher. The probe does not become a credit score.",
+      "Stage 4 architecture A (production AE + candidate developmental head) asks on 80-92% of developmental val and gives 0 immediate credits on 22 short valid logs, with 0 false credits on the 24-item false-credit set. Safety is abstention.",
+      "Stage 2 P0 false-credit set: 1 credit FP / 24. P1 newly credits future workouts, tonight study plans, and running-shoe purchases.",
+      "Stage 1 representative errors: DV-0288 purchase-instead-of-repair credited; DV-0318 box breathing rejected because action-evidence went negative. Known topic failure: Watched 6 ochem videos."
+    ]
+  },
+  "candidateResearch": {
+    "tested": [
+      {
+        "id": "mobilebert",
+        "runtimeModelId": "Xenova/mobilebert-uncased-mnli",
+        "why": "Smallest MNLI cross-encoder already in the local cache. Pair classifier, not a sentence embedding.",
+        "size": "about 25M parameters, 26MB int8 ONNX, 24 bottleneck layers",
+        "license": "MobileBERT base is Apache-2.0. The typeform MNLI fine-tune license is unknown. Experimental only."
+      },
+      {
+        "id": "distilbert",
+        "runtimeModelId": "Xenova/distilbert-base-uncased-mnli",
+        "why": "Strongest small MNLI model already cached. Earlier Bettr zero-shot use scored many category hypotheses and is not this task. This run scores one completion hypothesis with the full 3-way softmax.",
+        "size": "about 67M parameters, 65MB int8 ONNX, 6 layers",
+        "license": "DistilBERT base is Apache-2.0. The typeform MNLI fine-tune license is unknown. Not production-approved.",
+        "priorZeroShot": "benchmarks/semantic/results/distilbert-candidate-v1.json outcome accuracy 0.50 on semantic benchmark v1, mean inference 193ms because that path scored many hypotheses."
+      }
+    ],
+    "notTested": [
+      {
+        "id": "deberta-v3-xsmall-or-small-mnli",
+        "whyConsidered": "Higher MNLI benchmark scores than DistilBERT at a still-small parameter count.",
+        "whySkipped": "No cached Xenova ONNX. DeBERTa disentangled attention is the class of model most likely to repeat the previous Stage 5 out-of-memory failure. Not downloaded."
+      },
+      {
+        "id": "roberta-large-mnli-or-deberta-v3-base",
+        "whySkipped": "Hundreds of MB to over 1GB. Incompatible with the memory cap and with a cheap-first product constraint."
+      },
+      {
+        "id": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+        "whyConsidered": "About 23M parameters and a true cross-encoder, small enough to run.",
+        "whySkipped": "Single relevance logit. It cannot separate contradiction from neutral. It is not cached, so testing it would be a new download. The cached 3-way MNLI models answer the relationship question more directly."
+      }
+    ],
+    "execution": "One model per OS process. Quantized ONNX only. Batch size 1. Remote host pointed at a closed port so a cache miss cannot download. RSS abort at 2200MB was never approached."
+  },
+  "formulation": {
+    "premise": "The user log, unchanged.",
+    "hypothesisTemplate": "The person already {target}.",
+    "whyThisFormulation": "The observed failure is not generic similarity. It is whether this log supports a specific completed action. One named target keeps inference to a single pair and makes purchase-vs-practice a change of hypothesis rather than a new model.",
+    "labels": {
+      "entails": "The log says the target already happened, including paraphrase, slang, ongoing work, and negation that affirms the action.",
+      "contradicts": "The log denies the target: explicit negation, quitting, or an internal contradiction.",
+      "neutral": "Future, desire, vague wording, passive consumption, a purchase instead of the practice, lexical overlap with a different action, or junk. The log does not deny the target and does not establish it."
+    },
+    "decisionPolicy": {
+      "name": "supports_only_if_entailment_majority",
+      "preRegistered": true,
+      "supports": "P(entails) >= 0.50 and strictly greater than P(neutral) and P(contradicts).",
+      "contradicts": "P(contradicts) >= 0.50 and greater than P(entails) and at least P(neutral).",
+      "else": "INSUFFICIENT",
+      "creditRule": "Only SUPPORTS would count as action support. CONTRADICTS and INSUFFICIENT do not award progress.",
+      "notUsed": "The transformers.js zero-shot pipeline drops the neutral logit and softmaxes entailment against contradiction. That collapse was avoided. Raw 3-way softmax was used."
+    }
+  },
+  "dataset": {
+    "n": 189,
+    "byGroup": {
+      "state56": 56,
+      "geometry_extra": 30,
+      "falseCredit": 24,
+      "shortValid": 22,
+      "stage3": 27,
+      "new": 30
+    },
+    "byGold": {
+      "entails": 63,
+      "contradicts": 31,
+      "neutral": 95
+    },
+    "bySlice": {
+      "completed": 14,
+      "paraphrase": 33,
+      "negated": 6,
+      "future": 19,
+      "almost": 14,
+      "plan": 6,
+      "desire": 8,
+      "passive": 11,
+      "purchase": 10,
+      "negation": 12,
+      "intention": 3,
+      "attempted": 5,
+      "vague": 6,
+      "observation": 1,
+      "category_adjacent": 4,
+      "insufficient": 2,
+      "gaming": 2,
+      "implausible": 2,
+      "implausible_volume": 2,
+      "junk": 3,
+      "attendance": 1,
+      "noisy": 4,
+      "short": 3,
+      "contradictory": 6,
+      "purchase_control": 1,
+      "lexical_overlap": 4,
+      "negation_scope": 2,
+      "partial": 4,
+      "ongoing": 1
+    },
+    "bySource": {
+      "stage4_geometry": 54,
+      "stage2_negation_probe": 32,
+      "stage2_false_credit": 24,
+      "stage2_short_valid": 22,
+      "stage3_holdout": 27,
+      "stage5_new": 30
+    },
+    "state56": 56,
+    "unsafeIfSupports": 128,
+    "productCaution": {
+      "implausible": 2,
+      "implausible_volume": 2,
+      "underspecified": 1
+    }
+  },
+  "results": {
+    "mobilebert": {
+      "runtimeModelId": "Xenova/mobilebert-uncased-mnli",
+      "approxParamsM": 25,
+      "approxQuantizedMb": 26,
+      "rssAfterLoadMb": 252,
+      "coldLoadMs": 325,
+      "meanMs": 12.19,
+      "p50Ms": 12,
+      "p95Ms": 15,
+      "evalMs": 2307,
+      "rssEndMb": 223,
+      "aborted": false,
+      "scoredN": 189,
+      "argmaxAccuracy": 0.4603,
+      "supports": 42,
+      "falseSupports": 7,
+      "unsafeSupports": 9,
+      "supportPrecision": 0.8333,
+      "supportRecall": 0.5556,
+      "hardRejectEntails": 16,
+      "abstainEntails": 12,
+      "goldEntails": 63,
+      "meanProbByGold": {
+        "entails": {
+          "entails": 0.5292,
+          "neutral": 0.1663,
+          "contradicts": 0.3045
+        },
+        "neutral": {
+          "entails": 0.1425,
+          "neutral": 0.2721,
+          "contradicts": 0.5854
+        },
+        "contradicts": {
+          "entails": 0.106,
+          "neutral": 0.2533,
+          "contradicts": 0.6406
+        }
+      },
+      "byGroup": {
+        "falseCredit": {
+          "n": 24,
+          "argmaxAccuracy": 0.4167,
+          "falseSupports": 2,
+          "unsafeSupports": 3,
+          "supportRecall": 1,
+          "supportPrecision": 0.3333,
+          "hardRejectEntails": 0,
+          "abstainEntails": 0
+        },
+        "geometry_extra": {
+          "n": 30,
+          "argmaxAccuracy": 0.3,
+          "falseSupports": 0,
+          "unsafeSupports": 0,
+          "supportRecall": 0.3333,
+          "supportPrecision": 1,
+          "hardRejectEntails": 1,
+          "abstainEntails": 3
+        },
+        "new": {
+          "n": 30,
+          "argmaxAccuracy": 0.4667,
+          "falseSupports": 2,
+          "unsafeSupports": 3,
+          "supportRecall": 0.4545,
+          "supportPrecision": 0.7143,
+          "hardRejectEntails": 3,
+          "abstainEntails": 3
+        },
+        "shortValid": {
+          "n": 22,
+          "argmaxAccuracy": 0.6818,
+          "falseSupports": 0,
+          "unsafeSupports": 0,
+          "supportRecall": 0.5455,
+          "supportPrecision": 1,
+          "hardRejectEntails": 6,
+          "abstainEntails": 4
+        },
+        "stage3": {
+          "n": 27,
+          "argmaxAccuracy": 0.4444,
+          "falseSupports": 0,
+          "unsafeSupports": 0,
+          "supportRecall": 0.4444,
+          "supportPrecision": 1,
+          "hardRejectEntails": 4,
+          "abstainEntails": 1
+        },
+        "state56": {
+          "n": 56,
+          "argmaxAccuracy": 0.4821,
+          "falseSupports": 3,
+          "unsafeSupports": 3,
+          "supportRecall": 0.7857,
+          "supportPrecision": 0.7857,
+          "hardRejectEntails": 2,
+          "abstainEntails": 1
+        }
+      },
+      "sanity": [
+        {
+          "id": "SANITY-ENTAIL",
+          "text": "I went to the gym and finished the workout.",
+          "hypothesis": "The person already went to the gym.",
+          "gold": "entails",
+          "probs": {
+            "entails": 0.8618,
+            "neutral": 0.0316,
+            "contradicts": 0.1066
+          },
+          "argmax": "entails"
+        },
+        {
+          "id": "SANITY-CONTRADICT",
+          "text": "I didn't go to the gym.",
+          "hypothesis": "The person already went to the gym.",
+          "gold": "contradicts",
+          "probs": {
+            "entails": 0.0284,
+            "neutral": 0.0322,
+            "contradicts": 0.9394
+          },
+          "argmax": "contradicts"
+        },
+        {
+          "id": "SANITY-NEUTRAL",
+          "text": "The weather was cloudy.",
+          "hypothesis": "The person already went to the gym.",
+          "gold": "neutral",
+          "probs": {
+            "entails": 0.0008,
+            "neutral": 0.1194,
+            "contradicts": 0.8798
+          },
+          "argmax": "contradicts"
+        }
+      ],
+      "thresholdDiagnostic": {
+        "t40": {
+          "falseSupports": 9,
+          "unsafeSupports": 11,
+          "supportRecall": 0.6508,
+          "supports": 50,
+          "hardRejectEntails": 16
+        },
+        "t50": {
+          "falseSupports": 7,
+          "unsafeSupports": 9,
+          "supportRecall": 0.5556,
+          "supports": 42,
+          "hardRejectEntails": 16
+        },
+        "t70": {
+          "falseSupports": 2,
+          "unsafeSupports": 4,
+          "supportRecall": 0.3492,
+          "supports": 24,
+          "hardRejectEntails": 16
+        }
+      }
+    },
+    "distilbert": {
+      "runtimeModelId": "Xenova/distilbert-base-uncased-mnli",
+      "approxParamsM": 67,
+      "approxQuantizedMb": 65,
+      "rssAfterLoadMb": 322,
+      "coldLoadMs": 184,
+      "meanMs": 12.58,
+      "p50Ms": 12,
+      "p95Ms": 16,
+      "evalMs": 2390,
+      "rssEndMb": 229,
+      "aborted": false,
+      "scoredN": 189,
+      "argmaxAccuracy": 0.4603,
+      "supports": 23,
+      "falseSupports": 3,
+      "unsafeSupports": 3,
+      "supportPrecision": 0.8696,
+      "supportRecall": 0.3175,
+      "hardRejectEntails": 23,
+      "abstainEntails": 20,
+      "goldEntails": 63,
+      "meanProbByGold": {
+        "entails": {
+          "entails": 0.3285,
+          "neutral": 0.2479,
+          "contradicts": 0.4237
+        },
+        "neutral": {
+          "entails": 0.053,
+          "neutral": 0.358,
+          "contradicts": 0.589
+        },
+        "contradicts": {
+          "entails": 0.0027,
+          "neutral": 0.0637,
+          "contradicts": 0.9336
+        }
+      },
+      "byGroup": {
+        "falseCredit": {
+          "n": 24,
+          "argmaxAccuracy": 0.5833,
+          "falseSupports": 1,
+          "unsafeSupports": 1,
+          "supportRecall": 0,
+          "supportPrecision": 0,
+          "hardRejectEntails": 1,
+          "abstainEntails": 0
+        },
+        "geometry_extra": {
+          "n": 30,
+          "argmaxAccuracy": 0.2333,
+          "falseSupports": 0,
+          "unsafeSupports": 0,
+          "supportRecall": 0.1667,
+          "supportPrecision": 1,
+          "hardRejectEntails": 1,
+          "abstainEntails": 4
+        },
+        "new": {
+          "n": 30,
+          "argmaxAccuracy": 0.5,
+          "falseSupports": 0,
+          "unsafeSupports": 0,
+          "supportRecall": 0.2727,
+          "supportPrecision": 1,
+          "hardRejectEntails": 5,
+          "abstainEntails": 3
+        },
+        "shortValid": {
+          "n": 22,
+          "argmaxAccuracy": 0.4091,
+          "falseSupports": 0,
+          "unsafeSupports": 0,
+          "supportRecall": 0.4091,
+          "supportPrecision": 1,
+          "hardRejectEntails": 9,
+          "abstainEntails": 4
+        },
+        "stage3": {
+          "n": 27,
+          "argmaxAccuracy": 0.4815,
+          "falseSupports": 0,
+          "unsafeSupports": 0,
+          "supportRecall": 0.1111,
+          "supportPrecision": 1,
+          "hardRejectEntails": 3,
+          "abstainEntails": 5
+        },
+        "state56": {
+          "n": 56,
+          "argmaxAccuracy": 0.5179,
+          "falseSupports": 2,
+          "unsafeSupports": 2,
+          "supportRecall": 0.4286,
+          "supportPrecision": 0.75,
+          "hardRejectEntails": 4,
+          "abstainEntails": 4
+        }
+      },
+      "sanity": [
+        {
+          "id": "SANITY-ENTAIL",
+          "text": "I went to the gym and finished the workout.",
+          "hypothesis": "The person already went to the gym.",
+          "gold": "entails",
+          "probs": {
+            "entails": 0.5741,
+            "neutral": 0.0338,
+            "contradicts": 0.3922
+          },
+          "argmax": "entails"
+        },
+        {
+          "id": "SANITY-CONTRADICT",
+          "text": "I didn't go to the gym.",
+          "hypothesis": "The person already went to the gym.",
+          "gold": "contradicts",
+          "probs": {
+            "entails": 0.0003,
+            "neutral": 0.0004,
+            "contradicts": 0.9994
+          },
+          "argmax": "contradicts"
+        },
+        {
+          "id": "SANITY-NEUTRAL",
+          "text": "The weather was cloudy.",
+          "hypothesis": "The person already went to the gym.",
+          "gold": "neutral",
+          "probs": {
+            "entails": 0,
+            "neutral": 0.003,
+            "contradicts": 0.9969
+          },
+          "argmax": "contradicts"
+        }
+      ],
+      "thresholdDiagnostic": {
+        "t40": {
+          "falseSupports": 3,
+          "unsafeSupports": 3,
+          "supportRecall": 0.3492,
+          "supports": 25,
+          "hardRejectEntails": 23
+        },
+        "t50": {
+          "falseSupports": 3,
+          "unsafeSupports": 3,
+          "supportRecall": 0.3175,
+          "supports": 23,
+          "hardRejectEntails": 23
+        },
+        "t70": {
+          "falseSupports": 3,
+          "unsafeSupports": 3,
+          "supportRecall": 0.2381,
+          "supports": 18,
+          "hardRejectEntails": 23
+        }
+      }
+    },
+    "slices": {
+      "mobilebert": {
+        "completed": {
+          "n": 14,
+          "argmaxAccuracy": 0.8571,
+          "falseSupports": 0,
+          "supportRecall": 0.7857,
+          "hardRejectEntails": 2
+        },
+        "negation": {
+          "n": 12,
+          "argmaxAccuracy": 0.8333,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "negated": {
+          "n": 6,
+          "argmaxAccuracy": 0.5,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "future": {
+          "n": 19,
+          "argmaxAccuracy": 0.1579,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "almost": {
+          "n": 14,
+          "argmaxAccuracy": 0.1429,
+          "falseSupports": 3,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "attempted": {
+          "n": 5,
+          "argmaxAccuracy": 0.8,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "partial": {
+          "n": 4,
+          "argmaxAccuracy": 0.75,
+          "falseSupports": 0,
+          "supportRecall": 0.5,
+          "hardRejectEntails": 1
+        },
+        "lexical_overlap": {
+          "n": 4,
+          "argmaxAccuracy": 0,
+          "falseSupports": 1,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "paraphrase": {
+          "n": 33,
+          "argmaxAccuracy": 0.5758,
+          "falseSupports": 0,
+          "supportRecall": 0.4242,
+          "hardRejectEntails": 11
+        },
+        "noisy": {
+          "n": 4,
+          "argmaxAccuracy": 0.25,
+          "falseSupports": 0,
+          "supportRecall": 0.25,
+          "hardRejectEntails": 1
+        },
+        "negation_scope": {
+          "n": 2,
+          "argmaxAccuracy": 1,
+          "falseSupports": 0,
+          "supportRecall": 1,
+          "hardRejectEntails": 0
+        },
+        "purchase": {
+          "n": 10,
+          "argmaxAccuracy": 0.2,
+          "falseSupports": 1,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "passive": {
+          "n": 11,
+          "argmaxAccuracy": 0.1818,
+          "falseSupports": 1,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "contradictory": {
+          "n": 6,
+          "argmaxAccuracy": 0.8333,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "category_adjacent": {
+          "n": 4,
+          "argmaxAccuracy": 0.5,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "vague": {
+          "n": 6,
+          "argmaxAccuracy": 0.6667,
+          "falseSupports": 0,
+          "supportRecall": 0,
+          "hardRejectEntails": 0
+        },
+        "junk": {
+          "n": 3,
+          "argmaxAccuracy": 0,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "implausible": {
+          "n": 2,
+          "argmaxAccuracy": 0,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "implausible_volume": {
+          "n": 2,
+          "argmaxAccuracy": 1,
+          "falseSupports": 0,
+          "supportRecall": 1,
+          "hardRejectEntails": 0
+        }
+      },
+      "distilbert": {
+        "completed": {
+          "n": 14,
+          "argmaxAccuracy": 0.5,
+          "falseSupports": 0,
+          "supportRecall": 0.4286,
+          "hardRejectEntails": 4
+        },
+        "negation": {
+          "n": 12,
+          "argmaxAccuracy": 1,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "negated": {
+          "n": 6,
+          "argmaxAccuracy": 1,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "future": {
+          "n": 19,
+          "argmaxAccuracy": 0.3158,
+          "falseSupports": 1,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "almost": {
+          "n": 14,
+          "argmaxAccuracy": 0.2143,
+          "falseSupports": 1,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "attempted": {
+          "n": 5,
+          "argmaxAccuracy": 1,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "partial": {
+          "n": 4,
+          "argmaxAccuracy": 0.25,
+          "falseSupports": 0,
+          "supportRecall": 0,
+          "hardRejectEntails": 2
+        },
+        "lexical_overlap": {
+          "n": 4,
+          "argmaxAccuracy": 0.75,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "paraphrase": {
+          "n": 33,
+          "argmaxAccuracy": 0.3636,
+          "falseSupports": 0,
+          "supportRecall": 0.3333,
+          "hardRejectEntails": 12
+        },
+        "noisy": {
+          "n": 4,
+          "argmaxAccuracy": 0,
+          "falseSupports": 0,
+          "supportRecall": 0,
+          "hardRejectEntails": 1
+        },
+        "negation_scope": {
+          "n": 2,
+          "argmaxAccuracy": 0.5,
+          "falseSupports": 0,
+          "supportRecall": 0.5,
+          "hardRejectEntails": 1
+        },
+        "purchase": {
+          "n": 10,
+          "argmaxAccuracy": 0.3,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "passive": {
+          "n": 11,
+          "argmaxAccuracy": 0.2727,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "contradictory": {
+          "n": 6,
+          "argmaxAccuracy": 0.6667,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "category_adjacent": {
+          "n": 4,
+          "argmaxAccuracy": 0.25,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "vague": {
+          "n": 6,
+          "argmaxAccuracy": 0.5,
+          "falseSupports": 0,
+          "supportRecall": 0,
+          "hardRejectEntails": 0
+        },
+        "junk": {
+          "n": 3,
+          "argmaxAccuracy": 1,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "implausible": {
+          "n": 2,
+          "argmaxAccuracy": 0.5,
+          "falseSupports": 0,
+          "supportRecall": null,
+          "hardRejectEntails": 0
+        },
+        "implausible_volume": {
+          "n": 2,
+          "argmaxAccuracy": 0,
+          "falseSupports": 0,
+          "supportRecall": 0,
+          "hardRejectEntails": 2
+        }
+      }
+    },
+    "falseSupports": {
+      "mobilebert": [
+        {
+          "id": "geo.psalm_copy.almost",
+          "group": "state56",
+          "slice": "almost",
+          "source": "stage4_geometry",
+          "text": "I almost opened the psalter",
+          "target": "copied a psalm",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.686,
+            "neutral": 0.2023,
+            "contradicts": 0.1117
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 13
+        },
+        {
+          "id": "NP-COOK.almost",
+          "group": "state56",
+          "slice": "almost",
+          "source": "stage2_negation_probe",
+          "text": "I almost cooked dinner",
+          "target": "cooked dinner",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.645,
+            "neutral": 0.0726,
+            "contradicts": 0.2825
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 10
+        },
+        {
+          "id": "NP-MED.almost",
+          "group": "state56",
+          "slice": "almost",
+          "source": "stage2_negation_probe",
+          "text": "I almost meditated",
+          "target": "meditated",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.5463,
+            "neutral": 0.143,
+            "contradicts": 0.3107
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 10
+        },
+        {
+          "id": "FC-23",
+          "group": "falseCredit",
+          "slice": "insufficient",
+          "source": "stage2_false_credit",
+          "text": "Checked my bank balance",
+          "target": "reviewed their finances",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.9839,
+            "neutral": 0.0104,
+            "contradicts": 0.0057
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 10
+        },
+        {
+          "id": "FC-24",
+          "group": "falseCredit",
+          "slice": "passive",
+          "source": "stage2_false_credit",
+          "text": "Liked a recruiter post",
+          "target": "contacted a recruiter",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.5178,
+            "neutral": 0.3021,
+            "contradicts": 0.18
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 11
+        },
+        {
+          "id": "N-PAIR-MEM-NO",
+          "group": "new",
+          "slice": "purchase",
+          "source": "stage5_new",
+          "text": "Bought a gym membership",
+          "target": "worked out",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.646,
+            "neutral": 0.26,
+            "contradicts": 0.094
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 13
+        },
+        {
+          "id": "N-LEX-DISH",
+          "group": "new",
+          "slice": "lexical_overlap",
+          "source": "stage5_new",
+          "text": "I ran the dishwasher",
+          "target": "went running",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.7415,
+            "neutral": 0.1335,
+            "contradicts": 0.1249
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 11
+        }
+      ],
+      "distilbert": [
+        {
+          "id": "geo.orgo_mechanism.future",
+          "group": "state56",
+          "slice": "future",
+          "source": "stage4_geometry",
+          "text": "I'll redraw the mechanisms tonight",
+          "target": "redrew mechanisms",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.8281,
+            "neutral": 0.132,
+            "contradicts": 0.0399
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 14
+        },
+        {
+          "id": "NP-COOK.almost",
+          "group": "state56",
+          "slice": "almost",
+          "source": "stage2_negation_probe",
+          "text": "I almost cooked dinner",
+          "target": "cooked dinner",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.7086,
+            "neutral": 0.1239,
+            "contradicts": 0.1675
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 9
+        },
+        {
+          "id": "FC-15",
+          "group": "falseCredit",
+          "slice": "gaming",
+          "source": "stage2_false_credit",
+          "text": "Give me 7 XP for existing",
+          "target": "studied",
+          "gold": "neutral",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.823,
+            "neutral": 0.1477,
+            "contradicts": 0.0293
+          },
+          "unsafeIfSupports": true,
+          "productCaution": null,
+          "ms": 11
+        }
+      ]
+    },
+    "unsafeSupportsBeyondNliMiss": {
+      "note": "Gold can be entails while the support is still unsafe, as with implausible volume.",
+      "mobilebert": [
+        {
+          "id": "FC-18",
+          "group": "falseCredit",
+          "slice": "implausible_volume",
+          "source": "stage2_false_credit",
+          "text": "Read 400 books before lunch",
+          "target": "read books",
+          "gold": "entails",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.852,
+            "neutral": 0.0821,
+            "contradicts": 0.066
+          },
+          "unsafeIfSupports": true,
+          "productCaution": "implausible_volume",
+          "ms": 11
+        },
+        {
+          "id": "N-IMP-BOOKS",
+          "group": "new",
+          "slice": "implausible_volume",
+          "source": "stage5_new",
+          "text": "Read 400 books before lunch",
+          "target": "read books",
+          "gold": "entails",
+          "argmax": "entails",
+          "decision": "SUPPORTS",
+          "probs": {
+            "entails": 0.852,
+            "neutral": 0.0821,
+            "contradicts": 0.066
+          },
+          "unsafeIfSupports": true,
+          "productCaution": "implausible_volume",
+          "ms": 14
+        }
+      ],
+      "distilbert": []
+    },
+    "labelBehavior": {
+      "order": "Both models use id2label 0 ENTAILMENT, 1 NEUTRAL, 2 CONTRADICTION. Sanity pairs for a clear gym completion and a clear gym negation matched those labels. Labels were not swapped.",
+      "neutralCollapse": "The unrelated sanity premise \"The weather was cloudy\" against \"went to the gym\" is contradiction for both models (MobileBERT 0.88, DistilBERT 0.997), not neutral. Off-the-shelf MNLI is not emitting a usable insufficient state."
+    }
+  },
+  "comparisonToStages1to4": {
+    "stage4TemplateProbe": {
+      "minilm": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.7321,
+        "byGold": {
+          "completed": 5,
+          "negated": 13,
+          "future": 13,
+          "almost": 10,
+          "n": 56
+        }
+      },
+      "mpnet": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.8036,
+        "byGold": {
+          "completed": 8,
+          "negated": 11,
+          "future": 14,
+          "almost": 12,
+          "n": 56
+        }
+      },
+      "gte-small": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.8929,
+        "byGold": {
+          "completed": 11,
+          "negated": 14,
+          "future": 14,
+          "almost": 11,
+          "n": 56
+        }
+      },
+      "e5-small-v2": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.9107,
+        "byGold": {
+          "completed": 9,
+          "negated": 14,
+          "future": 14,
+          "almost": 14,
+          "n": 56
+        }
+      },
+      "minilm-l12": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.9107,
+        "byGold": {
+          "completed": 10,
+          "negated": 13,
+          "future": 14,
+          "almost": 14,
+          "n": 56
+        }
+      }
+    },
+    "stage4CompletedHitsOutOf14": {
+      "minilm": 5,
+      "mpnet": 8,
+      "gte-small": 11,
+      "e5-small-v2": 9,
+      "minilm-l12": 10
+    },
+    "stage4ArchA": [
+      {
+        "encoder": "minilm",
+        "valAsk": 0.913,
+        "fcFP": 0,
+        "svImmediate": 0,
+        "negCreditFails": 0,
+        "warmMsPerEmbed": 2.08
+      },
+      {
+        "encoder": "mpnet",
+        "valAsk": 0.837,
+        "fcFP": 0,
+        "svImmediate": 0,
+        "negCreditFails": 0,
+        "warmMsPerEmbed": 10.35
+      },
+      {
+        "encoder": "gte-small",
+        "valAsk": 0.8152,
+        "fcFP": 0,
+        "svImmediate": 0,
+        "negCreditFails": 0,
+        "warmMsPerEmbed": 2.75
+      },
+      {
+        "encoder": "e5-small-v2",
+        "valAsk": 0.8043,
+        "fcFP": 0,
+        "svImmediate": 0,
+        "negCreditFails": 0,
+        "warmMsPerEmbed": 7.05
+      },
+      {
+        "encoder": "minilm-l12",
+        "valAsk": 0.9239,
+        "fcFP": 0,
+        "svImmediate": 0,
+        "negCreditFails": 0,
+        "warmMsPerEmbed": 2.7
+      }
+    ],
+    "stage2P0": {
+      "falseCreditFP": 1,
+      "falseCreditN": 24,
+      "shortValidImmediate": 2,
+      "shortValidN": 22,
+      "shortValidRejectFN": 3
+    },
+    "stage5State56": {
+      "mobilebert": {
+        "n": 56,
+        "entailMin": 0.5,
+        "argmaxAccuracy": 0.4821,
+        "supports": 14,
+        "falseSupports": 3,
+        "unsafeSupports": 3,
+        "unsafeN": 42,
+        "falseSupportRate": 0.2143,
+        "unsafeSupportRateOnUnsafe": 0.0714,
+        "supportPrecision": 0.7857,
+        "supportRecall": 0.7857,
+        "hardRejectEntails": 2,
+        "abstainEntails": 1,
+        "goldEntails": 14,
+        "confusion": {
+          "entails->entails": 12,
+          "contradicts->neutral": 4,
+          "neutral->entails": 4,
+          "neutral->contradicts": 19,
+          "entails->contradicts": 2,
+          "contradicts->contradicts": 10,
+          "neutral->neutral": 5
+        },
+        "meanProbByGold": {
+          "entails": {
+            "entails": 0.6899,
+            "neutral": 0.0924,
+            "contradicts": 0.2177
+          },
+          "neutral": {
+            "entails": 0.185,
+            "neutral": 0.2099,
+            "contradicts": 0.6051
+          },
+          "contradicts": {
+            "entails": 0.0388,
+            "neutral": 0.2522,
+            "contradicts": 0.709
+          }
+        }
+      },
+      "distilbert": {
+        "n": 56,
+        "entailMin": 0.5,
+        "argmaxAccuracy": 0.5179,
+        "supports": 8,
+        "falseSupports": 2,
+        "unsafeSupports": 2,
+        "unsafeN": 42,
+        "falseSupportRate": 0.25,
+        "unsafeSupportRateOnUnsafe": 0.0476,
+        "supportPrecision": 0.75,
+        "supportRecall": 0.4286,
+        "hardRejectEntails": 4,
+        "abstainEntails": 4,
+        "goldEntails": 14,
+        "confusion": {
+          "entails->contradicts": 4,
+          "contradicts->contradicts": 14,
+          "neutral->contradicts": 18,
+          "neutral->entails": 2,
+          "entails->neutral": 3,
+          "neutral->neutral": 8,
+          "entails->entails": 7
+        },
+        "meanProbByGold": {
+          "entails": {
+            "entails": 0.4834,
+            "neutral": 0.1708,
+            "contradicts": 0.3458
+          },
+          "neutral": {
+            "entails": 0.1102,
+            "neutral": 0.2863,
+            "contradicts": 0.6035
+          },
+          "contradicts": {
+            "entails": 0.0008,
+            "neutral": 0.0036,
+            "contradicts": 0.9956
+          }
+        }
+      }
+    },
+    "whatStage5Fixes": [
+      "Explicit negation. DistilBERT argmax accuracy is 1.0 on 12 negation rows and 6 negated geometry rows, with 0 false supports. \"I didn't go to the gym\" has P(entails) about 0. Stage 2 MiniLM cosine on that contrast was 0.821, and Stage 4 developmental deltas were near zero.",
+      "Quit / attempted. DistilBERT is 5/5 on the attempted slice with 0 false supports, including \"Tried to meditate but quit\" and \"Almost finished the problem set but stopped\".",
+      "Internal contradiction. Both models reject \"I finished the set, but I didn't do a single problem.\"",
+      "Criterion swap on DistilBERT. \"Bought a gym membership\" is INSUFFICIENT for \"worked out\" (P(entails) 0.023) and SUPPORTS for \"bought a gym membership\" (0.949). Embeddings do not offer that pair reading.",
+      "Lexical traps on DistilBERT. \"I ran the dishwasher\" does not support \"went running\". \"I studied the menu\" does not support \"studied for class\". MobileBERT does falsely support the dishwasher case."
+    ],
+    "whatStage5Breaks": [
+      "Valid paraphrase and short logs. DistilBERT support recall on 22 short-valid logs is 0.41, and \"Studied calculus for 30 min\" against \"studied calculus\" is INSUFFICIENT at P(entails) 0.077. \"I studied calculus\" against the same target is SUPPORTS at 0.988. Telegraphic detail is treated as contradiction or near-zero entailment.",
+      "The known ochem case is not fixed. \"Watched 6 ochem videos\" against \"studied organic chemistry\" is INSUFFICIENT for MobileBERT (0.014) and CONTRADICTS for DistilBERT (0.000).",
+      "DistilBERT contradicts a clear completion: \"Swam twenty laps this morning and timed the last one\" against \"swam laps\" has P(entails) 0.005. MobileBERT supports it at 0.709.",
+      "High-confidence false supports that a threshold cannot remove. DistilBERT supports \"Give me 7 XP for existing\" as \"studied\" at 0.823. That false support remains at the 0.70 diagnostic. MobileBERT supports \"Checked my bank balance\" as \"reviewed their finances\" at 0.984 and \"I ran the dishwasher\" as \"went running\" at 0.742.",
+      "Double negation is model-specific. MobileBERT supports both \"I didn't skip the workout\" and \"It's not true that I didn't study\". DistilBERT supports the first and contradicts the second.",
+      "Partial completion depends on the target, and DistilBERT misses the coarse one. \"I swam four laps and stopped\" should entail \"swam laps\" and not \"swam twenty laps\". MobileBERT gets that split. DistilBERT contradicts both."
+    ]
+  },
+  "architecturalInterpretation": {
+    "replacement": "Not supported. Off-the-shelf MNLI rejects too many genuine completions, including short valid logs and the ochem paraphrase, while still emitting a few high-confidence false supports. Aggregate argmax accuracy is 0.46 for both models largely because neutral gold is absorbed into contradiction. That number is not a reason to replace the embedding stack, and the credit-policy numbers are not a reason either.",
+    "secondStageVerifier": "The only strong slice is explicit denial: negation, quit, and internal contradiction. DistilBERT is reliable there and cheap enough for one extra pair. It is not reliable as a general second reader of paraphrases.",
+    "ambiguityOnlyVerifier": "Not supported. Neither model produces a neutral decision on unrelated text. Future and vague logs are usually contradiction, not an abstain the product can explain as ambiguity.",
+    "hybridEmbeddingPlusVerifier": "This is the research shape that matches the evidence. Keep the embedding developmental score for \"does this look like a real completion paraphrase,\" where cosine still ranks \"studied calculus for 30 min\" near \"studied calculus.\" Call a small pair model only when the log has denial, quit, or a second criterion such as purchase versus practice. Do not let the pair model overrule a clear paraphrase on its own.",
+    "notWorthProductionComplexity": "Wiring either cached MNLI model into production scoring is not worth it. The useful result is the interface, not these checkpoints. License of the typeform fine-tunes is also unknown."
+  },
+  "failureAnalysis": {
+    "remainingWeaknesses": [
+      "Watched-videos versus studied is still a false negative.",
+      "Slang and typos (\"knocked out my calc hw\", \"fnished my calc hw\", \"hit chest n tris\") are not supported.",
+      "Bare \"studied\" stays under 0.50 entailment for both models, so the underspecified case is not confidently accepted, which is safer, but it is not a calibrated ambiguity score."
+    ],
+    "calibration": "On DistilBERT, mean P(entails) is 0.329 on gold entailment, 0.053 on gold neutral, and 0.003 on gold contradiction. Denial is well separated. True completions are not. The three DistilBERT false supports all sit above 0.70, so raising the threshold from 0.50 to 0.70 does not remove them and cuts support recall from 0.32 to 0.24. MobileBERT false supports fall from 7 to 2 at 0.70, and support recall falls from 0.56 to 0.35.",
+    "domainMismatch": "MNLI was trained on written premise-hypothesis pairs, not telegraphic self-logs. Adding a duration or dropping the pronoun \"I\" is enough to flip a true completion toward contradiction. Unrelated sentences are labeled contradiction rather than neutral.",
+    "modelSpecific": [
+      "MobileBERT is the better completion detector on the 14 completed state-probe items (support recall 0.79, 0 false supports on that slice) and the worse lexical model (dishwasher, gym membership, bank-balance glance).",
+      "DistilBERT is the better denial and lexical model and the worse paraphrase model. It also entails the gaming sentence and refuses \"Read 400 books before lunch\" as \"read books,\" which avoids an unsafe credit for a brittle reason.",
+      "Implausible physical claims (\"Lifted the moon\") are not supported by either model against \"lifted weights.\" That is not evidence the model checks real-world plausibility. DistilBERT also rejects ordinary paraphrases."
+    ]
+  },
+  "costDeployment": {
+    "weights": "26MB and 65MB int8, already cached. No new download.",
+    "runtimeThisMachine": "Cold load 325ms MobileBERT and 184ms DistilBERT. About 12ms per pair, p95 15-16ms. 189 pairs in about 2.3 seconds. RSS after load 252MB and 322MB. One model resident at a time.",
+    "relativeToStage4": "MiniLM embedding was about 2.1ms and 23MB quantized. MPNet embedding was about 10ms and 110MB. One NLI pair is in the MPNet latency band and uses more process RSS than either embedding file because of the ONNX session.",
+    "cheapFirst": "Feasible as an occasional single-pair check. Not feasible as a browser zero-shot over many categories on every log. The old DistilBERT zero-shot path averaged 193ms per benchmark item for that reason. These checkpoints are not accurate enough to justify even the single-pair cost in production.",
+    "browser": "Both files are transformers.js int8 models, so a browser path exists. Shipping a second 26-65MB model beside MiniLM is a real download and memory cost for a check that still misses ordinary paraphrases."
+  },
+  "recommendation": {
+    "doNotChangeProduction": true,
+    "doNotStartFromTheseCheckpoints": true,
+    "stage6": "If research continues, Stage 6 should stay isolated and test one small pair classifier adapted to Bettr logs, using this Stage 5 label set as the eval. The question is whether domain adaptation can keep DistilBERT's negation and criterion-swap behavior while restoring paraphrase recall on short valid logs, without the dishwasher, bank-glance, and \"give me XP\" false supports. Do not download DeBERTa or any larger MNLI model. Do not sweep thresholds on these frozen checkpoints as if that were a new architecture. A hybrid remains the hypothesis to test: embeddings propose, a pair model checks denial and alternate criteria. Off-the-shelf MNLI is not that hybrid.",
+    "stop": true
+  },
+  "filesCreated": [
+    "benchmarks/semantic/stage5/examples.ts",
+    "benchmarks/semantic/stage5/policy.ts",
+    "benchmarks/semantic/stage5/nli.ts",
+    "benchmarks/semantic/run-phase1-stage5-experiments.ts",
+    "benchmarks/semantic/results/phase1-stage5-experiments/dataset-audit.json",
+    "benchmarks/semantic/results/phase1-stage5-experiments/mobilebert.json",
+    "benchmarks/semantic/results/phase1-stage5-experiments/distilbert.json",
+    "benchmarks/semantic/results/phase1-stage5-experiments/summary.json"
+  ],
+  "filesNotModified": [
+    "lib/evaluation/**",
+    "app/**",
+    "components/**",
+    "production weights developmental-3a.2.json and action-evidence-mpnet.json"
+  ]
+}

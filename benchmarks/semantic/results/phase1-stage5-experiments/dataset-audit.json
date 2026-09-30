@@ -1,0 +1,70 @@
+{
+  "audit": {
+    "n": 189,
+    "byGroup": {
+      "state56": 56,
+      "geometry_extra": 30,
+      "falseCredit": 24,
+      "shortValid": 22,
+      "stage3": 27,
+      "new": 30
+    },
+    "byGold": {
+      "entails": 63,
+      "contradicts": 31,
+      "neutral": 95
+    },
+    "bySlice": {
+      "completed": 14,
+      "paraphrase": 33,
+      "negated": 6,
+      "future": 19,
+      "almost": 14,
+      "plan": 6,
+      "desire": 8,
+      "passive": 11,
+      "purchase": 10,
+      "negation": 12,
+      "intention": 3,
+      "attempted": 5,
+      "vague": 6,
+      "observation": 1,
+      "category_adjacent": 4,
+      "insufficient": 2,
+      "gaming": 2,
+      "implausible": 2,
+      "implausible_volume": 2,
+      "junk": 3,
+      "attendance": 1,
+      "noisy": 4,
+      "short": 3,
+      "contradictory": 6,
+      "purchase_control": 1,
+      "lexical_overlap": 4,
+      "negation_scope": 2,
+      "partial": 4,
+      "ongoing": 1
+    },
+    "bySource": {
+      "stage4_geometry": 54,
+      "stage2_negation_probe": 32,
+      "stage2_false_credit": 24,
+      "stage2_short_valid": 22,
+      "stage3_holdout": 27,
+      "stage5_new": 30
+    },
+    "state56": 56,
+    "unsafeIfSupports": 128,
+    "productCaution": {
+      "implausible": 2,
+      "implausible_volume": 2,
+      "underspecified": 1
+    }
+  },
+  "productionHashes": {
+    "threeAFile": "69a7d9c8d8e1ec170b263f908c7463137aa8fa3f7272eb82ffc2f91d913db595",
+    "aeFile": "ad5fd348f8a99f2514fb461c88cf3c05ff8f36c447f901138541d036c6fde782",
+    "candidateDevelopmentalTs": "1aeb99ed4e427d73f1a2a3ccd987afdb94683c4330216b62708d2fd242a51a10",
+    "actionEvidenceTs": "bcaa89d56498bf3b9023f1625c5dae90d9447366c4e87b6114095306b78cce7c"
+  }
+}
