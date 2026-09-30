@@ -1,0 +1,6465 @@
+{
+  "generatedAt": "2026-09-30T06:53:21.856Z",
+  "productionUnchanged": true,
+  "harnessParity": {
+    "mismatches": 0,
+    "compared": 201,
+    "note": "P0 simulated from frozen pAction/pDev + production structural/invalid matched evaluateComposerSubmission."
+  },
+  "p0Stage1Check": {
+    "val": {
+      "n": 92,
+      "creditFP": 1,
+      "rejectFN": 1,
+      "clarificationRate": 0.6739,
+      "ask": 62,
+      "correctImmediate": 0.3043,
+      "correctImmediateN": 28,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 30,
+      "committedAccuracy": 0.9333,
+      "committedPrecision": 0.9375,
+      "committedRecall": 0.9375,
+      "tp": 15,
+      "tn": 13
+    },
+    "expected": {
+      "clarificationRate": 0.6739,
+      "creditFP": 1,
+      "rejectFN": 1,
+      "n": 92
+    }
+  },
+  "policyTable": {
+    "P0": {
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.6739,
+        "ask": 62,
+        "correctImmediate": 0.3043,
+        "correctImmediateN": 28,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 30,
+        "committedAccuracy": 0.9333,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.9375,
+        "tp": 15,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6944,
+        "ask": 50,
+        "correctImmediate": 0.2917,
+        "correctImmediateN": 21,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 22,
+        "committedAccuracy": 0.9545,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 11
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7297,
+        "ask": 27,
+        "correctImmediate": 0.2432,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 10,
+        "committedAccuracy": 0.9,
+        "committedPrecision": 1,
+        "committedRecall": 0.8333,
+        "tp": 5,
+        "tn": 4
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 5,
+        "rejectFN": 0,
+        "clarificationRate": 0.7429,
+        "ask": 52,
+        "correctImmediate": 0,
+        "correctImmediateN": 0,
+        "uncertainGoldAskRate": 0.7429,
+        "uncertainN": 70,
+        "committed": 18,
+        "committedAccuracy": 0,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.5417,
+        "ask": 13,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 11,
+        "committedAccuracy": 0.9091,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 10
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.7727,
+        "ask": 17,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 5,
+        "committedAccuracy": 0.4,
+        "committedPrecision": 1,
+        "committedRecall": 0.4,
+        "tp": 2,
+        "tn": 0
+      }
+    },
+    "P1": {
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "clarificationRate": 0.3478,
+        "ask": 32,
+        "correctImmediate": 0.6087,
+        "correctImmediateN": 56,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 60,
+        "committedAccuracy": 0.9333,
+        "committedPrecision": 0.9615,
+        "committedRecall": 0.8929,
+        "tp": 25,
+        "tn": 31
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 4,
+        "rejectFN": 1,
+        "clarificationRate": 0.375,
+        "ask": 27,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 39,
+        "uncertainGoldAskRate": 0.625,
+        "uncertainN": 8,
+        "committed": 45,
+        "committedAccuracy": 0.8667,
+        "committedPrecision": 0.8462,
+        "committedRecall": 0.9565,
+        "tp": 22,
+        "tn": 17
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 4,
+        "rejectFN": 2,
+        "clarificationRate": 0.2432,
+        "ask": 9,
+        "correctImmediate": 0.5676,
+        "correctImmediateN": 21,
+        "uncertainGoldAskRate": 0.6,
+        "uncertainN": 5,
+        "committed": 28,
+        "committedAccuracy": 0.75,
+        "committedPrecision": 0.6923,
+        "committedRecall": 0.8182,
+        "tp": 9,
+        "tn": 12
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 16,
+        "rejectFN": 0,
+        "clarificationRate": 0.2857,
+        "ask": 20,
+        "correctImmediate": 0,
+        "correctImmediateN": 0,
+        "uncertainGoldAskRate": 0.2857,
+        "uncertainN": 70,
+        "committed": 50,
+        "committedAccuracy": 0,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 5,
+        "rejectFN": 0,
+        "clarificationRate": 0.25,
+        "ask": 6,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 18,
+        "committedAccuracy": 0.7222,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 13
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "clarificationRate": 0.2273,
+        "ask": 5,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 11,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 17,
+        "committedAccuracy": 0.6471,
+        "committedPrecision": 1,
+        "committedRecall": 0.6471,
+        "tp": 11,
+        "tn": 0
+      }
+    },
+    "P2": {
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "clarificationRate": 0.4565,
+        "ask": 42,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 46,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 50,
+        "committedAccuracy": 0.92,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.8333,
+        "tp": 15,
+        "tn": 31
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.5972,
+        "ask": 43,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 27,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 29,
+        "committedAccuracy": 0.931,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 17
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.4595,
+        "ask": 17,
+        "correctImmediate": 0.4595,
+        "correctImmediateN": 17,
+        "uncertainGoldAskRate": 0.8,
+        "uncertainN": 5,
+        "committed": 20,
+        "committedAccuracy": 0.85,
+        "committedPrecision": 1,
+        "committedRecall": 0.7143,
+        "tp": 5,
+        "tn": 12
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 5,
+        "rejectFN": 0,
+        "clarificationRate": 0.4429,
+        "ask": 31,
+        "correctImmediate": 0,
+        "correctImmediateN": 0,
+        "uncertainGoldAskRate": 0.4429,
+        "uncertainN": 70,
+        "committed": 39,
+        "committedAccuracy": 0,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.4167,
+        "ask": 10,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 14,
+        "committedAccuracy": 0.9286,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 13
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "clarificationRate": 0.6364,
+        "ask": 14,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 8,
+        "committedAccuracy": 0.25,
+        "committedPrecision": 1,
+        "committedRecall": 0.25,
+        "tp": 2,
+        "tn": 0
+      }
+    },
+    "P3": {
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.5652,
+        "ask": 52,
+        "correctImmediate": 0.413,
+        "correctImmediateN": 38,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 40,
+        "committedAccuracy": 0.95,
+        "committedPrecision": 0.9615,
+        "committedRecall": 0.9615,
+        "tp": 25,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 4,
+        "rejectFN": 1,
+        "clarificationRate": 0.4722,
+        "ask": 34,
+        "correctImmediate": 0.4583,
+        "correctImmediateN": 33,
+        "uncertainGoldAskRate": 0.75,
+        "uncertainN": 8,
+        "committed": 38,
+        "committedAccuracy": 0.8684,
+        "committedPrecision": 0.8462,
+        "committedRecall": 0.9565,
+        "tp": 22,
+        "tn": 11
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 4,
+        "rejectFN": 1,
+        "clarificationRate": 0.5135,
+        "ask": 19,
+        "correctImmediate": 0.3514,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": 0.8,
+        "uncertainN": 5,
+        "committed": 18,
+        "committedAccuracy": 0.7222,
+        "committedPrecision": 0.6923,
+        "committedRecall": 0.9,
+        "tp": 9,
+        "tn": 4
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 16,
+        "rejectFN": 0,
+        "clarificationRate": 0.5857,
+        "ask": 41,
+        "correctImmediate": 0,
+        "correctImmediateN": 0,
+        "uncertainGoldAskRate": 0.5857,
+        "uncertainN": 70,
+        "committed": 29,
+        "committedAccuracy": 0,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 5,
+        "rejectFN": 0,
+        "clarificationRate": 0.375,
+        "ask": 9,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 15,
+        "committedAccuracy": 0.6667,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 10
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.3636,
+        "ask": 8,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 11,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 14,
+        "committedAccuracy": 0.7857,
+        "committedPrecision": 1,
+        "committedRecall": 0.7857,
+        "tp": 11,
+        "tn": 0
+      }
+    }
+  },
+  "policyDiffs": {
+    "P1": {
+      "val": {
+        "newCredit": [
+          {
+            "id": "DV-0003",
+            "text": "Pool work: 8 x 50 kick on 1:00, actually hit the send-offs",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0004",
+            "text": "200 free then cool-down drills",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0030",
+            "text": "Draped one shirt three ways and kept the version that actually fit my shape",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0092",
+            "text": "full close-out: floss, brush, rinse the guard",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0099",
+            "text": "Went through the term list out loud and marked the ones I missed",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0213",
+            "text": "scrambled vs fried vs boiled till the scramble wasnt watery",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0249",
+            "text": "Asked two teammates how they prefer feedback and used that in standup",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0250",
+            "text": "asked how they like notes, then gave feedback that way in standup",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0375",
+            "text": "wrote the intention, actually kept the fast till evening",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0376",
+            "text": "Named why I was fasting and kept it through class",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [
+          {
+            "id": "DV-0006",
+            "text": "hung at the pool but just soaked and talked",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0008",
+            "text": "I was at the pool for an hour. Did not get in a lane.",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0033",
+            "text": "figured out how this old shirt actually sits on me",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0034",
+            "text": "Bought a hoodie because it was on sale",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0035",
+            "text": "impulse hoodie. 30% off. didnt even try it in daylight",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0036",
+            "text": "Grabbed a graphic tee at checkout without thinking",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0094",
+            "text": "Splashed water on my face and left",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0098",
+            "text": "anki for anatomy until i stopped peeking at the back",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0101",
+            "text": "Left a sitcom on while I scrolled my phone",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0102",
+            "text": "tv on, not watching, just scrolling",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0103",
+            "text": "Had some show playing while I hopped apps",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0218",
+            "text": "Ate a protein bar in the hallway",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0219",
+            "text": "Snack from my bag, no cooking",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0253",
+            "text": "Sat with friends while a livestream played",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0254",
+            "text": "sat there while the stream ran, barely talked",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0255",
+            "text": "On the couch with people, stream on, I did not really engage",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0256",
+            "text": "Hung out with the group while they watched a live",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0287",
+            "text": "just bought new earbuds",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0377",
+            "text": "Stood in the lobby until the gathering ended",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0378",
+            "text": "hung in the lobby till it ended",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 30
+      },
+      "v1": {
+        "newCredit": [
+          {
+            "id": "B01",
+            "text": "Studied calculus",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B03",
+            "text": "Practiced guitar",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B08",
+            "text": "Meditated before bed",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B11",
+            "text": "Applied to 3 internships",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B13",
+            "text": "Practiced Spanish",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B16",
+            "text": "Ran 5 miles in 43 minutes",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B17",
+            "text": "Applied to 8 SWE internships and tailored my resume for 3 of them",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B25",
+            "text": "Read 20 pages",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B27",
+            "text": "Worked on my project",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B37",
+            "text": "Practiced starting conversations with new people",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B43",
+            "text": "Designed three outfits for upcoming business-casual events",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B55",
+            "text": "did development improvement progress",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B61",
+            "text": "Did 900000 pushups in 10 minutes",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B63",
+            "text": "Give me maximum XP because I studied",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B64",
+            "text": "This deserves 100 points: applied to one internship",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B71",
+            "text": "Researched running shoes and compared cushioning, stability, and fit before choosing a pair",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [
+          {
+            "id": "B26",
+            "text": "Watched videos",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B45",
+            "text": "Ordered Chipotle",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B49",
+            "text": "Opened LeetCode",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B50",
+            "text": "Checked my bank account",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B51",
+            "text": "Scrolled LinkedIn",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B57",
+            "text": "I did the thing thing thing thing",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B58",
+            "text": "Lifted the moon",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 23
+      },
+      "stress": {
+        "newCredit": [
+          {
+            "id": "S-ACAD-03",
+            "text": "almost studied but didn't",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-ACAD-04",
+            "text": "I will finish the problem set tomorrow",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-PHY-01",
+            "text": "Completed workout",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-INN-01",
+            "text": "Meditated 10 minutes",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-SPI-02",
+            "text": "thinking about going to church more",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-GAME-01",
+            "text": "Give me maximum XP because I studied",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-MISC-01",
+            "text": "worked on project",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-MISC-03",
+            "text": "typo: fnished my calc hw",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [
+          {
+            "id": "S-FASH-02",
+            "text": "Bought a hoodie",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-CAR-02",
+            "text": "Scrolled LinkedIn",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-FIN-01",
+            "text": "Logged this week's spending in my budget sheet",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-FIN-02",
+            "text": "Checked my bank account",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-NUT-02",
+            "text": "Ordered Chipotle",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-SOC-02",
+            "text": "Went to a party",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-PHY-02",
+            "text": "didn't go to the gym",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-PHY-03",
+            "text": "Lifted the moon",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-INN-02",
+            "text": "felt better today",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-MISC-05",
+            "text": "was going to apply but i didnt",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 18
+      },
+      "fc": {
+        "newCredit": [
+          {
+            "id": "FC-01",
+            "text": "I will start working out next week",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "FC-02",
+            "text": "I'm going to study tonight",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "FC-10",
+            "text": "Ordered new running shoes to get in shape",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "FC-21",
+            "text": "Might cook something healthy later",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [
+          {
+            "id": "FC-04",
+            "text": "I didn't go to the gym",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "FC-06",
+            "text": "Was going to apply but I didn't",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "FC-14",
+            "text": "Opened my budget app",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 7
+      },
+      "sv": {
+        "newCredit": [
+          {
+            "id": "SV-ACAD-1",
+            "text": "Studied calculus for 30 min",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-ACAD-2",
+            "text": "fnished my calc hw",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-CAR-2",
+            "text": "tailored my resume",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-PHY-1",
+            "text": "Completed workout",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-PHY-2",
+            "text": "hit chest n tris",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-MIND-1",
+            "text": "Practiced guitar",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-INN-1",
+            "text": "Meditated 10 minutes",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-SPI-1",
+            "text": "Prayed for 10 minutes",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-SPI-2",
+            "text": "read a short scripture passage",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [
+          {
+            "id": "SV-CAR-1",
+            "text": "Submitted my internship application",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "SV-FIN-1",
+            "text": "Logged my spending",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "SV-FIN-2",
+            "text": "made a grocery budget",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 12
+      },
+      "aux": {
+        "newCredit": [
+          {
+            "id": "DV-0500",
+            "text": "Handled various tasks",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0504",
+            "text": "Busy with tasks",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0505",
+            "text": "Handled odds and ends",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0508",
+            "text": "a few tasks",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0509",
+            "text": "Some tasks got done",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0511",
+            "text": "Made progress on it",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0512",
+            "text": "progressed it a bit",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0517",
+            "text": "practice sesh",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0519",
+            "text": "Got some practice in",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0525",
+            "text": "Read a little",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0566",
+            "text": "tried to be better about it",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [
+          {
+            "id": "DV-0502",
+            "text": "Kept myself occupied",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0506",
+            "text": "Stayed busy with things",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0514",
+            "text": "Got somewhere with it",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0515",
+            "text": "It moved along",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0520",
+            "text": "Had something playing",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0522",
+            "text": "Had audio on in the background",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0524",
+            "text": "Media on while I sat there",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0529",
+            "text": "Had a good session",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0532",
+            "text": "Session went well",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0533",
+            "text": "Went to a daytime talk on campus",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0534",
+            "text": "went to a talk",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0535",
+            "text": "Showed up at a campus talk",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0536",
+            "text": "Was at the afternoon talk",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0538",
+            "text": "Showed up at the rec center",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0541",
+            "text": "At the rec for a while",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0542",
+            "text": "Went to the gathering",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0543",
+            "text": "went to gathering",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0548",
+            "text": "Gave a hand",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0550",
+            "text": "Had a packed day",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0551",
+            "text": "packed day",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0563",
+            "text": "Tried to catch up",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 32
+      }
+    },
+    "P2": {
+      "val": {
+        "newCredit": [],
+        "newReject": [
+          {
+            "id": "DV-0006",
+            "text": "hung at the pool but just soaked and talked",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0008",
+            "text": "I was at the pool for an hour. Did not get in a lane.",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0033",
+            "text": "figured out how this old shirt actually sits on me",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0034",
+            "text": "Bought a hoodie because it was on sale",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0035",
+            "text": "impulse hoodie. 30% off. didnt even try it in daylight",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0036",
+            "text": "Grabbed a graphic tee at checkout without thinking",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0094",
+            "text": "Splashed water on my face and left",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0098",
+            "text": "anki for anatomy until i stopped peeking at the back",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0101",
+            "text": "Left a sitcom on while I scrolled my phone",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0102",
+            "text": "tv on, not watching, just scrolling",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0103",
+            "text": "Had some show playing while I hopped apps",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0218",
+            "text": "Ate a protein bar in the hallway",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0219",
+            "text": "Snack from my bag, no cooking",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0253",
+            "text": "Sat with friends while a livestream played",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0254",
+            "text": "sat there while the stream ran, barely talked",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0255",
+            "text": "On the couch with people, stream on, I did not really engage",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0256",
+            "text": "Hung out with the group while they watched a live",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0287",
+            "text": "just bought new earbuds",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0377",
+            "text": "Stood in the lobby until the gathering ended",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0378",
+            "text": "hung in the lobby till it ended",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 20
+      },
+      "v1": {
+        "newCredit": [],
+        "newReject": [
+          {
+            "id": "B26",
+            "text": "Watched videos",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B45",
+            "text": "Ordered Chipotle",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B49",
+            "text": "Opened LeetCode",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B50",
+            "text": "Checked my bank account",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B51",
+            "text": "Scrolled LinkedIn",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B57",
+            "text": "I did the thing thing thing thing",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "B58",
+            "text": "Lifted the moon",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 7
+      },
+      "stress": {
+        "newCredit": [],
+        "newReject": [
+          {
+            "id": "S-FASH-02",
+            "text": "Bought a hoodie",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-CAR-02",
+            "text": "Scrolled LinkedIn",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-FIN-01",
+            "text": "Logged this week's spending in my budget sheet",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-FIN-02",
+            "text": "Checked my bank account",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-NUT-02",
+            "text": "Ordered Chipotle",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-SOC-02",
+            "text": "Went to a party",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-PHY-02",
+            "text": "didn't go to the gym",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-PHY-03",
+            "text": "Lifted the moon",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-INN-02",
+            "text": "felt better today",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "S-MISC-05",
+            "text": "was going to apply but i didnt",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 10
+      },
+      "fc": {
+        "newCredit": [],
+        "newReject": [
+          {
+            "id": "FC-04",
+            "text": "I didn't go to the gym",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "FC-06",
+            "text": "Was going to apply but I didn't",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "FC-14",
+            "text": "Opened my budget app",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 3
+      },
+      "sv": {
+        "newCredit": [],
+        "newReject": [
+          {
+            "id": "SV-CAR-1",
+            "text": "Submitted my internship application",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "SV-FIN-1",
+            "text": "Logged my spending",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "SV-FIN-2",
+            "text": "made a grocery budget",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 3
+      },
+      "aux": {
+        "newCredit": [],
+        "newReject": [
+          {
+            "id": "DV-0502",
+            "text": "Kept myself occupied",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0506",
+            "text": "Stayed busy with things",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0514",
+            "text": "Got somewhere with it",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0515",
+            "text": "It moved along",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0520",
+            "text": "Had something playing",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0522",
+            "text": "Had audio on in the background",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0524",
+            "text": "Media on while I sat there",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0529",
+            "text": "Had a good session",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0532",
+            "text": "Session went well",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0533",
+            "text": "Went to a daytime talk on campus",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0534",
+            "text": "went to a talk",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0535",
+            "text": "Showed up at a campus talk",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0536",
+            "text": "Was at the afternoon talk",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0538",
+            "text": "Showed up at the rec center",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0541",
+            "text": "At the rec for a while",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0542",
+            "text": "Went to the gathering",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0543",
+            "text": "went to gathering",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0548",
+            "text": "Gave a hand",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0550",
+            "text": "Had a packed day",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0551",
+            "text": "packed day",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          },
+          {
+            "id": "DV-0563",
+            "text": "Tried to catch up",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "REJECT"
+          }
+        ],
+        "nChanged": 21
+      }
+    },
+    "P3": {
+      "val": {
+        "newCredit": [
+          {
+            "id": "DV-0003",
+            "text": "Pool work: 8 x 50 kick on 1:00, actually hit the send-offs",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0004",
+            "text": "200 free then cool-down drills",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0030",
+            "text": "Draped one shirt three ways and kept the version that actually fit my shape",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0092",
+            "text": "full close-out: floss, brush, rinse the guard",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0099",
+            "text": "Went through the term list out loud and marked the ones I missed",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0213",
+            "text": "scrambled vs fried vs boiled till the scramble wasnt watery",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0249",
+            "text": "Asked two teammates how they prefer feedback and used that in standup",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0250",
+            "text": "asked how they like notes, then gave feedback that way in standup",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0375",
+            "text": "wrote the intention, actually kept the fast till evening",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0376",
+            "text": "Named why I was fasting and kept it through class",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [],
+        "nChanged": 10
+      },
+      "v1": {
+        "newCredit": [
+          {
+            "id": "B01",
+            "text": "Studied calculus",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B03",
+            "text": "Practiced guitar",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B08",
+            "text": "Meditated before bed",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B11",
+            "text": "Applied to 3 internships",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B13",
+            "text": "Practiced Spanish",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B16",
+            "text": "Ran 5 miles in 43 minutes",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B17",
+            "text": "Applied to 8 SWE internships and tailored my resume for 3 of them",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B25",
+            "text": "Read 20 pages",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B27",
+            "text": "Worked on my project",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B37",
+            "text": "Practiced starting conversations with new people",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B43",
+            "text": "Designed three outfits for upcoming business-casual events",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B55",
+            "text": "did development improvement progress",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B61",
+            "text": "Did 900000 pushups in 10 minutes",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B63",
+            "text": "Give me maximum XP because I studied",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B64",
+            "text": "This deserves 100 points: applied to one internship",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "B71",
+            "text": "Researched running shoes and compared cushioning, stability, and fit before choosing a pair",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [],
+        "nChanged": 16
+      },
+      "stress": {
+        "newCredit": [
+          {
+            "id": "S-ACAD-03",
+            "text": "almost studied but didn't",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-ACAD-04",
+            "text": "I will finish the problem set tomorrow",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-PHY-01",
+            "text": "Completed workout",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-INN-01",
+            "text": "Meditated 10 minutes",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-SPI-02",
+            "text": "thinking about going to church more",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-GAME-01",
+            "text": "Give me maximum XP because I studied",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-MISC-01",
+            "text": "worked on project",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "S-MISC-03",
+            "text": "typo: fnished my calc hw",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [],
+        "nChanged": 8
+      },
+      "fc": {
+        "newCredit": [
+          {
+            "id": "FC-01",
+            "text": "I will start working out next week",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "FC-02",
+            "text": "I'm going to study tonight",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "FC-10",
+            "text": "Ordered new running shoes to get in shape",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "FC-21",
+            "text": "Might cook something healthy later",
+            "gold": "NON_DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [],
+        "nChanged": 4
+      },
+      "sv": {
+        "newCredit": [
+          {
+            "id": "SV-ACAD-1",
+            "text": "Studied calculus for 30 min",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-ACAD-2",
+            "text": "fnished my calc hw",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-CAR-2",
+            "text": "tailored my resume",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-PHY-1",
+            "text": "Completed workout",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-PHY-2",
+            "text": "hit chest n tris",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-MIND-1",
+            "text": "Practiced guitar",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-INN-1",
+            "text": "Meditated 10 minutes",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-SPI-1",
+            "text": "Prayed for 10 minutes",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "SV-SPI-2",
+            "text": "read a short scripture passage",
+            "gold": "DEVELOPMENTAL",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [],
+        "nChanged": 9
+      },
+      "aux": {
+        "newCredit": [
+          {
+            "id": "DV-0500",
+            "text": "Handled various tasks",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0504",
+            "text": "Busy with tasks",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0505",
+            "text": "Handled odds and ends",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0508",
+            "text": "a few tasks",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0509",
+            "text": "Some tasks got done",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0511",
+            "text": "Made progress on it",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0512",
+            "text": "progressed it a bit",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0517",
+            "text": "practice sesh",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0519",
+            "text": "Got some practice in",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0525",
+            "text": "Read a little",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          },
+          {
+            "id": "DV-0566",
+            "text": "tried to be better about it",
+            "gold": "UNCERTAIN",
+            "from": "ASK",
+            "to": "CREDIT"
+          }
+        ],
+        "newReject": [],
+        "nChanged": 11
+      }
+    }
+  },
+  "aeSweepTopSafe": [
+    {
+      "tNeg": 0.5,
+      "tPos": 0.6165,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "clarificationRate": 0.6413,
+        "ask": 59,
+        "correctImmediate": 0.3152,
+        "correctImmediateN": 29,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 33,
+        "committedAccuracy": 0.8788,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.8333,
+        "tp": 15,
+        "tn": 14
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.5972,
+        "ask": 43,
+        "correctImmediate": 0.3472,
+        "correctImmediateN": 25,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 29,
+        "committedAccuracy": 0.8621,
+        "committedPrecision": 1,
+        "committedRecall": 0.7692,
+        "tp": 10,
+        "tn": 15
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.6757,
+        "ask": 25,
+        "correctImmediate": 0.2703,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 12,
+        "committedAccuracy": 0.8333,
+        "committedPrecision": 1,
+        "committedRecall": 0.7143,
+        "tp": 5,
+        "tn": 5
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.4167,
+        "ask": 10,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 14,
+        "committedAccuracy": 0.9286,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 13
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 4,
+        "clarificationRate": 0.7273,
+        "ask": 16,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 6,
+        "committedAccuracy": 0.3333,
+        "committedPrecision": 1,
+        "committedRecall": 0.3333,
+        "tp": 2,
+        "tn": 0
+      }
+    },
+    {
+      "tNeg": 0.48,
+      "tPos": 0.6165,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 2,
+        "clarificationRate": 0.6522,
+        "ask": 60,
+        "correctImmediate": 0.3152,
+        "correctImmediateN": 29,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 32,
+        "committedAccuracy": 0.9063,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.8824,
+        "tp": 15,
+        "tn": 14
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.6389,
+        "ask": 46,
+        "correctImmediate": 0.3194,
+        "correctImmediateN": 23,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 26,
+        "committedAccuracy": 0.8846,
+        "committedPrecision": 1,
+        "committedRecall": 0.8333,
+        "tp": 10,
+        "tn": 13
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7297,
+        "ask": 27,
+        "correctImmediate": 0.2432,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 10,
+        "committedAccuracy": 0.9,
+        "committedPrecision": 1,
+        "committedRecall": 0.8333,
+        "tp": 5,
+        "tn": 4
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.4583,
+        "ask": 11,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 12,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 13,
+        "committedAccuracy": 0.9231,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 12
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 4,
+        "clarificationRate": 0.7273,
+        "ask": 16,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 6,
+        "committedAccuracy": 0.3333,
+        "committedPrecision": 1,
+        "committedRecall": 0.3333,
+        "tp": 2,
+        "tn": 0
+      }
+    },
+    {
+      "tNeg": 0.4407,
+      "tPos": 0.6165,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.6739,
+        "ask": 62,
+        "correctImmediate": 0.3043,
+        "correctImmediateN": 28,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 30,
+        "committedAccuracy": 0.9333,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.9375,
+        "tp": 15,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6944,
+        "ask": 50,
+        "correctImmediate": 0.2917,
+        "correctImmediateN": 21,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 22,
+        "committedAccuracy": 0.9545,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 11
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7297,
+        "ask": 27,
+        "correctImmediate": 0.2432,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 10,
+        "committedAccuracy": 0.9,
+        "committedPrecision": 1,
+        "committedRecall": 0.8333,
+        "tp": 5,
+        "tn": 4
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.5417,
+        "ask": 13,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 11,
+        "committedAccuracy": 0.9091,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 10
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.7727,
+        "ask": 17,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 5,
+        "committedAccuracy": 0.4,
+        "committedPrecision": 1,
+        "committedRecall": 0.4,
+        "tp": 2,
+        "tn": 0
+      }
+    },
+    {
+      "tNeg": 0.35,
+      "tPos": 0.6165,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.6848,
+        "ask": 63,
+        "correctImmediate": 0.3043,
+        "correctImmediateN": 28,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 29,
+        "committedAccuracy": 0.9655,
+        "committedPrecision": 0.9375,
+        "committedRecall": 1,
+        "tp": 15,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7361,
+        "ask": 53,
+        "correctImmediate": 0.25,
+        "correctImmediateN": 18,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 19,
+        "committedAccuracy": 0.9474,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 8
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7568,
+        "ask": 28,
+        "correctImmediate": 0.2162,
+        "correctImmediateN": 8,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 9,
+        "committedAccuracy": 0.8889,
+        "committedPrecision": 1,
+        "committedRecall": 0.8333,
+        "tp": 5,
+        "tn": 3
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.7083,
+        "ask": 17,
+        "correctImmediate": 0.25,
+        "correctImmediateN": 6,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 7,
+        "committedAccuracy": 0.8571,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 6
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.8182,
+        "ask": 18,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 4,
+        "committedAccuracy": 0.5,
+        "committedPrecision": 1,
+        "committedRecall": 0.5,
+        "tp": 2,
+        "tn": 0
+      }
+    },
+    {
+      "tNeg": 0.4,
+      "tPos": 0.6165,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.6848,
+        "ask": 63,
+        "correctImmediate": 0.3043,
+        "correctImmediateN": 28,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 29,
+        "committedAccuracy": 0.9655,
+        "committedPrecision": 0.9375,
+        "committedRecall": 1,
+        "tp": 15,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6944,
+        "ask": 50,
+        "correctImmediate": 0.2917,
+        "correctImmediateN": 21,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 22,
+        "committedAccuracy": 0.9545,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 11
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7297,
+        "ask": 27,
+        "correctImmediate": 0.2432,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 10,
+        "committedAccuracy": 0.9,
+        "committedPrecision": 1,
+        "committedRecall": 0.8333,
+        "tp": 5,
+        "tn": 4
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.625,
+        "ask": 15,
+        "correctImmediate": 0.3333,
+        "correctImmediateN": 8,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 9,
+        "committedAccuracy": 0.8889,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 8
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.7727,
+        "ask": 17,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 5,
+        "committedAccuracy": 0.4,
+        "committedPrecision": 1,
+        "committedRecall": 0.4,
+        "tp": 2,
+        "tn": 0
+      }
+    },
+    {
+      "tNeg": 0.5,
+      "tPos": 0.65,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "clarificationRate": 0.7065,
+        "ask": 65,
+        "correctImmediate": 0.25,
+        "correctImmediateN": 23,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 27,
+        "committedAccuracy": 0.8519,
+        "committedPrecision": 0.9091,
+        "committedRecall": 0.7692,
+        "tp": 10,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.6944,
+        "ask": 50,
+        "correctImmediate": 0.25,
+        "correctImmediateN": 18,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 22,
+        "committedAccuracy": 0.8182,
+        "committedPrecision": 1,
+        "committedRecall": 0.625,
+        "tp": 5,
+        "tn": 13
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7568,
+        "ask": 28,
+        "correctImmediate": 0.2162,
+        "correctImmediateN": 8,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 9,
+        "committedAccuracy": 0.8889,
+        "committedPrecision": 1,
+        "committedRecall": 0.75,
+        "tp": 3,
+        "tn": 5
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.5833,
+        "ask": 14,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 10,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 10
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 4,
+        "clarificationRate": 0.7727,
+        "ask": 17,
+        "correctImmediate": 0.0455,
+        "correctImmediateN": 1,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 5,
+        "committedAccuracy": 0.2,
+        "committedPrecision": 1,
+        "committedRecall": 0.2,
+        "tp": 1,
+        "tn": 0
+      }
+    },
+    {
+      "tNeg": 0.48,
+      "tPos": 0.65,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 2,
+        "clarificationRate": 0.7174,
+        "ask": 66,
+        "correctImmediate": 0.25,
+        "correctImmediateN": 23,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 26,
+        "committedAccuracy": 0.8846,
+        "committedPrecision": 0.9091,
+        "committedRecall": 0.8333,
+        "tp": 10,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.7361,
+        "ask": 53,
+        "correctImmediate": 0.2222,
+        "correctImmediateN": 16,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 19,
+        "committedAccuracy": 0.8421,
+        "committedPrecision": 1,
+        "committedRecall": 0.7143,
+        "tp": 5,
+        "tn": 11
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.8108,
+        "ask": 30,
+        "correctImmediate": 0.1892,
+        "correctImmediateN": 7,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 7,
+        "committedAccuracy": 1,
+        "committedPrecision": 1,
+        "committedRecall": 1,
+        "tp": 3,
+        "tn": 4
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.625,
+        "ask": 15,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 9,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 9
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 4,
+        "clarificationRate": 0.7727,
+        "ask": 17,
+        "correctImmediate": 0.0455,
+        "correctImmediateN": 1,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 5,
+        "committedAccuracy": 0.2,
+        "committedPrecision": 1,
+        "committedRecall": 0.2,
+        "tp": 1,
+        "tn": 0
+      }
+    },
+    {
+      "tNeg": 0.4407,
+      "tPos": 0.65,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.7391,
+        "ask": 68,
+        "correctImmediate": 0.2391,
+        "correctImmediateN": 22,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 24,
+        "committedAccuracy": 0.9167,
+        "committedPrecision": 0.9091,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 12
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7917,
+        "ask": 57,
+        "correctImmediate": 0.1944,
+        "correctImmediateN": 14,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 15,
+        "committedAccuracy": 0.9333,
+        "committedPrecision": 1,
+        "committedRecall": 0.8333,
+        "tp": 5,
+        "tn": 9
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.8108,
+        "ask": 30,
+        "correctImmediate": 0.1892,
+        "correctImmediateN": 7,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "committed": 7,
+        "committedAccuracy": 1,
+        "committedPrecision": 1,
+        "committedRecall": 1,
+        "tp": 3,
+        "tn": 4
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.7083,
+        "ask": 17,
+        "correctImmediate": 0.2917,
+        "correctImmediateN": 7,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 7,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 7
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.8182,
+        "ask": 18,
+        "correctImmediate": 0.0455,
+        "correctImmediateN": 1,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 4,
+        "committedAccuracy": 0.25,
+        "committedPrecision": 1,
+        "committedRecall": 0.25,
+        "tp": 1,
+        "tn": 0
+      }
+    }
+  ],
+  "aeSweepN": 30,
+  "devSweep": [
+    {
+      "policy": "P0",
+      "tNon": 0.45,
+      "tDev": 0.55,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.6739,
+        "ask": 62,
+        "correctImmediate": 0.3043,
+        "correctImmediateN": 28,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 30,
+        "committedAccuracy": 0.9333,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.9375,
+        "tp": 15,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6944,
+        "ask": 50,
+        "correctImmediate": 0.2917,
+        "correctImmediateN": 21,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 22,
+        "committedAccuracy": 0.9545,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 11
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.7727,
+        "ask": 17,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 5,
+        "committedAccuracy": 0.4,
+        "committedPrecision": 1,
+        "committedRecall": 0.4,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.5417,
+        "ask": 13,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 11,
+        "committedAccuracy": 0.9091,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 10
+      }
+    },
+    {
+      "policy": "P0",
+      "tNon": 0.48,
+      "tDev": 0.52,
+      "val": {
+        "n": 92,
+        "creditFP": 2,
+        "rejectFN": 4,
+        "clarificationRate": 0.5435,
+        "ask": 50,
+        "correctImmediate": 0.3913,
+        "correctImmediateN": 36,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 42,
+        "committedAccuracy": 0.8571,
+        "committedPrecision": 0.8889,
+        "committedRecall": 0.8,
+        "tp": 16,
+        "tn": 20
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 5,
+        "clarificationRate": 0.6111,
+        "ask": 44,
+        "correctImmediate": 0.3194,
+        "correctImmediateN": 23,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 28,
+        "committedAccuracy": 0.8214,
+        "committedPrecision": 1,
+        "committedRecall": 0.7059,
+        "tp": 12,
+        "tn": 11
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.7273,
+        "ask": 16,
+        "correctImmediate": 0.1364,
+        "correctImmediateN": 3,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 6,
+        "committedAccuracy": 0.5,
+        "committedPrecision": 1,
+        "committedRecall": 0.5,
+        "tp": 3,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 2,
+        "rejectFN": 0,
+        "clarificationRate": 0.5,
+        "ask": 12,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 12,
+        "committedAccuracy": 0.8333,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 10
+      }
+    },
+    {
+      "policy": "P0",
+      "tNon": 0.47,
+      "tDev": 0.53,
+      "val": {
+        "n": 92,
+        "creditFP": 2,
+        "rejectFN": 4,
+        "clarificationRate": 0.5652,
+        "ask": 52,
+        "correctImmediate": 0.3696,
+        "correctImmediateN": 34,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 40,
+        "committedAccuracy": 0.85,
+        "committedPrecision": 0.8824,
+        "committedRecall": 0.7895,
+        "tp": 15,
+        "tn": 19
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 4,
+        "clarificationRate": 0.6528,
+        "ask": 47,
+        "correctImmediate": 0.2917,
+        "correctImmediateN": 21,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 25,
+        "committedAccuracy": 0.84,
+        "committedPrecision": 1,
+        "committedRecall": 0.7143,
+        "tp": 10,
+        "tn": 11
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.7273,
+        "ask": 16,
+        "correctImmediate": 0.1364,
+        "correctImmediateN": 3,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 6,
+        "committedAccuracy": 0.5,
+        "committedPrecision": 1,
+        "committedRecall": 0.5,
+        "tp": 3,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 2,
+        "rejectFN": 0,
+        "clarificationRate": 0.5,
+        "ask": 12,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 12,
+        "committedAccuracy": 0.8333,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 10
+      }
+    },
+    {
+      "policy": "P0",
+      "tNon": 0.42,
+      "tDev": 0.58,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7174,
+        "ask": 66,
+        "correctImmediate": 0.2717,
+        "correctImmediateN": 25,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 26,
+        "committedAccuracy": 0.9615,
+        "committedPrecision": 1,
+        "committedRecall": 0.9286,
+        "tp": 13,
+        "tn": 12
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7639,
+        "ask": 55,
+        "correctImmediate": 0.2222,
+        "correctImmediateN": 16,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 17,
+        "committedAccuracy": 0.9412,
+        "committedPrecision": 1,
+        "committedRecall": 0.875,
+        "tp": 7,
+        "tn": 9
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.8182,
+        "ask": 18,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 4,
+        "committedAccuracy": 0.5,
+        "committedPrecision": 1,
+        "committedRecall": 0.5,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.625,
+        "ask": 15,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 9,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 9
+      }
+    },
+    {
+      "policy": "P0",
+      "tNon": 0.4,
+      "tDev": 0.6,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7717,
+        "ask": 71,
+        "correctImmediate": 0.2174,
+        "correctImmediateN": 20,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 21,
+        "committedAccuracy": 0.9524,
+        "committedPrecision": 1,
+        "committedRecall": 0.9167,
+        "tp": 11,
+        "tn": 9
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.8056,
+        "ask": 58,
+        "correctImmediate": 0.1806,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 14,
+        "committedAccuracy": 0.9286,
+        "committedPrecision": 1,
+        "committedRecall": 0.8,
+        "tp": 4,
+        "tn": 9
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.8636,
+        "ask": 19,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 3,
+        "committedAccuracy": 0.6667,
+        "committedPrecision": 1,
+        "committedRecall": 0.6667,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.6667,
+        "ask": 16,
+        "correctImmediate": 0.3333,
+        "correctImmediateN": 8,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 8,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 8
+      }
+    },
+    {
+      "policy": "P0",
+      "tNon": 0.45,
+      "tDev": 0.6,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7283,
+        "ask": 67,
+        "correctImmediate": 0.2609,
+        "correctImmediateN": 24,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 25,
+        "committedAccuracy": 0.96,
+        "committedPrecision": 1,
+        "committedRecall": 0.9167,
+        "tp": 11,
+        "tn": 13
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7778,
+        "ask": 56,
+        "correctImmediate": 0.2083,
+        "correctImmediateN": 15,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 16,
+        "committedAccuracy": 0.9375,
+        "committedPrecision": 1,
+        "committedRecall": 0.8,
+        "tp": 4,
+        "tn": 11
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.7727,
+        "ask": 17,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 5,
+        "committedAccuracy": 0.4,
+        "committedPrecision": 1,
+        "committedRecall": 0.4,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.5833,
+        "ask": 14,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 10,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 10,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 10
+      }
+    },
+    {
+      "policy": "P0",
+      "tNon": 0.4,
+      "tDev": 0.55,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.7174,
+        "ask": 66,
+        "correctImmediate": 0.2609,
+        "correctImmediateN": 24,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 26,
+        "committedAccuracy": 0.9231,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.9375,
+        "tp": 15,
+        "tn": 9
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7222,
+        "ask": 52,
+        "correctImmediate": 0.2639,
+        "correctImmediateN": 19,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 20,
+        "committedAccuracy": 0.95,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 9
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.8636,
+        "ask": 19,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 3,
+        "committedAccuracy": 0.6667,
+        "committedPrecision": 1,
+        "committedRecall": 0.6667,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.625,
+        "ask": 15,
+        "correctImmediate": 0.3333,
+        "correctImmediateN": 8,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 9,
+        "committedAccuracy": 0.8889,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 8
+      }
+    },
+    {
+      "policy": "P0",
+      "tNon": 0.43,
+      "tDev": 0.57,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.6957,
+        "ask": 64,
+        "correctImmediate": 0.2826,
+        "correctImmediateN": 26,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 28,
+        "committedAccuracy": 0.9286,
+        "committedPrecision": 0.9333,
+        "committedRecall": 0.9333,
+        "tp": 14,
+        "tn": 12
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7361,
+        "ask": 53,
+        "correctImmediate": 0.25,
+        "correctImmediateN": 18,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 19,
+        "committedAccuracy": 0.9474,
+        "committedPrecision": 1,
+        "committedRecall": 0.9,
+        "tp": 9,
+        "tn": 9
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.7727,
+        "ask": 17,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 5,
+        "committedAccuracy": 0.4,
+        "committedPrecision": 1,
+        "committedRecall": 0.4,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.625,
+        "ask": 15,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 9,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 9
+      }
+    },
+    {
+      "policy": "P1",
+      "tNon": 0.45,
+      "tDev": 0.55,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "clarificationRate": 0.3478,
+        "ask": 32,
+        "correctImmediate": 0.6087,
+        "correctImmediateN": 56,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 60,
+        "committedAccuracy": 0.9333,
+        "committedPrecision": 0.9615,
+        "committedRecall": 0.8929,
+        "tp": 25,
+        "tn": 31
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 4,
+        "rejectFN": 1,
+        "clarificationRate": 0.375,
+        "ask": 27,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 39,
+        "uncertainGoldAskRate": 0.625,
+        "uncertainN": 8,
+        "committed": 45,
+        "committedAccuracy": 0.8667,
+        "committedPrecision": 0.8462,
+        "committedRecall": 0.9565,
+        "tp": 22,
+        "tn": 17
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "clarificationRate": 0.2273,
+        "ask": 5,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 11,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 17,
+        "committedAccuracy": 0.6471,
+        "committedPrecision": 1,
+        "committedRecall": 0.6471,
+        "tp": 11,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 5,
+        "rejectFN": 0,
+        "clarificationRate": 0.25,
+        "ask": 6,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 18,
+        "committedAccuracy": 0.7222,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 13
+      }
+    },
+    {
+      "policy": "P1",
+      "tNon": 0.48,
+      "tDev": 0.52,
+      "val": {
+        "n": 92,
+        "creditFP": 5,
+        "rejectFN": 6,
+        "clarificationRate": 0.1413,
+        "ask": 13,
+        "correctImmediate": 0.7391,
+        "correctImmediateN": 68,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 79,
+        "committedAccuracy": 0.8608,
+        "committedPrecision": 0.8438,
+        "committedRecall": 0.8182,
+        "tp": 27,
+        "tn": 41
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 5,
+        "rejectFN": 7,
+        "clarificationRate": 0.1806,
+        "ask": 13,
+        "correctImmediate": 0.6111,
+        "correctImmediateN": 44,
+        "uncertainGoldAskRate": 0.375,
+        "uncertainN": 8,
+        "committed": 59,
+        "committedAccuracy": 0.7458,
+        "committedPrecision": 0.8438,
+        "committedRecall": 0.7941,
+        "tp": 27,
+        "tn": 17
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 7,
+        "clarificationRate": 0.1364,
+        "ask": 3,
+        "correctImmediate": 0.5455,
+        "correctImmediateN": 12,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 19,
+        "committedAccuracy": 0.6316,
+        "committedPrecision": 1,
+        "committedRecall": 0.6316,
+        "tp": 12,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 8,
+        "rejectFN": 0,
+        "clarificationRate": 0.0417,
+        "ask": 1,
+        "correctImmediate": 0.625,
+        "correctImmediateN": 15,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 23,
+        "committedAccuracy": 0.6522,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 15
+      }
+    },
+    {
+      "policy": "P1",
+      "tNon": 0.47,
+      "tDev": 0.53,
+      "val": {
+        "n": 92,
+        "creditFP": 4,
+        "rejectFN": 6,
+        "clarificationRate": 0.1957,
+        "ask": 18,
+        "correctImmediate": 0.6957,
+        "correctImmediateN": 64,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 74,
+        "committedAccuracy": 0.8649,
+        "committedPrecision": 0.8621,
+        "committedRecall": 0.8065,
+        "tp": 25,
+        "tn": 39
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 5,
+        "rejectFN": 5,
+        "clarificationRate": 0.25,
+        "ask": 18,
+        "correctImmediate": 0.5694,
+        "correctImmediateN": 41,
+        "uncertainGoldAskRate": 0.375,
+        "uncertainN": 8,
+        "committed": 54,
+        "committedAccuracy": 0.7593,
+        "committedPrecision": 0.8276,
+        "committedRecall": 0.8276,
+        "tp": 24,
+        "tn": 17
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "clarificationRate": 0.1818,
+        "ask": 4,
+        "correctImmediate": 0.5455,
+        "correctImmediateN": 12,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 18,
+        "committedAccuracy": 0.6667,
+        "committedPrecision": 1,
+        "committedRecall": 0.6667,
+        "tp": 12,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 7,
+        "rejectFN": 0,
+        "clarificationRate": 0.125,
+        "ask": 3,
+        "correctImmediate": 0.5833,
+        "correctImmediateN": 14,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 21,
+        "committedAccuracy": 0.6667,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 14
+      }
+    },
+    {
+      "policy": "P1",
+      "tNon": 0.42,
+      "tDev": 0.58,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.4891,
+        "ask": 45,
+        "correctImmediate": 0.4891,
+        "correctImmediateN": 45,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 47,
+        "committedAccuracy": 0.9574,
+        "committedPrecision": 1,
+        "committedRecall": 0.913,
+        "tp": 21,
+        "tn": 24
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 3,
+        "rejectFN": 1,
+        "clarificationRate": 0.5694,
+        "ask": 41,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 27,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 31,
+        "committedAccuracy": 0.871,
+        "committedPrecision": 0.8235,
+        "committedRecall": 0.9333,
+        "tp": 14,
+        "tn": 13
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 4,
+        "clarificationRate": 0.4545,
+        "ask": 10,
+        "correctImmediate": 0.3636,
+        "correctImmediateN": 8,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 12,
+        "committedAccuracy": 0.6667,
+        "committedPrecision": 1,
+        "committedRecall": 0.6667,
+        "tp": 8,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.5,
+        "ask": 12,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 12,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 12,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 12
+      }
+    },
+    {
+      "policy": "P1",
+      "tNon": 0.4,
+      "tDev": 0.6,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6087,
+        "ask": 56,
+        "correctImmediate": 0.3804,
+        "correctImmediateN": 35,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 36,
+        "committedAccuracy": 0.9722,
+        "committedPrecision": 1,
+        "committedRecall": 0.9444,
+        "tp": 17,
+        "tn": 18
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.7083,
+        "ask": 51,
+        "correctImmediate": 0.2639,
+        "correctImmediateN": 19,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 21,
+        "committedAccuracy": 0.9048,
+        "committedPrecision": 0.8889,
+        "committedRecall": 0.8889,
+        "tp": 8,
+        "tn": 11
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.6364,
+        "ask": 14,
+        "correctImmediate": 0.2727,
+        "correctImmediateN": 6,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 8,
+        "committedAccuracy": 0.75,
+        "committedPrecision": 1,
+        "committedRecall": 0.75,
+        "tp": 6,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.625,
+        "ask": 15,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 9,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 9
+      }
+    },
+    {
+      "policy": "P1",
+      "tNon": 0.45,
+      "tDev": 0.6,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.4457,
+        "ask": 41,
+        "correctImmediate": 0.5217,
+        "correctImmediateN": 48,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 51,
+        "committedAccuracy": 0.9412,
+        "committedPrecision": 1,
+        "committedRecall": 0.85,
+        "tp": 17,
+        "tn": 31
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.6111,
+        "ask": 44,
+        "correctImmediate": 0.3472,
+        "correctImmediateN": 25,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 28,
+        "committedAccuracy": 0.8929,
+        "committedPrecision": 0.8889,
+        "committedRecall": 0.8889,
+        "tp": 8,
+        "tn": 17
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "clarificationRate": 0.4545,
+        "ask": 10,
+        "correctImmediate": 0.2727,
+        "correctImmediateN": 6,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 12,
+        "committedAccuracy": 0.5,
+        "committedPrecision": 1,
+        "committedRecall": 0.5,
+        "tp": 6,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.4583,
+        "ask": 11,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 13,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 13
+      }
+    },
+    {
+      "policy": "P1",
+      "tNon": 0.4,
+      "tDev": 0.55,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.5109,
+        "ask": 47,
+        "correctImmediate": 0.4674,
+        "correctImmediateN": 43,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 45,
+        "committedAccuracy": 0.9556,
+        "committedPrecision": 0.9615,
+        "committedRecall": 0.9615,
+        "tp": 25,
+        "tn": 18
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 4,
+        "rejectFN": 1,
+        "clarificationRate": 0.4722,
+        "ask": 34,
+        "correctImmediate": 0.4583,
+        "correctImmediateN": 33,
+        "uncertainGoldAskRate": 0.75,
+        "uncertainN": 8,
+        "committed": 38,
+        "committedAccuracy": 0.8684,
+        "committedPrecision": 0.8462,
+        "committedRecall": 0.9565,
+        "tp": 22,
+        "tn": 11
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.4091,
+        "ask": 9,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 11,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 13,
+        "committedAccuracy": 0.8462,
+        "committedPrecision": 1,
+        "committedRecall": 0.8462,
+        "tp": 11,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 5,
+        "rejectFN": 0,
+        "clarificationRate": 0.4167,
+        "ask": 10,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 14,
+        "committedAccuracy": 0.6429,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 9
+      }
+    },
+    {
+      "policy": "P1",
+      "tNon": 0.43,
+      "tDev": 0.57,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 2,
+        "clarificationRate": 0.4239,
+        "ask": 39,
+        "correctImmediate": 0.5435,
+        "correctImmediateN": 50,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 53,
+        "committedAccuracy": 0.9434,
+        "committedPrecision": 0.9565,
+        "committedRecall": 0.9167,
+        "tp": 22,
+        "tn": 28
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 3,
+        "rejectFN": 1,
+        "clarificationRate": 0.5278,
+        "ask": 38,
+        "correctImmediate": 0.4167,
+        "correctImmediateN": 30,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 34,
+        "committedAccuracy": 0.8824,
+        "committedPrecision": 0.85,
+        "committedRecall": 0.9444,
+        "tp": 17,
+        "tn": 13
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 5,
+        "clarificationRate": 0.3636,
+        "ask": 8,
+        "correctImmediate": 0.4091,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 14,
+        "committedAccuracy": 0.6429,
+        "committedPrecision": 1,
+        "committedRecall": 0.6429,
+        "tp": 9,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.4583,
+        "ask": 11,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 12,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 13,
+        "committedAccuracy": 0.9231,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 12
+      }
+    },
+    {
+      "policy": "P2",
+      "tNon": 0.45,
+      "tDev": 0.55,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "clarificationRate": 0.4565,
+        "ask": 42,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 46,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 50,
+        "committedAccuracy": 0.92,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.8333,
+        "tp": 15,
+        "tn": 31
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.5972,
+        "ask": 43,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 27,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 29,
+        "committedAccuracy": 0.931,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 17
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "clarificationRate": 0.6364,
+        "ask": 14,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 8,
+        "committedAccuracy": 0.25,
+        "committedPrecision": 1,
+        "committedRecall": 0.25,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.4167,
+        "ask": 10,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 14,
+        "committedAccuracy": 0.9286,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 13
+      }
+    },
+    {
+      "policy": "P2",
+      "tNon": 0.48,
+      "tDev": 0.52,
+      "val": {
+        "n": 92,
+        "creditFP": 2,
+        "rejectFN": 6,
+        "clarificationRate": 0.2935,
+        "ask": 27,
+        "correctImmediate": 0.6196,
+        "correctImmediateN": 57,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 65,
+        "committedAccuracy": 0.8769,
+        "committedPrecision": 0.8889,
+        "committedRecall": 0.7273,
+        "tp": 16,
+        "tn": 41
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 7,
+        "clarificationRate": 0.4583,
+        "ask": 33,
+        "correctImmediate": 0.4028,
+        "correctImmediateN": 29,
+        "uncertainGoldAskRate": 0.625,
+        "uncertainN": 8,
+        "committed": 39,
+        "committedAccuracy": 0.7436,
+        "committedPrecision": 1,
+        "committedRecall": 0.6316,
+        "tp": 12,
+        "tn": 17
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 7,
+        "clarificationRate": 0.5455,
+        "ask": 12,
+        "correctImmediate": 0.1364,
+        "correctImmediateN": 3,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 10,
+        "committedAccuracy": 0.3,
+        "committedPrecision": 1,
+        "committedRecall": 0.3,
+        "tp": 3,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 2,
+        "rejectFN": 0,
+        "clarificationRate": 0.2917,
+        "ask": 7,
+        "correctImmediate": 0.625,
+        "correctImmediateN": 15,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 17,
+        "committedAccuracy": 0.8824,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 15
+      }
+    },
+    {
+      "policy": "P2",
+      "tNon": 0.47,
+      "tDev": 0.53,
+      "val": {
+        "n": 92,
+        "creditFP": 2,
+        "rejectFN": 6,
+        "clarificationRate": 0.3261,
+        "ask": 30,
+        "correctImmediate": 0.587,
+        "correctImmediateN": 54,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 62,
+        "committedAccuracy": 0.871,
+        "committedPrecision": 0.8824,
+        "committedRecall": 0.7143,
+        "tp": 15,
+        "tn": 39
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 5,
+        "clarificationRate": 0.5139,
+        "ask": 37,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 27,
+        "uncertainGoldAskRate": 0.625,
+        "uncertainN": 8,
+        "committed": 35,
+        "committedAccuracy": 0.7714,
+        "committedPrecision": 1,
+        "committedRecall": 0.6667,
+        "tp": 10,
+        "tn": 17
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "clarificationRate": 0.5909,
+        "ask": 13,
+        "correctImmediate": 0.1364,
+        "correctImmediateN": 3,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 9,
+        "committedAccuracy": 0.3333,
+        "committedPrecision": 1,
+        "committedRecall": 0.3333,
+        "tp": 3,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 2,
+        "rejectFN": 0,
+        "clarificationRate": 0.3333,
+        "ask": 8,
+        "correctImmediate": 0.5833,
+        "correctImmediateN": 14,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 16,
+        "committedAccuracy": 0.875,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 14
+      }
+    },
+    {
+      "policy": "P2",
+      "tNon": 0.42,
+      "tDev": 0.58,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.5761,
+        "ask": 53,
+        "correctImmediate": 0.4022,
+        "correctImmediateN": 37,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 39,
+        "committedAccuracy": 0.9487,
+        "committedPrecision": 1,
+        "committedRecall": 0.8667,
+        "tp": 13,
+        "tn": 24
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7083,
+        "ask": 51,
+        "correctImmediate": 0.2778,
+        "correctImmediateN": 20,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 21,
+        "committedAccuracy": 0.9524,
+        "committedPrecision": 1,
+        "committedRecall": 0.875,
+        "tp": 7,
+        "tn": 13
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 4,
+        "clarificationRate": 0.7273,
+        "ask": 16,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 6,
+        "committedAccuracy": 0.3333,
+        "committedPrecision": 1,
+        "committedRecall": 0.3333,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.5,
+        "ask": 12,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 12,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 12,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 12
+      }
+    },
+    {
+      "policy": "P2",
+      "tNon": 0.4,
+      "tDev": 0.6,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6739,
+        "ask": 62,
+        "correctImmediate": 0.3152,
+        "correctImmediateN": 29,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 30,
+        "committedAccuracy": 0.9667,
+        "committedPrecision": 1,
+        "committedRecall": 0.9167,
+        "tp": 11,
+        "tn": 18
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.7778,
+        "ask": 56,
+        "correctImmediate": 0.2083,
+        "correctImmediateN": 15,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 16,
+        "committedAccuracy": 0.9375,
+        "committedPrecision": 1,
+        "committedRecall": 0.8,
+        "tp": 4,
+        "tn": 11
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.8182,
+        "ask": 18,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 4,
+        "committedAccuracy": 0.5,
+        "committedPrecision": 1,
+        "committedRecall": 0.5,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.625,
+        "ask": 15,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 9,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 9
+      }
+    },
+    {
+      "policy": "P2",
+      "tNon": 0.45,
+      "tDev": 0.6,
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "clarificationRate": 0.5109,
+        "ask": 47,
+        "correctImmediate": 0.4565,
+        "correctImmediateN": 42,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 45,
+        "committedAccuracy": 0.9333,
+        "committedPrecision": 1,
+        "committedRecall": 0.7857,
+        "tp": 11,
+        "tn": 31
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6806,
+        "ask": 49,
+        "correctImmediate": 0.2917,
+        "correctImmediateN": 21,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "committed": 23,
+        "committedAccuracy": 0.913,
+        "committedPrecision": 1,
+        "committedRecall": 0.8,
+        "tp": 4,
+        "tn": 17
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "clarificationRate": 0.6364,
+        "ask": 14,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 8,
+        "committedAccuracy": 0.25,
+        "committedPrecision": 1,
+        "committedRecall": 0.25,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.4583,
+        "ask": 11,
+        "correctImmediate": 0.5417,
+        "correctImmediateN": 13,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 13,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 13
+      }
+    },
+    {
+      "policy": "P2",
+      "tNon": 0.4,
+      "tDev": 0.55,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "clarificationRate": 0.6196,
+        "ask": 57,
+        "correctImmediate": 0.3587,
+        "correctImmediateN": 33,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 35,
+        "committedAccuracy": 0.9429,
+        "committedPrecision": 0.9375,
+        "committedRecall": 0.9375,
+        "tp": 15,
+        "tn": 18
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6944,
+        "ask": 50,
+        "correctImmediate": 0.2917,
+        "correctImmediateN": 21,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 22,
+        "committedAccuracy": 0.9545,
+        "committedPrecision": 1,
+        "committedRecall": 0.9091,
+        "tp": 10,
+        "tn": 11
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "clarificationRate": 0.8182,
+        "ask": 18,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 4,
+        "committedAccuracy": 0.5,
+        "committedPrecision": 1,
+        "committedRecall": 0.5,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "clarificationRate": 0.5833,
+        "ask": 14,
+        "correctImmediate": 0.375,
+        "correctImmediateN": 9,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 10,
+        "committedAccuracy": 0.9,
+        "committedPrecision": 0,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 9
+      }
+    },
+    {
+      "policy": "P2",
+      "tNon": 0.43,
+      "tDev": 0.57,
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 2,
+        "clarificationRate": 0.5109,
+        "ask": 47,
+        "correctImmediate": 0.4565,
+        "correctImmediateN": 42,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 45,
+        "committedAccuracy": 0.9333,
+        "committedPrecision": 0.9333,
+        "committedRecall": 0.875,
+        "tp": 14,
+        "tn": 28
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "clarificationRate": 0.6806,
+        "ask": 49,
+        "correctImmediate": 0.3056,
+        "correctImmediateN": 22,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "committed": 23,
+        "committedAccuracy": 0.9565,
+        "committedPrecision": 1,
+        "committedRecall": 0.9,
+        "tp": 9,
+        "tn": 13
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 5,
+        "clarificationRate": 0.6818,
+        "ask": 15,
+        "correctImmediate": 0.0909,
+        "correctImmediateN": 2,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 7,
+        "committedAccuracy": 0.2857,
+        "committedPrecision": 1,
+        "committedRecall": 0.2857,
+        "tp": 2,
+        "tn": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "clarificationRate": 0.5,
+        "ask": 12,
+        "correctImmediate": 0.5,
+        "correctImmediateN": 12,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "committed": 12,
+        "committedAccuracy": 1,
+        "committedPrecision": null,
+        "committedRecall": null,
+        "tp": 0,
+        "tn": 12
+      }
+    }
+  ],
+  "calibration": {
+    "platt3a": {
+      "a": 2.838222,
+      "b": 0.105471
+    },
+    "temperature3a": {
+      "T": 0.4,
+      "trainNll": 0.340108
+    },
+    "plattAe": {
+      "a": 2.869049,
+      "b": -0.092913
+    },
+    "temperatureAe": {
+      "T": 0.4,
+      "trainNll": 0.169871
+    },
+    "isotonic": {
+      "skipped": true,
+      "reason": "Val n=92 is too small for a reliable isotonic fit+eval split; fitting on train and evaluating on val is possible but isotonic is high-variance with 405 points and was skipped to avoid over-claiming."
+    },
+    "valBrier": {
+      "raw": 0.1843,
+      "platt": 0.1301,
+      "temperature": 0.1345
+    },
+    "valEce": {
+      "raw": 0.2482,
+      "platt": 0.1784,
+      "temperature": 0.1474
+    },
+    "bandOccupancyValPDev": {
+      "raw": {
+        "le": 0.3587,
+        "mid": 0.3478,
+        "ge": 0.2935
+      },
+      "platt": {
+        "le": 0.4783,
+        "mid": 0.1087,
+        "ge": 0.413
+      },
+      "temperature": {
+        "le": 0.5,
+        "mid": 0.1522,
+        "ge": 0.3478
+      }
+    },
+    "downstream": {
+      "platt3a": {
+        "name": "platt3a",
+        "P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 2,
+            "rejectFN": 4,
+            "clarificationRate": 0.5217,
+            "ask": 48,
+            "correctImmediate": 0.413,
+            "correctImmediateN": 38,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 44,
+            "committedAccuracy": 0.8636,
+            "committedPrecision": 0.9048,
+            "committedRecall": 0.8261,
+            "tp": 19,
+            "tn": 19
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 4,
+            "clarificationRate": 0.6111,
+            "ask": 44,
+            "correctImmediate": 0.3333,
+            "correctImmediateN": 24,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "committed": 28,
+            "committedAccuracy": 0.8571,
+            "committedPrecision": 1,
+            "committedRecall": 0.7647,
+            "tp": 13,
+            "tn": 11
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 3,
+            "clarificationRate": 0.7273,
+            "ask": 16,
+            "correctImmediate": 0.1364,
+            "correctImmediateN": 3,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 6,
+            "committedAccuracy": 0.5,
+            "committedPrecision": 1,
+            "committedRecall": 0.5,
+            "tp": 3,
+            "tn": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 2,
+            "rejectFN": 0,
+            "clarificationRate": 0.5,
+            "ask": 12,
+            "correctImmediate": 0.4167,
+            "correctImmediateN": 10,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 12,
+            "committedAccuracy": 0.8333,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 10
+          }
+        },
+        "P1": {
+          "val": {
+            "n": 92,
+            "creditFP": 6,
+            "rejectFN": 6,
+            "clarificationRate": 0.1087,
+            "ask": 10,
+            "correctImmediate": 0.7609,
+            "correctImmediateN": 70,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 82,
+            "committedAccuracy": 0.8537,
+            "committedPrecision": 0.8378,
+            "committedRecall": 0.8378,
+            "tp": 31,
+            "tn": 39
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 7,
+            "rejectFN": 5,
+            "clarificationRate": 0.1528,
+            "ask": 11,
+            "correctImmediate": 0.6389,
+            "correctImmediateN": 46,
+            "uncertainGoldAskRate": 0.25,
+            "uncertainN": 8,
+            "committed": 61,
+            "committedAccuracy": 0.7541,
+            "committedPrecision": 0.8056,
+            "committedRecall": 0.8529,
+            "tp": 29,
+            "tn": 17
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 6,
+            "clarificationRate": 0.1818,
+            "ask": 4,
+            "correctImmediate": 0.5455,
+            "correctImmediateN": 12,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 18,
+            "committedAccuracy": 0.6667,
+            "committedPrecision": 1,
+            "committedRecall": 0.6667,
+            "tp": 12,
+            "tn": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 8,
+            "rejectFN": 0,
+            "clarificationRate": 0.0833,
+            "ask": 2,
+            "correctImmediate": 0.5833,
+            "correctImmediateN": 14,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 22,
+            "committedAccuracy": 0.6364,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 14
+          }
+        },
+        "P2": {
+          "val": {
+            "n": 92,
+            "creditFP": 2,
+            "rejectFN": 6,
+            "clarificationRate": 0.2826,
+            "ask": 26,
+            "correctImmediate": 0.6304,
+            "correctImmediateN": 58,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 66,
+            "committedAccuracy": 0.8788,
+            "committedPrecision": 0.9048,
+            "committedRecall": 0.76,
+            "tp": 19,
+            "tn": 39
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 2,
+            "rejectFN": 0,
+            "clarificationRate": 0.3333,
+            "ask": 8,
+            "correctImmediate": 0.5833,
+            "correctImmediateN": 14,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 16,
+            "committedAccuracy": 0.875,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 14
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 6,
+            "clarificationRate": 0.5909,
+            "ask": 13,
+            "correctImmediate": 0.1364,
+            "correctImmediateN": 3,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 9,
+            "committedAccuracy": 0.3333,
+            "committedPrecision": 1,
+            "committedRecall": 0.3333,
+            "tp": 3,
+            "tn": 0
+          }
+        }
+      },
+      "temp3a": {
+        "name": "temp3a",
+        "P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 2,
+            "rejectFN": 4,
+            "clarificationRate": 0.5435,
+            "ask": 50,
+            "correctImmediate": 0.3913,
+            "correctImmediateN": 36,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 42,
+            "committedAccuracy": 0.8571,
+            "committedPrecision": 0.8889,
+            "committedRecall": 0.8,
+            "tp": 16,
+            "tn": 20
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 5,
+            "clarificationRate": 0.6111,
+            "ask": 44,
+            "correctImmediate": 0.3194,
+            "correctImmediateN": 23,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "committed": 28,
+            "committedAccuracy": 0.8214,
+            "committedPrecision": 1,
+            "committedRecall": 0.7059,
+            "tp": 12,
+            "tn": 11
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 3,
+            "clarificationRate": 0.7273,
+            "ask": 16,
+            "correctImmediate": 0.1364,
+            "correctImmediateN": 3,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 6,
+            "committedAccuracy": 0.5,
+            "committedPrecision": 1,
+            "committedRecall": 0.5,
+            "tp": 3,
+            "tn": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 2,
+            "rejectFN": 0,
+            "clarificationRate": 0.5,
+            "ask": 12,
+            "correctImmediate": 0.4167,
+            "correctImmediateN": 10,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 12,
+            "committedAccuracy": 0.8333,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 10
+          }
+        },
+        "P1": {
+          "val": {
+            "n": 92,
+            "creditFP": 5,
+            "rejectFN": 6,
+            "clarificationRate": 0.1522,
+            "ask": 14,
+            "correctImmediate": 0.7283,
+            "correctImmediateN": 67,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 78,
+            "committedAccuracy": 0.859,
+            "committedPrecision": 0.8387,
+            "committedRecall": 0.8125,
+            "tp": 26,
+            "tn": 41
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 5,
+            "rejectFN": 7,
+            "clarificationRate": 0.1806,
+            "ask": 13,
+            "correctImmediate": 0.6111,
+            "correctImmediateN": 44,
+            "uncertainGoldAskRate": 0.375,
+            "uncertainN": 8,
+            "committed": 59,
+            "committedAccuracy": 0.7458,
+            "committedPrecision": 0.8438,
+            "committedRecall": 0.7941,
+            "tp": 27,
+            "tn": 17
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 7,
+            "clarificationRate": 0.1364,
+            "ask": 3,
+            "correctImmediate": 0.5455,
+            "correctImmediateN": 12,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 19,
+            "committedAccuracy": 0.6316,
+            "committedPrecision": 1,
+            "committedRecall": 0.6316,
+            "tp": 12,
+            "tn": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 8,
+            "rejectFN": 0,
+            "clarificationRate": 0.0417,
+            "ask": 1,
+            "correctImmediate": 0.625,
+            "correctImmediateN": 15,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 23,
+            "committedAccuracy": 0.6522,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 15
+          }
+        },
+        "P2": {
+          "val": {
+            "n": 92,
+            "creditFP": 2,
+            "rejectFN": 6,
+            "clarificationRate": 0.2935,
+            "ask": 27,
+            "correctImmediate": 0.6196,
+            "correctImmediateN": 57,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 65,
+            "committedAccuracy": 0.8769,
+            "committedPrecision": 0.8889,
+            "committedRecall": 0.7273,
+            "tp": 16,
+            "tn": 41
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 2,
+            "rejectFN": 0,
+            "clarificationRate": 0.2917,
+            "ask": 7,
+            "correctImmediate": 0.625,
+            "correctImmediateN": 15,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 17,
+            "committedAccuracy": 0.8824,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 15
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 7,
+            "clarificationRate": 0.5455,
+            "ask": 12,
+            "correctImmediate": 0.1364,
+            "correctImmediateN": 3,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 10,
+            "committedAccuracy": 0.3,
+            "committedPrecision": 1,
+            "committedRecall": 0.3,
+            "tp": 3,
+            "tn": 0
+          }
+        }
+      },
+      "plattAe": {
+        "name": "plattAe",
+        "P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 1,
+            "rejectFN": 3,
+            "clarificationRate": 0.3696,
+            "ask": 34,
+            "correctImmediate": 0.587,
+            "correctImmediateN": 54,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 58,
+            "committedAccuracy": 0.931,
+            "committedPrecision": 0.96,
+            "committedRecall": 0.8889,
+            "tp": 24,
+            "tn": 30
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 2,
+            "rejectFN": 3,
+            "clarificationRate": 0.4583,
+            "ask": 33,
+            "correctImmediate": 0.4583,
+            "correctImmediateN": 33,
+            "uncertainGoldAskRate": 0.75,
+            "uncertainN": 8,
+            "committed": 39,
+            "committedAccuracy": 0.8462,
+            "committedPrecision": 0.8889,
+            "committedRecall": 0.8421,
+            "tp": 16,
+            "tn": 17
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 6,
+            "clarificationRate": 0.4091,
+            "ask": 9,
+            "correctImmediate": 0.3182,
+            "correctImmediateN": 7,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 13,
+            "committedAccuracy": 0.5385,
+            "committedPrecision": 1,
+            "committedRecall": 0.5385,
+            "tp": 7,
+            "tn": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 3,
+            "rejectFN": 0,
+            "clarificationRate": 0.2917,
+            "ask": 7,
+            "correctImmediate": 0.5833,
+            "correctImmediateN": 14,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 17,
+            "committedAccuracy": 0.8235,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 14
+          }
+        },
+        "P1": {
+          "val": {
+            "n": 92,
+            "creditFP": 1,
+            "rejectFN": 3,
+            "clarificationRate": 0.337,
+            "ask": 31,
+            "correctImmediate": 0.6196,
+            "correctImmediateN": 57,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 61,
+            "committedAccuracy": 0.9344,
+            "committedPrecision": 0.9615,
+            "committedRecall": 0.8929,
+            "tp": 25,
+            "tn": 32
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 3,
+            "rejectFN": 3,
+            "clarificationRate": 0.3194,
+            "ask": 23,
+            "correctImmediate": 0.5694,
+            "correctImmediateN": 41,
+            "uncertainGoldAskRate": 0.5,
+            "uncertainN": 8,
+            "committed": 49,
+            "committedAccuracy": 0.8367,
+            "committedPrecision": 0.875,
+            "committedRecall": 0.875,
+            "tp": 21,
+            "tn": 20
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 7,
+            "clarificationRate": 0.2273,
+            "ask": 5,
+            "correctImmediate": 0.4545,
+            "correctImmediateN": 10,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 17,
+            "committedAccuracy": 0.5882,
+            "committedPrecision": 1,
+            "committedRecall": 0.5882,
+            "tp": 10,
+            "tn": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 4,
+            "rejectFN": 0,
+            "clarificationRate": 0.2083,
+            "ask": 5,
+            "correctImmediate": 0.625,
+            "correctImmediateN": 15,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 19,
+            "committedAccuracy": 0.7895,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 15
+          }
+        },
+        "P2": {
+          "val": {
+            "n": 92,
+            "creditFP": 1,
+            "rejectFN": 3,
+            "clarificationRate": 0.3478,
+            "ask": 32,
+            "correctImmediate": 0.6087,
+            "correctImmediateN": 56,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 60,
+            "committedAccuracy": 0.9333,
+            "committedPrecision": 0.96,
+            "committedRecall": 0.8889,
+            "tp": 24,
+            "tn": 32
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 3,
+            "rejectFN": 0,
+            "clarificationRate": 0.25,
+            "ask": 6,
+            "correctImmediate": 0.625,
+            "correctImmediateN": 15,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 18,
+            "committedAccuracy": 0.8333,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 15
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 7,
+            "clarificationRate": 0.3636,
+            "ask": 8,
+            "correctImmediate": 0.3182,
+            "correctImmediateN": 7,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 14,
+            "committedAccuracy": 0.5,
+            "committedPrecision": 1,
+            "committedRecall": 0.5,
+            "tp": 7,
+            "tn": 0
+          }
+        }
+      },
+      "bothPlatt": {
+        "name": "bothPlatt",
+        "P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 3,
+            "rejectFN": 6,
+            "clarificationRate": 0.1739,
+            "ask": 16,
+            "correctImmediate": 0.7283,
+            "correctImmediateN": 67,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 76,
+            "committedAccuracy": 0.8816,
+            "committedPrecision": 0.9091,
+            "committedRecall": 0.8333,
+            "tp": 30,
+            "tn": 37
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 2,
+            "rejectFN": 7,
+            "clarificationRate": 0.3333,
+            "ask": 24,
+            "correctImmediate": 0.5139,
+            "correctImmediateN": 37,
+            "uncertainGoldAskRate": 0.625,
+            "uncertainN": 8,
+            "committed": 48,
+            "committedAccuracy": 0.7708,
+            "committedPrecision": 0.9091,
+            "committedRecall": 0.7407,
+            "tp": 20,
+            "tn": 17
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 6,
+            "clarificationRate": 0.3636,
+            "ask": 8,
+            "correctImmediate": 0.3636,
+            "correctImmediateN": 8,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 14,
+            "committedAccuracy": 0.5714,
+            "committedPrecision": 1,
+            "committedRecall": 0.5714,
+            "tp": 8,
+            "tn": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 4,
+            "rejectFN": 0,
+            "clarificationRate": 0.25,
+            "ask": 6,
+            "correctImmediate": 0.5833,
+            "correctImmediateN": 14,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 18,
+            "committedAccuracy": 0.7778,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 14
+          }
+        },
+        "P1": {
+          "val": {
+            "n": 92,
+            "creditFP": 6,
+            "rejectFN": 6,
+            "clarificationRate": 0.1087,
+            "ask": 10,
+            "correctImmediate": 0.7609,
+            "correctImmediateN": 70,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 82,
+            "committedAccuracy": 0.8537,
+            "committedPrecision": 0.8378,
+            "committedRecall": 0.8378,
+            "tp": 31,
+            "tn": 39
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 4,
+            "rejectFN": 7,
+            "clarificationRate": 0.1389,
+            "ask": 10,
+            "correctImmediate": 0.6667,
+            "correctImmediateN": 48,
+            "uncertainGoldAskRate": 0.25,
+            "uncertainN": 8,
+            "committed": 62,
+            "committedAccuracy": 0.7742,
+            "committedPrecision": 0.875,
+            "committedRecall": 0.8,
+            "tp": 28,
+            "tn": 20
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 7,
+            "clarificationRate": 0.1818,
+            "ask": 4,
+            "correctImmediate": 0.5,
+            "correctImmediateN": 11,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 18,
+            "committedAccuracy": 0.6111,
+            "committedPrecision": 1,
+            "committedRecall": 0.6111,
+            "tp": 11,
+            "tn": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 7,
+            "rejectFN": 0,
+            "clarificationRate": 0.0417,
+            "ask": 1,
+            "correctImmediate": 0.6667,
+            "correctImmediateN": 16,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 23,
+            "committedAccuracy": 0.6957,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 16
+          }
+        },
+        "P2": {
+          "val": {
+            "n": 92,
+            "creditFP": 3,
+            "rejectFN": 6,
+            "clarificationRate": 0.1522,
+            "ask": 14,
+            "correctImmediate": 0.75,
+            "correctImmediateN": 69,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 78,
+            "committedAccuracy": 0.8846,
+            "committedPrecision": 0.9091,
+            "committedRecall": 0.8333,
+            "tp": 30,
+            "tn": 39
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 4,
+            "rejectFN": 0,
+            "clarificationRate": 0.1667,
+            "ask": 4,
+            "correctImmediate": 0.6667,
+            "correctImmediateN": 16,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 20,
+            "committedAccuracy": 0.8,
+            "committedPrecision": 0,
+            "committedRecall": null,
+            "tp": 0,
+            "tn": 16
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 7,
+            "clarificationRate": 0.3182,
+            "ask": 7,
+            "correctImmediate": 0.3636,
+            "correctImmediateN": 8,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "committed": 15,
+            "committedAccuracy": 0.5333,
+            "committedPrecision": 1,
+            "committedRecall": 0.5333,
+            "tp": 8,
+            "tn": 0
+          }
+        }
+      }
+    }
+  },
+  "attribution": {
+    "val": {
+      "AE_POS+3A_DEV": 16,
+      "AE_uncertain+3A_DEV": 10,
+      "AE_POS+3A_UNC": 20,
+      "AE_uncertain+3A_NON": 20,
+      "AE_POS+3A_NON": 13,
+      "AE_uncertain+3A_UNC": 12,
+      "AE_confident_negative": 1
+    },
+    "v1": {
+      "AE_uncertain+3A_DEV": 16,
+      "AE_uncertain+3A_UNC": 14,
+      "AE_POS+3A_UNC": 9,
+      "AE_POS+3A_DEV": 10,
+      "structural": 4,
+      "AE_uncertain+3A_NON": 7,
+      "AE_POS+3A_NON": 5,
+      "deterministic_invalid": 2,
+      "AE_confident_negative": 5
+    },
+    "stress": {
+      "AE_POS+3A_NON": 1,
+      "AE_confident_negative": 1,
+      "AE_uncertain+3A_UNC": 6,
+      "AE_uncertain+3A_NON": 10,
+      "structural": 1,
+      "AE_uncertain+3A_DEV": 8,
+      "AE_POS+3A_UNC": 2,
+      "AE_POS+3A_DEV": 5,
+      "deterministic_invalid": 3
+    },
+    "aux": {
+      "AE_confident_negative": 11,
+      "AE_uncertain+3A_DEV": 11,
+      "AE_POS+3A_DEV": 5,
+      "AE_uncertain+3A_NON": 21,
+      "AE_POS+3A_UNC": 4,
+      "AE_uncertain+3A_UNC": 8,
+      "structural": 8,
+      "AE_POS+3A_NON": 2
+    },
+    "fc": {
+      "AE_uncertain+3A_DEV": 4,
+      "AE_uncertain+3A_UNC": 5,
+      "AE_uncertain+3A_NON": 3,
+      "AE_POS+3A_DEV": 1,
+      "AE_POS+3A_NON": 4,
+      "AE_confident_negative": 5,
+      "deterministic_invalid": 1,
+      "AE_POS+3A_UNC": 1
+    },
+    "sv": {
+      "AE_uncertain+3A_UNC": 4,
+      "AE_POS+3A_NON": 2,
+      "AE_confident_negative": 1,
+      "AE_uncertain+3A_DEV": 9,
+      "AE_uncertain+3A_NON": 3,
+      "AE_POS+3A_DEV": 2,
+      "AE_POS+3A_UNC": 1
+    }
+  },
+  "aeUncBreakdown": {
+    "n": 42,
+    "threeA_NON": 20,
+    "threeA_DEV": 10,
+    "threeA_UNC": 12,
+    "goldDev": 15,
+    "goldNon": 27,
+    "threeA_DEV_but_goldNon": [],
+    "threeA_NON_but_goldDev": [
+      {
+        "id": "DV-0033",
+        "text": "figured out how this old shirt actually sits on me",
+        "pDev": 0.4055,
+        "pAction": 0.4818
+      },
+      {
+        "id": "DV-0098",
+        "text": "anki for anatomy until i stopped peeking at the back",
+        "pDev": 0.4337,
+        "pAction": 0.4596
+      }
+    ]
+  },
+  "negationReport": [
+    {
+      "id": "NP-GYM",
+      "done": {
+        "text": "I went to the gym",
+        "pAction": 0.5642,
+        "pDev": 0.3826,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false
+      },
+      "negated": {
+        "text": "I didn't go to the gym",
+        "pAction": 0.5333,
+        "pDev": 0.4178,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0308,
+        "dPDev": 0.0352
+      },
+      "future": {
+        "text": "I'll go to the gym tomorrow",
+        "pAction": 0.506,
+        "pDev": 0.5294,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0582,
+        "dPDev": 0.1468
+      },
+      "almost": {
+        "text": "I almost went to the gym",
+        "pAction": 0.5327,
+        "pDev": 0.408,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0315,
+        "dPDev": 0.0254
+      }
+    },
+    {
+      "id": "NP-STUDY",
+      "done": {
+        "text": "I studied calculus",
+        "pAction": 0.4501,
+        "pDev": 0.5244,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false
+      },
+      "negated": {
+        "text": "I didn't study calculus",
+        "pAction": 0.427,
+        "pDev": 0.5094,
+        "P0": "REJECT",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "REJECT",
+        "structural": false,
+        "dPAction": -0.0231,
+        "dPDev": -0.015
+      },
+      "future": {
+        "text": "I'll study calculus tomorrow",
+        "pAction": 0.4431,
+        "pDev": 0.5274,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.007,
+        "dPDev": 0.003
+      },
+      "almost": {
+        "text": "I almost studied calculus",
+        "pAction": 0.3739,
+        "pDev": 0.5488,
+        "P0": "REJECT",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "REJECT",
+        "structural": false,
+        "dPAction": -0.0762,
+        "dPDev": 0.0244
+      }
+    },
+    {
+      "id": "NP-APPLY",
+      "done": {
+        "text": "I submitted the internship application",
+        "pAction": 0.606,
+        "pDev": 0.4375,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false
+      },
+      "negated": {
+        "text": "I didn't submit the internship application",
+        "pAction": 0.6221,
+        "pDev": 0.3883,
+        "P0": "REJECT",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "REJECT",
+        "structural": false,
+        "dPAction": 0.0161,
+        "dPDev": -0.0492
+      },
+      "future": {
+        "text": "I'll submit the internship application tomorrow",
+        "pAction": 0.5267,
+        "pDev": 0.4783,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0793,
+        "dPDev": 0.0408
+      },
+      "almost": {
+        "text": "I almost submitted the internship application",
+        "pAction": 0.585,
+        "pDev": 0.4356,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0211,
+        "dPDev": -0.0018
+      }
+    },
+    {
+      "id": "NP-COOK",
+      "done": {
+        "text": "I cooked dinner",
+        "pAction": 0.6092,
+        "pDev": 0.4512,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false
+      },
+      "negated": {
+        "text": "I didn't cook dinner",
+        "pAction": 0.5982,
+        "pDev": 0.4239,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0109,
+        "dPDev": -0.0273
+      },
+      "future": {
+        "text": "I'll cook dinner tomorrow",
+        "pAction": 0.4824,
+        "pDev": 0.5125,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.1268,
+        "dPDev": 0.0613
+      },
+      "almost": {
+        "text": "I almost cooked dinner",
+        "pAction": 0.5107,
+        "pDev": 0.4709,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0985,
+        "dPDev": 0.0197
+      }
+    },
+    {
+      "id": "NP-MED",
+      "done": {
+        "text": "I meditated",
+        "pAction": null,
+        "pDev": 0.5787,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": true
+      },
+      "negated": {
+        "text": "I didn't meditate",
+        "pAction": 0.4576,
+        "pDev": 0.5148,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": null,
+        "dPDev": -0.0639
+      },
+      "future": {
+        "text": "I'll meditate tomorrow",
+        "pAction": 0.3898,
+        "pDev": 0.5882,
+        "P0": "REJECT",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "REJECT",
+        "structural": false,
+        "dPAction": null,
+        "dPDev": 0.0095
+      },
+      "almost": {
+        "text": "I almost meditated",
+        "pAction": 0.4468,
+        "pDev": 0.5751,
+        "P0": "ASK",
+        "P1": "CREDIT",
+        "P2": "ASK",
+        "P3": "CREDIT",
+        "structural": false,
+        "dPAction": null,
+        "dPDev": -0.0037
+      }
+    },
+    {
+      "id": "NP-PRAY",
+      "done": {
+        "text": "I prayed",
+        "pAction": null,
+        "pDev": 0.5038,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": true
+      },
+      "negated": {
+        "text": "I didn't pray",
+        "pAction": 0.4177,
+        "pDev": 0.4811,
+        "P0": "REJECT",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "REJECT",
+        "structural": false,
+        "dPAction": null,
+        "dPDev": -0.0227
+      },
+      "future": {
+        "text": "I'll pray tomorrow",
+        "pAction": 0.4109,
+        "pDev": 0.5253,
+        "P0": "REJECT",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "REJECT",
+        "structural": false,
+        "dPAction": null,
+        "dPDev": 0.0215
+      },
+      "almost": {
+        "text": "I almost prayed",
+        "pAction": 0.397,
+        "pDev": 0.5417,
+        "P0": "REJECT",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "REJECT",
+        "structural": false,
+        "dPAction": null,
+        "dPDev": 0.0379
+      }
+    },
+    {
+      "id": "NP-BUDGET",
+      "done": {
+        "text": "I logged my spending",
+        "pAction": 0.4944,
+        "pDev": 0.3055,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false
+      },
+      "negated": {
+        "text": "I didn't log my spending",
+        "pAction": 0.5519,
+        "pDev": 0.2946,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": 0.0574,
+        "dPDev": -0.0109
+      },
+      "future": {
+        "text": "I'll log my spending tomorrow",
+        "pAction": 0.5076,
+        "pDev": 0.3951,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": 0.0132,
+        "dPDev": 0.0896
+      },
+      "almost": {
+        "text": "I almost logged my spending",
+        "pAction": 0.5328,
+        "pDev": 0.32,
+        "P0": "ASK",
+        "P1": "REJECT",
+        "P2": "REJECT",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": 0.0383,
+        "dPDev": 0.0145
+      }
+    },
+    {
+      "id": "NP-SKIN",
+      "done": {
+        "text": "I did my skincare routine",
+        "pAction": 0.602,
+        "pDev": 0.5126,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false
+      },
+      "negated": {
+        "text": "I didn't do my skincare routine",
+        "pAction": 0.5449,
+        "pDev": 0.4863,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.057,
+        "dPDev": -0.0262
+      },
+      "future": {
+        "text": "I'll do my skincare routine tonight",
+        "pAction": 0.5353,
+        "pDev": 0.5385,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0667,
+        "dPDev": 0.0259
+      },
+      "almost": {
+        "text": "I almost did my skincare routine",
+        "pAction": 0.5372,
+        "pDev": 0.5468,
+        "P0": "ASK",
+        "P1": "ASK",
+        "P2": "ASK",
+        "P3": "ASK",
+        "structural": false,
+        "dPAction": -0.0648,
+        "dPDev": 0.0342
+      }
+    }
+  ],
+  "encoderCompare": {
+    "minilm": {
+      "model": "Xenova/all-MiniLM-L6-v2",
+      "dim": 384,
+      "pairs": [
+        {
+          "id": "E-NEG",
+          "kind": "negation",
+          "cosine": 0.821
+        },
+        {
+          "id": "E-FUT",
+          "kind": "intention",
+          "cosine": 0.7104
+        },
+        {
+          "id": "E-ALM",
+          "kind": "almost",
+          "cosine": 0.909
+        },
+        {
+          "id": "E-BUY",
+          "kind": "repair-vs-purchase",
+          "cosine": 0.476
+        },
+        {
+          "id": "E-EAR",
+          "kind": "repair-vs-purchase",
+          "cosine": 0.36
+        },
+        {
+          "id": "E-DEV",
+          "kind": "dev-vs-ordinary",
+          "cosine": 0.3765
+        },
+        {
+          "id": "E-SKIN",
+          "kind": "practice-vs-purchase",
+          "cosine": 0.5337
+        },
+        {
+          "id": "E-WATCH",
+          "kind": "dev-vs-consumption",
+          "cosine": 0.3448
+        }
+      ]
+    },
+    "mpnet": {
+      "model": "Xenova/all-mpnet-base-v2",
+      "dim": 768,
+      "pairs": [
+        {
+          "id": "E-NEG",
+          "kind": "negation",
+          "cosine": 0.7648
+        },
+        {
+          "id": "E-FUT",
+          "kind": "intention",
+          "cosine": 0.6238
+        },
+        {
+          "id": "E-ALM",
+          "kind": "almost",
+          "cosine": 0.8471
+        },
+        {
+          "id": "E-BUY",
+          "kind": "repair-vs-purchase",
+          "cosine": 0.5611
+        },
+        {
+          "id": "E-EAR",
+          "kind": "repair-vs-purchase",
+          "cosine": 0.3059
+        },
+        {
+          "id": "E-DEV",
+          "kind": "dev-vs-ordinary",
+          "cosine": 0.4403
+        },
+        {
+          "id": "E-SKIN",
+          "kind": "practice-vs-purchase",
+          "cosine": 0.5792
+        },
+        {
+          "id": "E-WATCH",
+          "kind": "dev-vs-consumption",
+          "cosine": 0.3762
+        }
+      ]
+    },
+    "bge": {
+      "ok": true,
+      "dim": 384,
+      "ms": 99,
+      "pairs": [
+        {
+          "id": "E-NEG",
+          "kind": "negation",
+          "cosine": 0.8154
+        },
+        {
+          "id": "E-FUT",
+          "kind": "intention",
+          "cosine": 0.8047
+        },
+        {
+          "id": "E-ALM",
+          "kind": "almost",
+          "cosine": 0.9403
+        },
+        {
+          "id": "E-BUY",
+          "kind": "repair-vs-purchase",
+          "cosine": 0.7397
+        },
+        {
+          "id": "E-EAR",
+          "kind": "repair-vs-purchase",
+          "cosine": 0.6114
+        },
+        {
+          "id": "E-DEV",
+          "kind": "dev-vs-ordinary",
+          "cosine": 0.738
+        },
+        {
+          "id": "E-SKIN",
+          "kind": "practice-vs-purchase",
+          "cosine": 0.7485
+        },
+        {
+          "id": "E-WATCH",
+          "kind": "dev-vs-consumption",
+          "cosine": 0.6149
+        }
+      ]
+    },
+    "note": "Cosine on frozen embeddings only. No classifier trained. Lower cosine on contrast pairs is better separation."
+  },
+  "structuralAlt": [
+    {
+      "id": "ST-01",
+      "text": "Journaled",
+      "gold": "DEVELOPMENTAL",
+      "production": "ASK",
+      "experimental": "ml"
+    },
+    {
+      "id": "ST-02",
+      "text": "Meditated",
+      "gold": "DEVELOPMENTAL",
+      "production": "ASK",
+      "experimental": "ml"
+    },
+    {
+      "id": "ST-03",
+      "text": "Prayed",
+      "gold": "DEVELOPMENTAL",
+      "production": "ASK",
+      "experimental": "ml"
+    },
+    {
+      "id": "ST-04",
+      "text": "Ran",
+      "gold": "UNCERTAIN",
+      "production": "ASK",
+      "experimental": "ml"
+    },
+    {
+      "id": "ST-05",
+      "text": "studied",
+      "gold": "UNCERTAIN",
+      "production": "ASK",
+      "experimental": "ASK"
+    },
+    {
+      "id": "ST-06",
+      "text": "asdfghjkl",
+      "gold": "INVALID",
+      "production": "ASK",
+      "experimental": "INVALID"
+    },
+    {
+      "id": "ST-07",
+      "text": "qwerty",
+      "gold": "INVALID",
+      "production": "ASK",
+      "experimental": "INVALID"
+    },
+    {
+      "id": "ST-08",
+      "text": "practice",
+      "gold": "UNCERTAIN",
+      "production": "ASK",
+      "experimental": "ASK"
+    }
+  ],
+  "falseCreditP0toP3": {
+    "P0": {
+      "n": 24,
+      "creditFP": 1,
+      "rejectFN": 0,
+      "clarificationRate": 0.5417,
+      "ask": 13,
+      "correctImmediate": 0.4167,
+      "correctImmediateN": 10,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 11,
+      "committedAccuracy": 0.9091,
+      "committedPrecision": 0,
+      "committedRecall": null,
+      "tp": 0,
+      "tn": 10
+    },
+    "P1": {
+      "n": 24,
+      "creditFP": 5,
+      "rejectFN": 0,
+      "clarificationRate": 0.25,
+      "ask": 6,
+      "correctImmediate": 0.5417,
+      "correctImmediateN": 13,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 18,
+      "committedAccuracy": 0.7222,
+      "committedPrecision": 0,
+      "committedRecall": null,
+      "tp": 0,
+      "tn": 13
+    },
+    "P2": {
+      "n": 24,
+      "creditFP": 1,
+      "rejectFN": 0,
+      "clarificationRate": 0.4167,
+      "ask": 10,
+      "correctImmediate": 0.5417,
+      "correctImmediateN": 13,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 14,
+      "committedAccuracy": 0.9286,
+      "committedPrecision": 0,
+      "committedRecall": null,
+      "tp": 0,
+      "tn": 13
+    },
+    "P3": {
+      "n": 24,
+      "creditFP": 5,
+      "rejectFN": 0,
+      "clarificationRate": 0.375,
+      "ask": 9,
+      "correctImmediate": 0.4167,
+      "correctImmediateN": 10,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 15,
+      "committedAccuracy": 0.6667,
+      "committedPrecision": 0,
+      "committedRecall": null,
+      "tp": 0,
+      "tn": 10
+    },
+    "p1NewCredit": [
+      {
+        "id": "FC-01",
+        "text": "I will start working out next week",
+        "gold": "NON_DEVELOPMENTAL",
+        "from": "ASK",
+        "to": "CREDIT"
+      },
+      {
+        "id": "FC-02",
+        "text": "I'm going to study tonight",
+        "gold": "NON_DEVELOPMENTAL",
+        "from": "ASK",
+        "to": "CREDIT"
+      },
+      {
+        "id": "FC-10",
+        "text": "Ordered new running shoes to get in shape",
+        "gold": "NON_DEVELOPMENTAL",
+        "from": "ASK",
+        "to": "CREDIT"
+      },
+      {
+        "id": "FC-21",
+        "text": "Might cook something healthy later",
+        "gold": "NON_DEVELOPMENTAL",
+        "from": "ASK",
+        "to": "CREDIT"
+      }
+    ],
+    "p3NewCredit": [
+      {
+        "id": "FC-01",
+        "text": "I will start working out next week",
+        "gold": "NON_DEVELOPMENTAL",
+        "from": "ASK",
+        "to": "CREDIT"
+      },
+      {
+        "id": "FC-02",
+        "text": "I'm going to study tonight",
+        "gold": "NON_DEVELOPMENTAL",
+        "from": "ASK",
+        "to": "CREDIT"
+      },
+      {
+        "id": "FC-10",
+        "text": "Ordered new running shoes to get in shape",
+        "gold": "NON_DEVELOPMENTAL",
+        "from": "ASK",
+        "to": "CREDIT"
+      },
+      {
+        "id": "FC-21",
+        "text": "Might cook something healthy later",
+        "gold": "NON_DEVELOPMENTAL",
+        "from": "ASK",
+        "to": "CREDIT"
+      }
+    ]
+  },
+  "shortValid": {
+    "P0": {
+      "n": 22,
+      "creditFP": 0,
+      "rejectFN": 3,
+      "clarificationRate": 0.7727,
+      "ask": 17,
+      "correctImmediate": 0.0909,
+      "correctImmediateN": 2,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 5,
+      "committedAccuracy": 0.4,
+      "committedPrecision": 1,
+      "committedRecall": 0.4,
+      "tp": 2,
+      "tn": 0
+    },
+    "P1": {
+      "n": 22,
+      "creditFP": 0,
+      "rejectFN": 6,
+      "clarificationRate": 0.2273,
+      "ask": 5,
+      "correctImmediate": 0.5,
+      "correctImmediateN": 11,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 17,
+      "committedAccuracy": 0.6471,
+      "committedPrecision": 1,
+      "committedRecall": 0.6471,
+      "tp": 11,
+      "tn": 0
+    },
+    "P2": {
+      "n": 22,
+      "creditFP": 0,
+      "rejectFN": 6,
+      "clarificationRate": 0.6364,
+      "ask": 14,
+      "correctImmediate": 0.0909,
+      "correctImmediateN": 2,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 8,
+      "committedAccuracy": 0.25,
+      "committedPrecision": 1,
+      "committedRecall": 0.25,
+      "tp": 2,
+      "tn": 0
+    },
+    "P3": {
+      "n": 22,
+      "creditFP": 0,
+      "rejectFN": 3,
+      "clarificationRate": 0.3636,
+      "ask": 8,
+      "correctImmediate": 0.5,
+      "correctImmediateN": 11,
+      "uncertainGoldAskRate": null,
+      "uncertainN": 0,
+      "committed": 14,
+      "committedAccuracy": 0.7857,
+      "committedPrecision": 1,
+      "committedRecall": 0.7857,
+      "tp": 11,
+      "tn": 0
+    }
+  }
+}

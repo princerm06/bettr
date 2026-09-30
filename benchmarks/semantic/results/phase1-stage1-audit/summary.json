@@ -1,0 +1,1274 @@
+{
+  "generatedAt": "2026-09-30T06:41:49.963Z",
+  "productionUnchanged": true,
+  "identity": {
+    "developmental": "candidate-developmental-3a.2",
+    "embedding": "Xenova/all-MiniLM-L6-v2",
+    "embeddingDim": 384,
+    "trainCount": 405,
+    "l2": 0.01,
+    "lr": 0.4,
+    "epochs": 400,
+    "productBand": {
+      "nonMax": 0.45,
+      "devMin": 0.55
+    },
+    "actionEvidence": {
+      "tNeg": 0.4407,
+      "tPos": 0.6165,
+      "fingerprint": "ad5fd348f8a99f2514fb461c88cf3c05ff8f36c447f901138541d036c6fde782"
+    },
+    "probe3a2Sha256": "69a7d9c8d8e1ec170b263f908c7463137aa8fa3f7272eb82ffc2f91d913db595"
+  },
+  "datasets": {
+    "developmentalV1": {
+      "n": 591,
+      "train": 405,
+      "val": 92,
+      "auxUncertain": 70,
+      "stressAux": 24,
+      "labels": {
+        "DEVELOPMENTAL": 236,
+        "NON_DEVELOPMENTAL": 285,
+        "UNCERTAIN": 70
+      },
+      "splits": {
+        "train": 405,
+        "val": 92,
+        "aux": 94
+      }
+    },
+    "actionEvidenceV2": {
+      "n": 273,
+      "valBinary": 48,
+      "labels": {
+        "ACTION_POSITIVE": 126,
+        "ACTION_NEGATIVE": 131,
+        "AMBIGUOUS": 16
+      },
+      "splits": {
+        "train": 204,
+        "val": 48,
+        "aux": 16,
+        "exam": 5
+      }
+    },
+    "semanticBenchmarkV1": 72,
+    "stressDiagnostic": 37
+  },
+  "valTwoAxis": {
+    "n": 92,
+    "tp": 15,
+    "tn": 13,
+    "fp": 1,
+    "fn": 1,
+    "clarification": 62,
+    "clarificationRate": 0.6739,
+    "accuracyIgnoringClarification": 0.9333,
+    "precision": 0.9375,
+    "recall": 0.9375,
+    "f1": 0.9375,
+    "exactMatchIncludingUncertain": 0.3043,
+    "clarificationErrorCounts": {
+      "should_accept_but_clarified": 26,
+      "should_reject_but_clarified": 36,
+      "should_clarify_but_accepted": 0,
+      "should_clarify_but_rejected": 0
+    }
+  },
+  "val3aIsolated": {
+    "n": 92,
+    "note": "Isolated MiniLM+3A.2 pDev even when production skipped 3A.2 due to AE/structural.",
+    "productExact": 0.6196,
+    "calibration": {
+      "validMeanP": 0.5758,
+      "invalidMeanP": 0.4215,
+      "validMedian": 0.5842,
+      "invalidMedian": 0.4215,
+      "brier": 0.1843,
+      "bands": {
+        "n": 92,
+        "le045": 33,
+        "mid4555": 32,
+        "ge055": 27,
+        "pctLe045": 0.3587,
+        "pctMid": 0.3478,
+        "pctGe055": 0.2935
+      }
+    }
+  },
+  "thresholdSimulationOnValPDev": [
+    {
+      "lo": 0.4,
+      "hi": 0.6,
+      "tp": 17,
+      "tn": 18,
+      "fp": 0,
+      "fn": 0,
+      "mid": 57,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "fpCostNote": "FP more costly than FN for credit"
+    },
+    {
+      "lo": 0.45,
+      "hi": 0.55,
+      "tp": 26,
+      "tn": 31,
+      "fp": 1,
+      "fn": 2,
+      "mid": 32,
+      "precision": 0.963,
+      "recall": 0.9286,
+      "f1": 0.9455,
+      "fpCostNote": "FP more costly than FN for credit"
+    },
+    {
+      "lo": 0.48,
+      "hi": 0.52,
+      "tp": 28,
+      "tn": 41,
+      "fp": 5,
+      "fn": 5,
+      "mid": 13,
+      "precision": 0.8485,
+      "recall": 0.8485,
+      "f1": 0.8485,
+      "fpCostNote": "FP more costly than FN for credit"
+    },
+    {
+      "lo": 0.5,
+      "hi": 0.5,
+      "tp": 33,
+      "tn": 44,
+      "fp": 6,
+      "fn": 9,
+      "mid": 0,
+      "precision": 0.8462,
+      "recall": 0.7857,
+      "f1": 0.8148,
+      "fpCostNote": "FP more costly than FN for credit"
+    },
+    {
+      "lo": 0.42,
+      "hi": 0.58,
+      "tp": 21,
+      "tn": 24,
+      "fp": 0,
+      "fn": 1,
+      "mid": 46,
+      "precision": 1,
+      "recall": 0.9545,
+      "f1": 0.9767,
+      "fpCostNote": "FP more costly than FN for credit"
+    },
+    {
+      "lo": 0.35,
+      "hi": 0.65,
+      "tp": 7,
+      "tn": 9,
+      "fp": 0,
+      "fn": 0,
+      "mid": 76,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "fpCostNote": "FP more costly than FN for credit"
+    }
+  ],
+  "auxUncertainTwoAxis": {
+    "n": 70,
+    "tp": 0,
+    "tn": 0,
+    "fp": 0,
+    "fn": 0,
+    "clarification": 52,
+    "clarificationRate": 0.7429,
+    "accuracyIgnoringClarification": 0,
+    "precision": null,
+    "recall": null,
+    "f1": null,
+    "exactMatchIncludingUncertain": 0.7429,
+    "clarificationErrorCounts": {
+      "should_accept_but_clarified": 0,
+      "should_reject_but_clarified": 0,
+      "should_clarify_but_accepted": 5,
+      "should_clarify_but_rejected": 13
+    }
+  },
+  "stressAuxTwoAxis": {
+    "n": 24,
+    "tp": 0,
+    "tn": 18,
+    "fp": 0,
+    "fn": 0,
+    "clarification": 6,
+    "clarificationRate": 0.25,
+    "accuracyIgnoringClarification": 1,
+    "precision": null,
+    "recall": null,
+    "f1": null,
+    "exactMatchIncludingUncertain": 0.75,
+    "clarificationErrorCounts": {
+      "should_accept_but_clarified": 0,
+      "should_reject_but_clarified": 6,
+      "should_clarify_but_accepted": 0,
+      "should_clarify_but_rejected": 0
+    }
+  },
+  "v1TwoAxis": {
+    "n": 72,
+    "tp": 10,
+    "tn": 11,
+    "fp": 0,
+    "fn": 1,
+    "clarification": 50,
+    "clarificationRate": 0.6944,
+    "accuracyIgnoringClarification": 0.9545,
+    "precision": 1,
+    "recall": 0.9091,
+    "f1": 0.9524,
+    "exactMatchIncludingUncertain": 0.4028,
+    "clarificationErrorCounts": {
+      "should_accept_but_clarified": 31,
+      "should_reject_but_clarified": 11,
+      "should_clarify_but_accepted": 0,
+      "should_clarify_but_rejected": 0
+    }
+  },
+  "v1Category": {
+    "n": 72,
+    "mismatchDetected": 11,
+    "missedMismatchFamilyE": 0,
+    "missedExpectedSuggestions": 2,
+    "rows": [
+      {
+        "id": "B14",
+        "family": "B_SHORT_COMPLETE",
+        "expectedOutcome": "VALID",
+        "selected": [
+          "Inner Wellbeing"
+        ],
+        "expectedSuggested": [],
+        "suggestedKeys": [
+          "mind"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "mind",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": true,
+        "missedMismatch": false
+      },
+      {
+        "id": "B30",
+        "family": "E_CATEGORY_MISMATCH",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Fashion & Style"
+        ],
+        "expectedSuggested": [
+          "Physical Prowess"
+        ],
+        "suggestedKeys": [
+          "physical"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "physical",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B31",
+        "family": "E_CATEGORY_MISMATCH",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Nutrition & Cooking"
+        ],
+        "expectedSuggested": [
+          "Career"
+        ],
+        "suggestedKeys": [
+          "career"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "career",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B32",
+        "family": "E_CATEGORY_MISMATCH",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Finance"
+        ],
+        "expectedSuggested": [
+          "Academics"
+        ],
+        "suggestedKeys": [
+          "academics"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "academics",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B33",
+        "family": "E_CATEGORY_MISMATCH",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Social"
+        ],
+        "expectedSuggested": [
+          "Nutrition & Cooking"
+        ],
+        "suggestedKeys": [
+          "nutrition"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "nutrition",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B34",
+        "family": "E_CATEGORY_MISMATCH",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Career"
+        ],
+        "expectedSuggested": [
+          "Mind & Craft"
+        ],
+        "suggestedKeys": [
+          "mind"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "mind",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B35",
+        "family": "E_CATEGORY_MISMATCH",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Academics"
+        ],
+        "expectedSuggested": [
+          "Appearance & Self-Care"
+        ],
+        "suggestedKeys": [
+          "appearance"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "appearance",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B36",
+        "family": "E_CATEGORY_MISMATCH",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Physical Prowess"
+        ],
+        "expectedSuggested": [
+          "Finance"
+        ],
+        "suggestedKeys": [
+          "finance"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "finance",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B37",
+        "family": "E_CATEGORY_MISMATCH",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Academics"
+        ],
+        "expectedSuggested": [
+          "Social"
+        ],
+        "suggestedKeys": [
+          "social",
+          "mind"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "social",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B38",
+        "family": "F_MULTI_CATEGORY",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Career"
+        ],
+        "expectedSuggested": [
+          "Social"
+        ],
+        "suggestedKeys": [
+          "mind"
+        ],
+        "mismatch": false,
+        "mismatchAlt": null,
+        "missedExpectedSuggestion": true,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B39",
+        "family": "F_MULTI_CATEGORY",
+        "expectedOutcome": "VALID_WITH_SUGGESTION",
+        "selected": [
+          "Nutrition & Cooking"
+        ],
+        "expectedSuggested": [
+          "Social"
+        ],
+        "suggestedKeys": [],
+        "mismatch": false,
+        "mismatchAlt": null,
+        "missedExpectedSuggestion": true,
+        "unexpectedSuggestion": false,
+        "missedMismatch": false
+      },
+      {
+        "id": "B68",
+        "family": "K_CONTEXT_SENSITIVE",
+        "expectedOutcome": "VALID",
+        "selected": [
+          "Mind & Craft"
+        ],
+        "expectedSuggested": [],
+        "suggestedKeys": [
+          "academics"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "academics",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": true,
+        "missedMismatch": false
+      },
+      {
+        "id": "B71",
+        "family": "K_CONTEXT_SENSITIVE",
+        "expectedOutcome": "VALID",
+        "selected": [
+          "Mind & Craft"
+        ],
+        "expectedSuggested": [],
+        "suggestedKeys": [
+          "physical",
+          "fashion"
+        ],
+        "mismatch": true,
+        "mismatchAlt": "physical",
+        "missedExpectedSuggestion": false,
+        "unexpectedSuggestion": true,
+        "missedMismatch": false
+      }
+    ]
+  },
+  "stressDiagnosticTwoAxis": {
+    "n": 37,
+    "tp": 5,
+    "tn": 4,
+    "fp": 0,
+    "fn": 2,
+    "clarification": 26,
+    "clarificationRate": 0.7027,
+    "accuracyIgnoringClarification": 0.8182,
+    "precision": 1,
+    "recall": 0.7143,
+    "f1": 0.8333,
+    "exactMatchIncludingUncertain": 0.3784,
+    "clarificationErrorCounts": {
+      "should_accept_but_clarified": 10,
+      "should_reject_but_clarified": 11,
+      "should_clarify_but_accepted": 0,
+      "should_clarify_but_rejected": 0
+    }
+  },
+  "actionEvidenceVal": {
+    "n": 48,
+    "goldPos_confidentPos": 22,
+    "goldPos_uncertain": 2,
+    "goldPos_confidentNeg": 0,
+    "goldNeg_confidentPos": 0,
+    "goldNeg_uncertain": 9,
+    "goldNeg_confidentNeg": 15
+  },
+  "representativeFP": [
+    {
+      "id": "DV-0288",
+      "text": "Ordered another pair instead of fixing them",
+      "gold": "NON_DEVELOPMENTAL",
+      "familyId": "craft.solder_repair_vs_buy_earbuds",
+      "domain": "Mind & Craft",
+      "pDev": 0.573,
+      "pAction": 0.6583,
+      "status3a": "DEVELOPMENTAL",
+      "actionBand": "CONFIDENT_ACTION_POSITIVE",
+      "structuralFirstPass": false,
+      "deterministicInvalid": false,
+      "twoAxisStatus": "DEVELOPMENTAL",
+      "twoAxisReason": "CREDIT"
+    }
+  ],
+  "representativeFN": [
+    {
+      "id": "DV-0318",
+      "text": "box breathing after that convo. 4-4-4-4",
+      "gold": "DEVELOPMENTAL",
+      "familyId": "wellbeing.box_breathing_vs_stare",
+      "domain": "Inner Wellbeing",
+      "pDev": 0.5553,
+      "pAction": 0.4028,
+      "status3a": "DEVELOPMENTAL",
+      "actionBand": "CONFIDENT_ACTION_NEGATIVE",
+      "structuralFirstPass": false,
+      "deterministicInvalid": false,
+      "twoAxisStatus": "NON_DEVELOPMENTAL",
+      "twoAxisReason": "NO_CREDIT_ACTION_EVIDENCE"
+    }
+  ],
+  "v1Mismatches": [
+    {
+      "id": "B01",
+      "text": "Studied calculus",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5564,
+      "pAction": 0.506,
+      "taxonomy": "A_NORMAL_VALID"
+    },
+    {
+      "id": "B02",
+      "text": "Did my morning skincare routine",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4754,
+      "pAction": 0.5708,
+      "taxonomy": "A_NORMAL_VALID"
+    },
+    {
+      "id": "B03",
+      "text": "Practiced guitar",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6141,
+      "pAction": 0.554,
+      "taxonomy": "A_NORMAL_VALID"
+    },
+    {
+      "id": "B04",
+      "text": "Went to the gym and did my push workout",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4762,
+      "pAction": 0.695,
+      "taxonomy": "A_NORMAL_VALID"
+    },
+    {
+      "id": "B05",
+      "text": "Updated my resume",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4934,
+      "pAction": 0.6757,
+      "taxonomy": "A_NORMAL_VALID"
+    },
+    {
+      "id": "B06",
+      "text": "Cooked dinner instead of ordering food",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5141,
+      "pAction": 0.6918,
+      "taxonomy": "A_NORMAL_VALID"
+    },
+    {
+      "id": "B07",
+      "text": "Reviewed my monthly spending",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4694,
+      "pAction": 0.6431,
+      "taxonomy": "A_NORMAL_VALID"
+    },
+    {
+      "id": "B08",
+      "text": "Meditated before bed",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5943,
+      "pAction": 0.5539,
+      "taxonomy": "A_NORMAL_VALID"
+    },
+    {
+      "id": "B09",
+      "text": "Watched 6 ochem videos",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5458,
+      "pAction": 0.5208,
+      "taxonomy": "B_SHORT_COMPLETE"
+    },
+    {
+      "id": "B11",
+      "text": "Applied to 3 internships",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5627,
+      "pAction": 0.5656,
+      "taxonomy": "B_SHORT_COMPLETE"
+    },
+    {
+      "id": "B12",
+      "text": "Meal prepped",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4925,
+      "pAction": 0.5829,
+      "taxonomy": "B_SHORT_COMPLETE"
+    },
+    {
+      "id": "B13",
+      "text": "Practiced Spanish",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5922,
+      "pAction": 0.5683,
+      "taxonomy": "B_SHORT_COMPLETE"
+    },
+    {
+      "id": "B14",
+      "text": "Journaled",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "STRUCTURAL_FIRST_PASS",
+      "pDev": 0.4902,
+      "pAction": null,
+      "taxonomy": "B_SHORT_COMPLETE"
+    },
+    {
+      "id": "B16",
+      "text": "Ran 5 miles in 43 minutes",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5933,
+      "pAction": 0.542,
+      "taxonomy": "C_STRONG_EVIDENCE"
+    },
+    {
+      "id": "B17",
+      "text": "Applied to 8 SWE internships and tailored my resume for 3 of them",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6077,
+      "pAction": 0.5737,
+      "taxonomy": "C_STRONG_EVIDENCE"
+    },
+    {
+      "id": "B20",
+      "text": "Reviewed my August spending and created a $300 grocery budget for September",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4691,
+      "pAction": 0.6287,
+      "taxonomy": "C_STRONG_EVIDENCE"
+    },
+    {
+      "id": "B21",
+      "text": "Completed my full skincare routine",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5455,
+      "pAction": 0.5455,
+      "taxonomy": "C_STRONG_EVIDENCE"
+    },
+    {
+      "id": "B22",
+      "text": "Completed my morning skincare routine every day this week",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5158,
+      "pAction": 0.5387,
+      "taxonomy": "C_STRONG_EVIDENCE"
+    },
+    {
+      "id": "B30",
+      "text": "Ran 5 miles",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5272,
+      "pAction": 0.7006,
+      "taxonomy": "E_CATEGORY_MISMATCH"
+    },
+    {
+      "id": "B31",
+      "text": "Updated my resume",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4934,
+      "pAction": 0.6757,
+      "taxonomy": "E_CATEGORY_MISMATCH"
+    },
+    {
+      "id": "B32",
+      "text": "Studied for my chemistry exam",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5267,
+      "pAction": 0.6742,
+      "taxonomy": "E_CATEGORY_MISMATCH"
+    },
+    {
+      "id": "B35",
+      "text": "Did my skincare routine",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4976,
+      "pAction": 0.5608,
+      "taxonomy": "E_CATEGORY_MISMATCH"
+    },
+    {
+      "id": "B36",
+      "text": "Reviewed my credit card spending",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4568,
+      "pAction": 0.6,
+      "taxonomy": "E_CATEGORY_MISMATCH"
+    },
+    {
+      "id": "B37",
+      "text": "Practiced starting conversations with new people",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6051,
+      "pAction": 0.5024,
+      "taxonomy": "E_CATEGORY_MISMATCH"
+    },
+    {
+      "id": "B38",
+      "text": "Went to a career fair and practiced introducing myself to recruiters",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5242,
+      "pAction": 0.5728,
+      "taxonomy": "F_MULTI_CATEGORY"
+    },
+    {
+      "id": "B42",
+      "text": "Went on a group run with my running club",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4571,
+      "pAction": 0.6352,
+      "taxonomy": "F_MULTI_CATEGORY"
+    },
+    {
+      "id": "B43",
+      "text": "Designed three outfits for upcoming business-casual events",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5727,
+      "pAction": 0.4529,
+      "taxonomy": "F_MULTI_CATEGORY"
+    },
+    {
+      "id": "B45",
+      "text": "Ordered Chipotle",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.41,
+      "pAction": 0.5655,
+      "taxonomy": "G_NON_DEVELOPMENTAL"
+    },
+    {
+      "id": "B49",
+      "text": "Opened LeetCode",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.3502,
+      "pAction": 0.546,
+      "taxonomy": "G_NON_DEVELOPMENTAL"
+    },
+    {
+      "id": "B50",
+      "text": "Checked my bank account",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.2802,
+      "pAction": 0.6133,
+      "taxonomy": "G_NON_DEVELOPMENTAL"
+    },
+    {
+      "id": "B51",
+      "text": "Scrolled LinkedIn",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4353,
+      "pAction": 0.594,
+      "taxonomy": "G_NON_DEVELOPMENTAL"
+    },
+    {
+      "id": "B52",
+      "text": "asdfghjkl",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "STRUCTURAL_FIRST_PASS",
+      "pDev": 0.51,
+      "pAction": null,
+      "taxonomy": "H_JUNK"
+    },
+    {
+      "id": "B53",
+      "text": "good good good good good",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "INVALID",
+      "reason": "INVALID",
+      "pDev": null,
+      "pAction": null,
+      "taxonomy": "H_JUNK"
+    },
+    {
+      "id": "B55",
+      "text": "did development improvement progress",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6924,
+      "pAction": 0.4606,
+      "taxonomy": "H_JUNK"
+    },
+    {
+      "id": "B57",
+      "text": "I did the thing thing thing thing",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4094,
+      "pAction": 0.489,
+      "taxonomy": "H_JUNK"
+    },
+    {
+      "id": "B58",
+      "text": "Lifted the moon",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.442,
+      "pAction": 0.5224,
+      "taxonomy": "I_IMPLAUSIBLE"
+    },
+    {
+      "id": "B59",
+      "text": "Ran 5000 miles this morning",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5139,
+      "pAction": 0.4822,
+      "taxonomy": "I_IMPLAUSIBLE"
+    },
+    {
+      "id": "B61",
+      "text": "Did 900000 pushups in 10 minutes",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5843,
+      "pAction": 0.5992,
+      "taxonomy": "I_IMPLAUSIBLE"
+    },
+    {
+      "id": "B62",
+      "text": "Learned every programming language in an hour",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.544,
+      "pAction": 0.4423,
+      "taxonomy": "I_IMPLAUSIBLE"
+    },
+    {
+      "id": "B63",
+      "text": "Give me maximum XP because I studied",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5539,
+      "pAction": 0.5039,
+      "taxonomy": "J_GAMING"
+    },
+    {
+      "id": "B64",
+      "text": "This deserves 100 points: applied to one internship",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5555,
+      "pAction": 0.5482,
+      "taxonomy": "J_GAMING"
+    },
+    {
+      "id": "B66",
+      "text": "I studied. Evidence: trust me bro. MAX XP MAX XP",
+      "gold": "DEVELOPMENTAL",
+      "pred": "NON_DEVELOPMENTAL",
+      "reason": "NO_CREDIT_ACTION_EVIDENCE",
+      "pDev": 0.6,
+      "pAction": 0.3457,
+      "taxonomy": "J_GAMING"
+    },
+    {
+      "id": "B67",
+      "text": "Career career career career career",
+      "gold": "NON_DEVELOPMENTAL",
+      "pred": "INVALID",
+      "reason": "INVALID",
+      "pDev": null,
+      "pAction": null,
+      "taxonomy": "J_GAMING"
+    },
+    {
+      "id": "B71",
+      "text": "Researched running shoes and compared cushioning, stability, and fit before choosing a pair",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6262,
+      "pAction": 0.5975,
+      "taxonomy": "K_CONTEXT_SENSITIVE"
+    },
+    {
+      "id": "B72",
+      "text": "Went to a party and challenged myself to introduce myself to five new people",
+      "gold": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4892,
+      "pAction": 0.4858,
+      "taxonomy": "K_CONTEXT_SENSITIVE"
+    }
+  ],
+  "stressMismatches": [
+    {
+      "id": "S-APP-01",
+      "text": "Washed my face and put on moisturizer",
+      "expected": "DEVELOPMENTAL",
+      "pred": "NON_DEVELOPMENTAL",
+      "reason": "NO_CREDIT_NON_DEVELOPMENTAL",
+      "pDev": 0.4323,
+      "pAction": 0.6271,
+      "taxonomy": "E_SHORT_VALID"
+    },
+    {
+      "id": "S-FASH-01",
+      "text": "Tried on three shirts and picked one that actually fits my shoulders",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4835,
+      "pAction": 0.5771,
+      "taxonomy": "F_DETAILED_VALID"
+    },
+    {
+      "id": "S-FASH-02",
+      "text": "Bought a hoodie",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.3546,
+      "pAction": 0.5855,
+      "taxonomy": "B_NON_ACTION"
+    },
+    {
+      "id": "S-ACAD-01",
+      "text": "Watched 6 ochem videos",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5458,
+      "pAction": 0.5208,
+      "taxonomy": "E_SHORT_VALID"
+    },
+    {
+      "id": "S-ACAD-03",
+      "text": "almost studied but didn't",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5838,
+      "pAction": 0.5854,
+      "taxonomy": "K_NEGATION"
+    },
+    {
+      "id": "S-ACAD-04",
+      "text": "I will finish the problem set tomorrow",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6216,
+      "pAction": 0.566,
+      "taxonomy": "L_INTENTION"
+    },
+    {
+      "id": "S-CAR-01",
+      "text": "Submitted two internship applications",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5298,
+      "pAction": 0.6643,
+      "taxonomy": "E_SHORT_VALID"
+    },
+    {
+      "id": "S-CAR-02",
+      "text": "Scrolled LinkedIn",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4353,
+      "pAction": 0.594,
+      "taxonomy": "B_NON_ACTION"
+    },
+    {
+      "id": "S-FIN-01",
+      "text": "Logged this week’s spending in my budget sheet",
+      "expected": "DEVELOPMENTAL",
+      "pred": "NON_DEVELOPMENTAL",
+      "reason": "NO_CREDIT_NON_DEVELOPMENTAL",
+      "pDev": 0.4365,
+      "pAction": 0.6177,
+      "taxonomy": "F_DETAILED_VALID"
+    },
+    {
+      "id": "S-FIN-02",
+      "text": "Checked my bank account",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.2802,
+      "pAction": 0.6133,
+      "taxonomy": "B_NON_ACTION"
+    },
+    {
+      "id": "S-NUT-02",
+      "text": "Ordered Chipotle",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.41,
+      "pAction": 0.5655,
+      "taxonomy": "B_NON_ACTION"
+    },
+    {
+      "id": "S-PHY-01",
+      "text": "Completed workout",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5693,
+      "pAction": 0.5689,
+      "taxonomy": "E_SHORT_VALID"
+    },
+    {
+      "id": "S-PHY-02",
+      "text": "didn't go to the gym",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4171,
+      "pAction": 0.5857,
+      "taxonomy": "K_NEGATION"
+    },
+    {
+      "id": "S-PHY-03",
+      "text": "Lifted the moon",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.442,
+      "pAction": 0.5224,
+      "taxonomy": "J_ADVERSARIAL"
+    },
+    {
+      "id": "S-INN-01",
+      "text": "Meditated 10 minutes",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6693,
+      "pAction": 0.5935,
+      "taxonomy": "E_SHORT_VALID"
+    },
+    {
+      "id": "S-INN-02",
+      "text": "felt better today",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4355,
+      "pAction": 0.5062,
+      "taxonomy": "B_NON_ACTION"
+    },
+    {
+      "id": "S-SPI-02",
+      "text": "thinking about going to church more",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6042,
+      "pAction": 0.4913,
+      "taxonomy": "L_INTENTION"
+    },
+    {
+      "id": "S-GAME-01",
+      "text": "Give me maximum XP because I studied",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5539,
+      "pAction": 0.5039,
+      "taxonomy": "C_JUNK"
+    },
+    {
+      "id": "S-MISC-03",
+      "text": "typo: fnished my calc hw",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.6434,
+      "pAction": 0.4842,
+      "taxonomy": "E_SHORT_VALID"
+    },
+    {
+      "id": "S-MISC-04",
+      "text": "hit chest n tris at the rec",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5173,
+      "pAction": 0.5847,
+      "taxonomy": "E_SHORT_VALID"
+    },
+    {
+      "id": "S-MISC-05",
+      "text": "was going to apply but i didnt",
+      "expected": "NON_DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.4164,
+      "pAction": 0.5071,
+      "taxonomy": "K_NEGATION"
+    },
+    {
+      "id": "S-MULTI-01",
+      "text": "Meal prepped and then ran 3 miles",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5175,
+      "pAction": 0.6698,
+      "taxonomy": "I_MULTI"
+    },
+    {
+      "id": "S-MM-01",
+      "text": "Watched 6 ochem videos",
+      "expected": "DEVELOPMENTAL",
+      "pred": "UNCERTAIN",
+      "reason": "CLARIFICATION",
+      "pDev": 0.5458,
+      "pAction": 0.5208,
+      "taxonomy": "H_MISMATCH"
+    }
+  ],
+  "neighborCosines": [
+    {
+      "a": "Studied calculus",
+      "b": "I didn't study",
+      "cosine": 0.3215
+    },
+    {
+      "a": "Went to the gym and did my push workout",
+      "b": "didn't go to the gym",
+      "cosine": 0.6131
+    },
+    {
+      "a": "Submitted two internship applications",
+      "b": "I will apply tomorrow",
+      "cosine": 0.4689
+    },
+    {
+      "a": "Meditated for 15 minutes",
+      "b": "felt better today",
+      "cosine": 0.2366
+    },
+    {
+      "a": "Watched 6 ochem videos",
+      "b": "Watched Netflix for 3 hours",
+      "cosine": 0.3448
+    },
+    {
+      "a": "Practiced guitar for 30 minutes",
+      "b": "studied",
+      "cosine": 0.2047
+    }
+  ],
+  "trainFrozenPDevSample80": {
+    "n": 80,
+    "brier": 0.1601,
+    "meanPDev": 0.5929,
+    "meanPNon": 0.3755
+  }
+}

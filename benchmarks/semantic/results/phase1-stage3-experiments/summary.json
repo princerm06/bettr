@@ -1,0 +1,1103 @@
+{
+  "generatedAt": "2026-09-30T07:07:17.869Z",
+  "productionUnchanged": true,
+  "hashes": {
+    "before": {
+      "threeAFile": "69a7d9c8d8e1ec170b263f908c7463137aa8fa3f7272eb82ffc2f91d913db595",
+      "aeFile": "ad5fd348f8a99f2514fb461c88cf3c05ff8f36c447f901138541d036c6fde782",
+      "threeAWeights": "9604d9333d3c129edff55953c9e23b39af49c6757da4b81b2d9286d2fbdd7d99",
+      "aeWeights": "72c03aa4638160895cd0bc7d6bf06b1b2914f226208aad82a3ccfe01ccbe657a"
+    },
+    "after": {
+      "threeAFile": "69a7d9c8d8e1ec170b263f908c7463137aa8fa3f7272eb82ffc2f91d913db595",
+      "aeFile": "ad5fd348f8a99f2514fb461c88cf3c05ff8f36c447f901138541d036c6fde782",
+      "threeAWeights": "9604d9333d3c129edff55953c9e23b39af49c6757da4b81b2d9286d2fbdd7d99",
+      "aeWeights": "72c03aa4638160895cd0bc7d6bf06b1b2914f226208aad82a3ccfe01ccbe657a"
+    },
+    "match": true
+  },
+  "existingAudit": {
+    "threeA": {
+      "train": 405,
+      "val": 92,
+      "trainFamilies": 60,
+      "valFamilies": 12,
+      "split": "family-level VALIDATION_FAMILY_IDS, not random rows",
+      "trainDev": 194,
+      "trainNon": 211
+    },
+    "aeV2": {
+      "train": 204,
+      "val": 48,
+      "families": {
+        "train": 34,
+        "val": 8
+      },
+      "split": "family-level (val families distinct in jsonl split field)",
+      "trainPos": 102,
+      "trainNeg": 102,
+      "note": "Purchases often labeled ACTION_POSITIVE (ordinary completed action). Identity/vibe lines are NEGATIVE."
+    }
+  },
+  "newData": {
+    "n": 120,
+    "source": "manual_stage3",
+    "leaks": [],
+    "exactDupes": [],
+    "train": 93,
+    "familyHoldout": 19,
+    "contrastiveHoldout": 8,
+    "threeATrainNew": 82,
+    "aeTrainNew": 82,
+    "combined3aTrain": 487,
+    "combinedAeTrain": 286,
+    "byFamily": {
+      "academics.biochem_cards": 10,
+      "career.cover_letter_pass": 9,
+      "finance.envelope_tally": 7,
+      "nutrition.stir_fry_skill": 7,
+      "appearance.night_wash": 7,
+      "fashion.button_repair": 6,
+      "physical.hill_repeats": 8,
+      "mind.rust_kata": 8,
+      "inner.counted_breaths": 7,
+      "spirit.friday_salah": 6,
+      "social.checkin_ra": 5,
+      "ordinary.sink_vs_scroll": 6,
+      "academics.typo_hw": 3,
+      "career.mock_standup": 2,
+      "finance.bill_calendar": 2,
+      "hold.bouldering": 8,
+      "hold.woodworking": 6,
+      "hold.evening_liturgy": 5,
+      "hold.implicit_tense": 8
+    },
+    "byDomain": {
+      "Academics": 15,
+      "Career": 12,
+      "Finance": 10,
+      "Nutrition & Cooking": 8,
+      "Appearance & Self-Care": 7,
+      "Fashion & Style": 6,
+      "Physical Prowess": 17,
+      "Mind & Craft": 14,
+      "Inner Wellbeing": 8,
+      "Spirituality": 11,
+      "Social": 6,
+      "Ordinary / none": 6
+    },
+    "byState": {
+      "completed_detailed": 15,
+      "short_casual": 1,
+      "completed": 7,
+      "negation_implicit": 5,
+      "future_implicit": 3,
+      "almost": 4,
+      "desire": 8,
+      "passive": 8,
+      "purchase": 8,
+      "vague": 14,
+      "short": 12,
+      "plan": 1,
+      "related_not_completed": 4,
+      "negation": 1,
+      "future_casual": 1,
+      "passive_consume": 1,
+      "future": 6,
+      "slang": 1,
+      "non_practice": 1,
+      "slang_short": 1,
+      "duration": 3,
+      "short_method": 1,
+      "journal_not_bare": 1,
+      "observation": 3,
+      "vague_positivity": 1,
+      "ordinary_action": 2,
+      "gaming": 1,
+      "stuffing": 1,
+      "implausible": 1,
+      "typo": 1,
+      "ordinary_admin": 1,
+      "almost_plan": 1,
+      "failed_intention": 1
+    },
+    "length": {
+      "min": 8,
+      "median": 38,
+      "max": 68
+    }
+  },
+  "selection": {
+    "method": "Internal val = Stage 3 family_holdout + contrastive_holdout only. Rank = committed_correct - 8*FP - 3*FN, then narrower mid. First attempt (min FP then min FN then min mid) collapsed to near-total abstention; ranking was revised on internal val only. External sets unused.",
+    "threeA": {
+      "tag": "b",
+      "l2": 0.03,
+      "tNon": 0.42,
+      "tDev": 0.58,
+      "internal": {
+        "fp": 0,
+        "fn": 0,
+        "mid": 20,
+        "ok": 4,
+        "n": 24
+      }
+    },
+    "ae": {
+      "tag": "a",
+      "l2": 0.01,
+      "tNeg": 0.48,
+      "tPos": 0.62,
+      "internal": {
+        "fp": 0,
+        "fn": 0,
+        "mid": 10,
+        "ok": 14,
+        "n": 24
+      }
+    },
+    "all3aInternal": [
+      {
+        "tag": "a",
+        "l2": 0.01,
+        "grids": [
+          {
+            "lo": 0.45,
+            "hi": 0.55,
+            "fp": 1,
+            "fn": 2,
+            "mid": 12,
+            "ok": 9,
+            "n": 24
+          },
+          {
+            "lo": 0.42,
+            "hi": 0.58,
+            "fp": 1,
+            "fn": 1,
+            "mid": 15,
+            "ok": 7,
+            "n": 24
+          },
+          {
+            "lo": 0.4,
+            "hi": 0.55,
+            "fp": 1,
+            "fn": 1,
+            "mid": 15,
+            "ok": 7,
+            "n": 24
+          },
+          {
+            "lo": 0.48,
+            "hi": 0.52,
+            "fp": 1,
+            "fn": 3,
+            "mid": 8,
+            "ok": 12,
+            "n": 24
+          },
+          {
+            "lo": 0.43,
+            "hi": 0.57,
+            "fp": 1,
+            "fn": 1,
+            "mid": 14,
+            "ok": 8,
+            "n": 24
+          },
+          {
+            "lo": 0.4,
+            "hi": 0.6,
+            "fp": 1,
+            "fn": 1,
+            "mid": 15,
+            "ok": 7,
+            "n": 24
+          },
+          {
+            "lo": 0.47,
+            "hi": 0.53,
+            "fp": 1,
+            "fn": 2,
+            "mid": 9,
+            "ok": 12,
+            "n": 24
+          }
+        ]
+      },
+      {
+        "tag": "b",
+        "l2": 0.03,
+        "grids": [
+          {
+            "lo": 0.45,
+            "hi": 0.55,
+            "fp": 1,
+            "fn": 1,
+            "mid": 16,
+            "ok": 6,
+            "n": 24
+          },
+          {
+            "lo": 0.42,
+            "hi": 0.58,
+            "fp": 0,
+            "fn": 0,
+            "mid": 20,
+            "ok": 4,
+            "n": 24
+          },
+          {
+            "lo": 0.4,
+            "hi": 0.55,
+            "fp": 1,
+            "fn": 0,
+            "mid": 23,
+            "ok": 0,
+            "n": 24
+          },
+          {
+            "lo": 0.48,
+            "hi": 0.52,
+            "fp": 1,
+            "fn": 3,
+            "mid": 8,
+            "ok": 12,
+            "n": 24
+          },
+          {
+            "lo": 0.43,
+            "hi": 0.57,
+            "fp": 0,
+            "fn": 1,
+            "mid": 19,
+            "ok": 4,
+            "n": 24
+          },
+          {
+            "lo": 0.4,
+            "hi": 0.6,
+            "fp": 0,
+            "fn": 0,
+            "mid": 24,
+            "ok": 0,
+            "n": 24
+          },
+          {
+            "lo": 0.47,
+            "hi": 0.53,
+            "fp": 1,
+            "fn": 2,
+            "mid": 10,
+            "ok": 11,
+            "n": 24
+          }
+        ]
+      }
+    ]
+  },
+  "matrix": {
+    "E0-P0": {
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 1,
+        "ask": 62,
+        "clarificationRate": 0.6739,
+        "correctImmediate": 0.3043,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 15
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 50,
+        "clarificationRate": 0.6944,
+        "correctImmediate": 0.2917,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "tp": 10
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 27,
+        "clarificationRate": 0.7297,
+        "correctImmediate": 0.2432,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "tp": 5
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "ask": 13,
+        "clarificationRate": 0.5417,
+        "correctImmediate": 0.4167,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "ask": 17,
+        "clarificationRate": 0.7727,
+        "correctImmediate": 0.0909,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 2
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 5,
+        "rejectFN": 0,
+        "ask": 52,
+        "clarificationRate": 0.7429,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": 0.7429,
+        "uncertainN": 70,
+        "tp": 0
+      }
+    },
+    "E0-P2": {
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "ask": 42,
+        "clarificationRate": 0.4565,
+        "correctImmediate": 0.5,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 15
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 43,
+        "clarificationRate": 0.5972,
+        "correctImmediate": 0.375,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "tp": 10
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "ask": 17,
+        "clarificationRate": 0.4595,
+        "correctImmediate": 0.4595,
+        "uncertainGoldAskRate": 0.8,
+        "uncertainN": 5,
+        "tp": 5
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 1,
+        "rejectFN": 0,
+        "ask": 10,
+        "clarificationRate": 0.4167,
+        "correctImmediate": 0.5417,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "ask": 14,
+        "clarificationRate": 0.6364,
+        "correctImmediate": 0.0909,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 2
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 5,
+        "rejectFN": 0,
+        "ask": 31,
+        "clarificationRate": 0.4429,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": 0.4429,
+        "uncertainN": 70,
+        "tp": 0
+      }
+    },
+    "E1-P0": {
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 84,
+        "clarificationRate": 0.913,
+        "correctImmediate": 0.0761,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 1
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 62,
+        "clarificationRate": 0.8611,
+        "correctImmediate": 0.125,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "tp": 0
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 33,
+        "clarificationRate": 0.8919,
+        "correctImmediate": 0.1081,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "tp": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 16,
+        "clarificationRate": 0.6667,
+        "correctImmediate": 0.3333,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 21,
+        "clarificationRate": 0.9545,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 58,
+        "clarificationRate": 0.8286,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": 0.8286,
+        "uncertainN": 70,
+        "tp": 0
+      }
+    },
+    "E1-P2": {
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 79,
+        "clarificationRate": 0.8587,
+        "correctImmediate": 0.1304,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 1
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 60,
+        "clarificationRate": 0.8333,
+        "correctImmediate": 0.1528,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 8,
+        "tp": 0
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 30,
+        "clarificationRate": 0.8108,
+        "correctImmediate": 0.1622,
+        "uncertainGoldAskRate": 0.8,
+        "uncertainN": 5,
+        "tp": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 15,
+        "clarificationRate": 0.625,
+        "correctImmediate": 0.375,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "ask": 20,
+        "clarificationRate": 0.9091,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 49,
+        "clarificationRate": 0.7,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": 0.7,
+        "uncertainN": 70,
+        "tp": 0
+      }
+    },
+    "E2-P0": {
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "ask": 61,
+        "clarificationRate": 0.663,
+        "correctImmediate": 0.2935,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 12
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "ask": 51,
+        "clarificationRate": 0.7083,
+        "correctImmediate": 0.1944,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "tp": 4
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 27,
+        "clarificationRate": 0.7297,
+        "correctImmediate": 0.2432,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "tp": 2
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 10,
+        "clarificationRate": 0.4167,
+        "correctImmediate": 0.5833,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "ask": 18,
+        "clarificationRate": 0.8182,
+        "correctImmediate": 0.0455,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 1
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 2,
+        "rejectFN": 0,
+        "ask": 38,
+        "clarificationRate": 0.5429,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": 0.5429,
+        "uncertainN": 70,
+        "tp": 0
+      }
+    },
+    "E2-P2": {
+      "val": {
+        "n": 92,
+        "creditFP": 1,
+        "rejectFN": 3,
+        "ask": 41,
+        "clarificationRate": 0.4457,
+        "correctImmediate": 0.5109,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 12
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "ask": 40,
+        "clarificationRate": 0.5556,
+        "correctImmediate": 0.3333,
+        "uncertainGoldAskRate": 0.75,
+        "uncertainN": 8,
+        "tp": 4
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "ask": 18,
+        "clarificationRate": 0.4865,
+        "correctImmediate": 0.4054,
+        "uncertainGoldAskRate": 0.8,
+        "uncertainN": 5,
+        "tp": 2
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 5,
+        "clarificationRate": 0.2083,
+        "correctImmediate": 0.7917,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 7,
+        "ask": 14,
+        "clarificationRate": 0.6364,
+        "correctImmediate": 0.0455,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 1
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 2,
+        "rejectFN": 0,
+        "ask": 24,
+        "clarificationRate": 0.3429,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": 0.3429,
+        "uncertainN": 70,
+        "tp": 0
+      }
+    },
+    "E3-P0": {
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "ask": 76,
+        "clarificationRate": 0.8261,
+        "correctImmediate": 0.1413,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 1
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "ask": 56,
+        "clarificationRate": 0.7778,
+        "correctImmediate": 0.125,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "tp": 0
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 29,
+        "clarificationRate": 0.7838,
+        "correctImmediate": 0.1892,
+        "uncertainGoldAskRate": 1,
+        "uncertainN": 5,
+        "tp": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 10,
+        "clarificationRate": 0.4167,
+        "correctImmediate": 0.5833,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 2,
+        "ask": 20,
+        "clarificationRate": 0.9091,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 40,
+        "clarificationRate": 0.5714,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": 0.5714,
+        "uncertainN": 70,
+        "tp": 0
+      }
+    },
+    "E3-P2": {
+      "val": {
+        "n": 92,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "ask": 70,
+        "clarificationRate": 0.7609,
+        "correctImmediate": 0.2065,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 1
+      },
+      "v1": {
+        "n": 72,
+        "creditFP": 0,
+        "rejectFN": 6,
+        "ask": 51,
+        "clarificationRate": 0.7083,
+        "correctImmediate": 0.1944,
+        "uncertainGoldAskRate": 0.875,
+        "uncertainN": 8,
+        "tp": 0
+      },
+      "stress": {
+        "n": 37,
+        "creditFP": 0,
+        "rejectFN": 1,
+        "ask": 26,
+        "clarificationRate": 0.7027,
+        "correctImmediate": 0.2432,
+        "uncertainGoldAskRate": 0.8,
+        "uncertainN": 5,
+        "tp": 0
+      },
+      "fc": {
+        "n": 24,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 7,
+        "clarificationRate": 0.2917,
+        "correctImmediate": 0.7083,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "sv": {
+        "n": 22,
+        "creditFP": 0,
+        "rejectFN": 3,
+        "ask": 19,
+        "clarificationRate": 0.8636,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": null,
+        "uncertainN": 0,
+        "tp": 0
+      },
+      "aux": {
+        "n": 70,
+        "creditFP": 0,
+        "rejectFN": 0,
+        "ask": 33,
+        "clarificationRate": 0.4714,
+        "correctImmediate": 0,
+        "uncertainGoldAskRate": 0.4714,
+        "uncertainN": 70,
+        "tp": 0
+      }
+    }
+  },
+  "negationCreditFailures": {
+    "E0-P0": [],
+    "E0-P2": [],
+    "E1-P0": [],
+    "E1-P2": [],
+    "E2-P0": [],
+    "E2-P2": [],
+    "E3-P0": [],
+    "E3-P2": []
+  },
+  "structuralSingleton": [
+    {
+      "id": "ST-01",
+      "text": "Journaled",
+      "gold": "DEVELOPMENTAL",
+      "prod": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.47561845913507456,
+        "pAction": null
+      },
+      "bypass": {
+        "structural": false,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.47561845913507456,
+        "pAction": 0.497751331189107
+      }
+    },
+    {
+      "id": "ST-02",
+      "text": "Meditated",
+      "gold": "DEVELOPMENTAL",
+      "prod": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.5445448241016159,
+        "pAction": null
+      },
+      "bypass": {
+        "structural": false,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.5445448241016159,
+        "pAction": 0.48981414394835376
+      }
+    },
+    {
+      "id": "ST-03",
+      "text": "Prayed",
+      "gold": "DEVELOPMENTAL",
+      "prod": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.4886558476238937,
+        "pAction": null
+      },
+      "bypass": {
+        "structural": false,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.4886558476238937,
+        "pAction": 0.5573253155631254
+      }
+    },
+    {
+      "id": "ST-04",
+      "text": "Ran",
+      "gold": "UNCERTAIN",
+      "prod": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.47014579009564783,
+        "pAction": null
+      },
+      "bypass": {
+        "structural": false,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.47014579009564783,
+        "pAction": 0.5320042677790852
+      }
+    },
+    {
+      "id": "ST-05",
+      "text": "studied",
+      "gold": "UNCERTAIN",
+      "prod": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.501535773877131,
+        "pAction": null
+      },
+      "bypass": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.501535773877131,
+        "pAction": null
+      }
+    },
+    {
+      "id": "ST-06",
+      "text": "asdfghjkl",
+      "gold": "INVALID",
+      "prod": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.4762481748674604,
+        "pAction": null
+      },
+      "bypass": {
+        "structural": false,
+        "invalid": true,
+        "P0": "INVALID",
+        "pDev": null,
+        "pAction": null
+      }
+    },
+    {
+      "id": "ST-07",
+      "text": "qwerty",
+      "gold": "INVALID",
+      "prod": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.5200120326891156,
+        "pAction": null
+      },
+      "bypass": {
+        "structural": false,
+        "invalid": true,
+        "P0": "INVALID",
+        "pDev": null,
+        "pAction": null
+      }
+    },
+    {
+      "id": "ST-08",
+      "text": "practice",
+      "gold": "UNCERTAIN",
+      "prod": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.556571954781207,
+        "pAction": null
+      },
+      "bypass": {
+        "structural": true,
+        "invalid": false,
+        "P0": "ASK",
+        "pDev": 0.556571954781207,
+        "pAction": null
+      }
+    }
+  ],
+  "probeDeltasAfterRetrain": [
+    {
+      "id": "NP-GYM",
+      "done": {
+        "pDev": 0.4107454991873498,
+        "pAction": 0.4871764345068619
+      },
+      "dNegPDev": 0.0202,
+      "dFutPDev": 0.0568,
+      "dAlmPDev": 0.0124,
+      "dNegPAct": -0.0363
+    },
+    {
+      "id": "NP-STUDY",
+      "done": {
+        "pDev": 0.4835650632056085,
+        "pAction": 0.44289304279506625
+      },
+      "dNegPDev": -0.0056,
+      "dFutPDev": -0.0051,
+      "dAlmPDev": 0.0091,
+      "dNegPAct": -0.0313
+    },
+    {
+      "id": "NP-APPLY",
+      "done": {
+        "pDev": 0.4433709873143471,
+        "pAction": 0.5272944563418646
+      },
+      "dNegPDev": -0.0185,
+      "dFutPDev": 0.006,
+      "dAlmPDev": -0.0047,
+      "dNegPAct": 0.0041
+    },
+    {
+      "id": "NP-COOK",
+      "done": {
+        "pDev": 0.44812533906374746,
+        "pAction": 0.5691672380992225
+      },
+      "dNegPDev": -0.0067,
+      "dFutPDev": 0.0193,
+      "dAlmPDev": 0.0099,
+      "dNegPAct": -0.0086
+    },
+    {
+      "id": "NP-MED",
+      "done": {
+        "pDev": 0.5073212817252369,
+        "pAction": null
+      },
+      "dNegPDev": -0.0284,
+      "dFutPDev": -0.0084,
+      "dAlmPDev": -0.0004,
+      "dNegPAct": null
+    },
+    {
+      "id": "NP-PRAY",
+      "done": {
+        "pDev": 0.47329027170463,
+        "pAction": null
+      },
+      "dNegPDev": -0.01,
+      "dFutPDev": -0.0051,
+      "dAlmPDev": 0.016,
+      "dNegPAct": null
+    },
+    {
+      "id": "NP-BUDGET",
+      "done": {
+        "pDev": 0.37907647557571317,
+        "pAction": 0.45086044505890177
+      },
+      "dNegPDev": -0.0061,
+      "dFutPDev": 0.0331,
+      "dAlmPDev": 0.0033,
+      "dNegPAct": 0.0331
+    },
+    {
+      "id": "NP-SKIN",
+      "done": {
+        "pDev": 0.47231285263568673,
+        "pAction": 0.55312011110512
+      },
+      "dNegPDev": -0.0067,
+      "dFutPDev": 0.0093,
+      "dAlmPDev": 0.0143,
+      "dNegPAct": -0.0547
+    }
+  ],
+  "artifacts": {
+    "threeA": "/Users/princem/Downloads/himothy-app/benchmarks/semantic/stage3/artifacts/experimental-3a-stage3-b.json",
+    "ae": "/Users/princem/Downloads/himothy-app/benchmarks/semantic/stage3/artifacts/experimental-ae-stage3-a.json"
+  }
+}

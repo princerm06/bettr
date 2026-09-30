@@ -1,0 +1,3637 @@
+{
+  "stage": 4,
+  "productionFrozen": true,
+  "hashBefore": {
+    "threeAFile": "69a7d9c8d8e1ec170b263f908c7463137aa8fa3f7272eb82ffc2f91d913db595",
+    "aeFile": "ad5fd348f8a99f2514fb461c88cf3c05ff8f36c447f901138541d036c6fde782",
+    "threeAWeights": "9604d9333d3c129edff55953c9e23b39af49c6757da4b81b2d9286d2fbdd7d99",
+    "aeWeights": "72c03aa4638160895cd0bc7d6bf06b1b2914f226208aad82a3ccfe01ccbe657a"
+  },
+  "hashAfter": {
+    "threeAFile": "69a7d9c8d8e1ec170b263f908c7463137aa8fa3f7272eb82ffc2f91d913db595",
+    "aeFile": "ad5fd348f8a99f2514fb461c88cf3c05ff8f36c447f901138541d036c6fde782",
+    "threeAWeights": "9604d9333d3c129edff55953c9e23b39af49c6757da4b81b2d9286d2fbdd7d99",
+    "aeWeights": "72c03aa4638160895cd0bc7d6bf06b1b2914f226208aad82a3ccfe01ccbe657a"
+  },
+  "hashesMatch": true,
+  "candidateSelectionDocs": {
+    "selected": [
+      {
+        "id": "minilm",
+        "docs": [
+          "https://huggingface.co/Xenova/all-MiniLM-L6-v2",
+          "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+        ],
+        "why": "Required production baseline.",
+        "prefix": null
+      },
+      {
+        "id": "mpnet",
+        "docs": [
+          "https://huggingface.co/Xenova/all-mpnet-base-v2",
+          "https://huggingface.co/sentence-transformers/all-mpnet-base-v2"
+        ],
+        "why": "Required production AE baseline and 768-d capacity probe.",
+        "prefix": null
+      },
+      {
+        "id": "gte-small",
+        "docs": [
+          "https://huggingface.co/Xenova/gte-small",
+          "https://huggingface.co/thenlper/gte-small"
+        ],
+        "why": "Modern sentence embedding, Transformers.js ONNX, MiniLM-like size, no instruction prefix (safer for classification probing).",
+        "prefix": null
+      },
+      {
+        "id": "e5-small-v2",
+        "docs": [
+          "https://huggingface.co/Xenova/e5-small-v2",
+          "https://huggingface.co/intfloat/e5-small-v2"
+        ],
+        "why": "Weakly supervised contrastive embeddings with documented linear-probe usage; tests whether prefix-conditioned E5 separates action state better than MiniLM.",
+        "prefix": "query: "
+      },
+      {
+        "id": "minilm-l12",
+        "docs": [
+          "https://huggingface.co/Xenova/all-MiniLM-L12-v2",
+          "https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2"
+        ],
+        "why": "Controlled capacity step within the production MiniLM family; still browser-plausible.",
+        "prefix": null
+      }
+    ],
+    "notSelected": [
+      {
+        "id": "bge-small-en-v1.5",
+        "runtimeModelId": "Xenova/bge-small-en-v1.5",
+        "reason": "Already probed in Candidate 4A and Stage 2 encoder pairs. Did not beat MiniLM on developmental CV; CLS pooling; retrieval instruction optional on v1.5. Kept as documented negative control, not a new bake-off row.",
+        "docs": [
+          "https://huggingface.co/BAAI/bge-small-en-v1.5",
+          "https://huggingface.co/Xenova/bge-small-en-v1.5"
+        ]
+      },
+      {
+        "id": "nomic-embed-text-v1",
+        "runtimeModelId": "Xenova/nomic-embed-text-v1",
+        "reason": "768-d, ~137M, 8192 context, required search_query:/search_document: prefixes, heavier first-load than Bettr log texts need. Informative as a long-context retrieval model, not a realistic first web-product replacement.",
+        "docs": [
+          "https://huggingface.co/nomic-ai/nomic-embed-text-v1",
+          "https://huggingface.co/Xenova/nomic-embed-text-v1"
+        ]
+      },
+      {
+        "id": "snowflake-arctic-embed-xs",
+        "reason": "Already in frozenSentenceEmbeddings 4A bake-off; did not beat MiniLM. Not re-run as a “new” family.",
+        "docs": [
+          "https://huggingface.co/Snowflake/snowflake-arctic-embed-xs"
+        ]
+      }
+    ]
+  },
+  "cleanAeContract": {
+    "definition": "Did the user provide evidence that a concrete action actually occurred?",
+    "not": "Does the action deserve developmental credit?",
+    "extras": [
+      {
+        "id": "CAE-01",
+        "text": "Bought running shoes.",
+        "y": 1,
+        "source": "stage4_clean_contract",
+        "note": "completed purchase is still a completed action"
+      },
+      {
+        "id": "CAE-02",
+        "text": "I'll buy running shoes tomorrow.",
+        "y": 0,
+        "source": "stage4_clean_contract",
+        "note": "future purchase is not completed action"
+      },
+      {
+        "id": "CAE-03",
+        "text": "I almost bought running shoes.",
+        "y": 0,
+        "source": "stage4_clean_contract",
+        "note": "almost-purchase is not completed action"
+      },
+      {
+        "id": "CAE-04",
+        "text": "Paid the water bill at the lobby kiosk.",
+        "y": 1,
+        "source": "stage4_clean_contract",
+        "note": "errand occurred; developmental value is downstream"
+      },
+      {
+        "id": "CAE-05",
+        "text": "I will pay the water bill later.",
+        "y": 0,
+        "source": "stage4_clean_contract",
+        "note": "future errand"
+      },
+      {
+        "id": "CAE-06",
+        "text": "Did not pay the water bill.",
+        "y": 0,
+        "source": "stage4_clean_contract",
+        "note": "negated errand"
+      },
+      {
+        "id": "CAE-07",
+        "text": "Returned two library books at the desk.",
+        "y": 1,
+        "source": "stage4_clean_contract",
+        "note": "completed ordinary action"
+      },
+      {
+        "id": "CAE-08",
+        "text": "Planning to return the library books.",
+        "y": 0,
+        "source": "stage4_clean_contract",
+        "note": "plan only"
+      }
+    ],
+    "implication": "Shared-encoder AE can fire POS on completed purchases/errands while 3A remains NON. Production AE v2 already treated many purchases as POS; Stage 3 AE training fought that contract."
+  },
+  "methodology": {
+    "linearProbe": "Identical Stage 3 family splits, labels for 3A, trainBinaryLogistic variants l2 0.01/0.03 lr 0.4 epochs 400, internal rank ok-8FP-3FN then fewer mid-band, no external threshold peek-then-tune.",
+    "policy": "P0 two-axis only (production-shaped). P1/P2/P3 not shipped and not used as winners.",
+    "archA": "Frozen production MPNet AE weights+thresholds + candidate 3A head.",
+    "archB": "Same candidate embedding, clean-contract AE head + 3A head.",
+    "archC": "Diagnostic: AE forced POS, 3A decides. Not a product proposal."
+  },
+  "table": [
+    {
+      "encoder": "minilm",
+      "dim": 384,
+      "approxQuantizedMb": 23,
+      "stateSepCosineCompletedVsNeg": 0.3471,
+      "stateSepCosineCompletedVsFut": 0.5057,
+      "stateSepCosineCompletedVsAlm": 0.3214,
+      "probeMeanDpDevNeg": 0.0077,
+      "probeMeanDpDevFut": -0.0132,
+      "probeMeanDpDevAlm": -0.0075,
+      "archA_val_FP": 0,
+      "archA_val_FN": 1,
+      "archA_val_ASK": 0.913,
+      "archA_v1_FP": 0,
+      "archA_v1_FN": 1,
+      "archA_svImmediate": 0,
+      "archA_fc_FP": 0,
+      "archA_negCreditFails": 0,
+      "archA_auxAsk": 0.8286,
+      "archB_val_ASK": 0.9674,
+      "archB_val_FP": 0,
+      "archB_svImmediate": 0,
+      "archB_fc_FP": 0,
+      "archB_negCreditFails": 0,
+      "coldLoadMsMacNode": 116,
+      "warmMsPerEmbedMacNode": 2.08,
+      "browserFeasible": true
+    },
+    {
+      "encoder": "mpnet",
+      "dim": 768,
+      "approxQuantizedMb": 110,
+      "stateSepCosineCompletedVsNeg": 0.3755,
+      "stateSepCosineCompletedVsFut": 0.484,
+      "stateSepCosineCompletedVsAlm": 0.404,
+      "probeMeanDpDevNeg": -0.0042,
+      "probeMeanDpDevFut": -0.0255,
+      "probeMeanDpDevAlm": -0.0095,
+      "archA_val_FP": 0,
+      "archA_val_FN": 1,
+      "archA_val_ASK": 0.837,
+      "archA_v1_FP": 0,
+      "archA_v1_FN": 1,
+      "archA_svImmediate": 0,
+      "archA_fc_FP": 0,
+      "archA_negCreditFails": 0,
+      "archA_auxAsk": 0.8286,
+      "archB_val_ASK": 0.913,
+      "archB_val_FP": 0,
+      "archB_svImmediate": 0,
+      "archB_fc_FP": 0,
+      "archB_negCreditFails": 0,
+      "coldLoadMsMacNode": 396,
+      "warmMsPerEmbedMacNode": 10.35,
+      "browserFeasible": true
+    },
+    {
+      "encoder": "gte-small",
+      "dim": 384,
+      "approxQuantizedMb": 33,
+      "stateSepCosineCompletedVsNeg": 0.8081,
+      "stateSepCosineCompletedVsFut": 0.867,
+      "stateSepCosineCompletedVsAlm": 0.8278,
+      "probeMeanDpDevNeg": 0.0255,
+      "probeMeanDpDevFut": 0.014,
+      "probeMeanDpDevAlm": 0.005,
+      "archA_val_FP": 0,
+      "archA_val_FN": 1,
+      "archA_val_ASK": 0.8152,
+      "archA_v1_FP": 0,
+      "archA_v1_FN": 1,
+      "archA_svImmediate": 0,
+      "archA_fc_FP": 0,
+      "archA_negCreditFails": 0,
+      "archA_auxAsk": 0.8286,
+      "archB_val_ASK": 0.8696,
+      "archB_val_FP": 0,
+      "archB_svImmediate": 0,
+      "archB_fc_FP": 0,
+      "archB_negCreditFails": 0,
+      "coldLoadMsMacNode": 2310,
+      "warmMsPerEmbedMacNode": 2.75,
+      "browserFeasible": true
+    },
+    {
+      "encoder": "e5-small-v2",
+      "dim": 384,
+      "approxQuantizedMb": 33,
+      "stateSepCosineCompletedVsNeg": 0.8056,
+      "stateSepCosineCompletedVsFut": 0.8787,
+      "stateSepCosineCompletedVsAlm": 0.8373,
+      "probeMeanDpDevNeg": 0.0436,
+      "probeMeanDpDevFut": 0.0054,
+      "probeMeanDpDevAlm": 0.0072,
+      "archA_val_FP": 0,
+      "archA_val_FN": 1,
+      "archA_val_ASK": 0.8043,
+      "archA_v1_FP": 0,
+      "archA_v1_FN": 3,
+      "archA_svImmediate": 0,
+      "archA_fc_FP": 0,
+      "archA_negCreditFails": 0,
+      "archA_auxAsk": 0.8,
+      "archB_val_ASK": 0.9022,
+      "archB_val_FP": 0,
+      "archB_svImmediate": 0,
+      "archB_fc_FP": 0,
+      "archB_negCreditFails": 0,
+      "coldLoadMsMacNode": 1996,
+      "warmMsPerEmbedMacNode": 7.05,
+      "browserFeasible": true
+    },
+    {
+      "encoder": "minilm-l12",
+      "dim": 384,
+      "approxQuantizedMb": 33,
+      "stateSepCosineCompletedVsNeg": 0.358,
+      "stateSepCosineCompletedVsFut": 0.5436,
+      "stateSepCosineCompletedVsAlm": 0.3342,
+      "probeMeanDpDevNeg": 0.0088,
+      "probeMeanDpDevFut": -0.0233,
+      "probeMeanDpDevAlm": -0.0121,
+      "archA_val_FP": 0,
+      "archA_val_FN": 1,
+      "archA_val_ASK": 0.9239,
+      "archA_v1_FP": 0,
+      "archA_v1_FN": 1,
+      "archA_svImmediate": 0,
+      "archA_fc_FP": 0,
+      "archA_negCreditFails": 0,
+      "archA_auxAsk": 0.8429,
+      "archB_val_ASK": 0.9348,
+      "archB_val_FP": 0,
+      "archB_svImmediate": 0,
+      "archB_fc_FP": 0,
+      "archB_negCreditFails": 0,
+      "coldLoadMsMacNode": 2327,
+      "warmMsPerEmbedMacNode": 2.7,
+      "browserFeasible": true
+    }
+  ],
+  "encoders": {
+    "minilm": {
+      "spec": {
+        "id": "minilm",
+        "runtimeModelId": "Xenova/all-MiniLM-L6-v2",
+        "sourceModelId": "sentence-transformers/all-MiniLM-L6-v2",
+        "family": "MiniLM",
+        "license": "Apache-2.0",
+        "pooling": "mean",
+        "normalize": true,
+        "prefix": null,
+        "expectedDim": 384,
+        "approxParamsM": 22.7,
+        "approxQuantizedOnnxMb": 23,
+        "approxFp32OnnxMb": 90,
+        "transformersJs": true,
+        "notes": "Production developmental encoder. INT8 ONNX via Xenova.",
+        "docs": [
+          "https://huggingface.co/Xenova/all-MiniLM-L6-v2",
+          "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+        ],
+        "whySelected": "Required production baseline.",
+        "load": {
+          "spec": {
+            "id": "minilm",
+            "runtimeModelId": "Xenova/all-MiniLM-L6-v2",
+            "sourceModelId": "sentence-transformers/all-MiniLM-L6-v2",
+            "family": "MiniLM",
+            "license": "Apache-2.0",
+            "pooling": "mean",
+            "normalize": true,
+            "prefix": null,
+            "expectedDim": 384,
+            "approxParamsM": 22.7,
+            "approxQuantizedOnnxMb": 23,
+            "approxFp32OnnxMb": 90,
+            "transformersJs": true,
+            "notes": "Production developmental encoder. INT8 ONNX via Xenova.",
+            "docs": [
+              "https://huggingface.co/Xenova/all-MiniLM-L6-v2",
+              "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+            ],
+            "whySelected": "Required production baseline."
+          },
+          "quantized": true,
+          "quantization": "int8-onnx",
+          "coldLoadMs": 116
+        },
+        "warmMsPerEmbedMacNode": 2.08,
+        "embedAllMs": 4331,
+        "uniqueTexts": 1116
+      },
+      "geometry": [
+        {
+          "id": "geo.lap_swim",
+          "domain": "Physical Prowess",
+          "sims": {
+            "completed_vs_negated": 0.5891,
+            "completed_vs_future": 0.7342,
+            "completed_vs_almost": 0.3531,
+            "completed_vs_plan": 0.5206,
+            "completed_vs_desire": 0.4398,
+            "completed_vs_passive": 0.4996,
+            "completed_vs_purchase": 0.246,
+            "completed_vs_shortCompleted": 0.7292,
+            "short_vs_completed": 0.7292,
+            "short_vs_future": 0.6287,
+            "paraphrase_completed_short": 0.7292
+          },
+          "margins": {
+            "completed_minus_negated": 0.4109,
+            "completed_minus_future": 0.2658,
+            "completed_minus_almost": 0.6469
+          }
+        },
+        {
+          "id": "geo.orgo_mechanism",
+          "domain": "Academics",
+          "sims": {
+            "completed_vs_negated": 0.2195,
+            "completed_vs_future": 0.2879,
+            "completed_vs_almost": 0.2104,
+            "completed_vs_plan": -0.0023,
+            "completed_vs_desire": 0.3706,
+            "completed_vs_passive": 0.0712,
+            "completed_vs_purchase": 0.1551,
+            "completed_vs_shortCompleted": 0.3719,
+            "short_vs_completed": 0.3719,
+            "short_vs_future": 0.6014,
+            "paraphrase_completed_short": 0.3719
+          },
+          "margins": {
+            "completed_minus_negated": 0.7805,
+            "completed_minus_future": 0.7121,
+            "completed_minus_almost": 0.7896
+          }
+        },
+        {
+          "id": "geo.cold_email",
+          "domain": "Career",
+          "sims": {
+            "completed_vs_negated": 0.1162,
+            "completed_vs_future": 0.1513,
+            "completed_vs_almost": 0.074,
+            "completed_vs_plan": -0.0455,
+            "completed_vs_desire": 0.0337,
+            "completed_vs_passive": 0.3115,
+            "completed_vs_purchase": -0.0109,
+            "completed_vs_shortCompleted": 0.4615,
+            "short_vs_completed": 0.4615,
+            "short_vs_future": 0.7248,
+            "paraphrase_completed_short": 0.4615
+          },
+          "margins": {
+            "completed_minus_negated": 0.8838,
+            "completed_minus_future": 0.8487,
+            "completed_minus_almost": 0.926
+          }
+        },
+        {
+          "id": "geo.spice_blend",
+          "domain": "Nutrition & Cooking",
+          "sims": {
+            "completed_vs_negated": 0.3376,
+            "completed_vs_future": 0.5543,
+            "completed_vs_almost": 0.6095,
+            "completed_vs_plan": 0.2339,
+            "completed_vs_desire": 0.3031,
+            "completed_vs_passive": 0.2652,
+            "completed_vs_purchase": 0.2872,
+            "completed_vs_shortCompleted": 0.7123,
+            "short_vs_completed": 0.7123,
+            "short_vs_future": 0.4672,
+            "paraphrase_completed_short": 0.7123
+          },
+          "margins": {
+            "completed_minus_negated": 0.6624,
+            "completed_minus_future": 0.4457,
+            "completed_minus_almost": 0.3905
+          }
+        },
+        {
+          "id": "geo.floss_bridge",
+          "domain": "Appearance & Self-Care",
+          "sims": {
+            "completed_vs_negated": 0.5959,
+            "completed_vs_future": 0.5367,
+            "completed_vs_almost": 0.588,
+            "completed_vs_plan": 0.3232,
+            "completed_vs_desire": 0.3962,
+            "completed_vs_passive": 0.2935,
+            "completed_vs_purchase": 0.5329,
+            "completed_vs_shortCompleted": 0.8017,
+            "short_vs_completed": 0.8017,
+            "short_vs_future": 0.5797,
+            "paraphrase_completed_short": 0.8017
+          },
+          "margins": {
+            "completed_minus_negated": 0.4041,
+            "completed_minus_future": 0.4633,
+            "completed_minus_almost": 0.412
+          }
+        },
+        {
+          "id": "geo.psalm_copy",
+          "domain": "Spirituality",
+          "sims": {
+            "completed_vs_negated": 0.2243,
+            "completed_vs_future": 0.77,
+            "completed_vs_almost": 0.0932,
+            "completed_vs_plan": 0.2939,
+            "completed_vs_desire": 0.1351,
+            "completed_vs_passive": 0.2858,
+            "completed_vs_purchase": 0.3933,
+            "completed_vs_shortCompleted": 0.8536,
+            "short_vs_completed": 0.8536,
+            "short_vs_future": 0.8392,
+            "paraphrase_completed_short": 0.8536
+          },
+          "margins": {
+            "completed_minus_negated": 0.7757,
+            "completed_minus_future": 0.23,
+            "completed_minus_almost": 0.9068
+          }
+        }
+      ],
+      "geoSummary": {
+        "meanCompletedVsNegated": 0.3471,
+        "meanCompletedVsFuture": 0.5057,
+        "meanCompletedVsAlmost": 0.3214,
+        "meanCompletedVsPlan": 0.2206,
+        "meanCompletedVsPurchase": 0.2673,
+        "meanCompletedVsPassive": 0.2878,
+        "meanParaphrase": 0.655
+      },
+      "retrievalSummary": {
+        "completedMeanPurity": 0.0667,
+        "futureMeanPurity": 0.2333,
+        "negatedMeanPurity": 0.3
+      },
+      "retrievalSample": {
+        "completed0": {
+          "queryState": "completed",
+          "k": 5,
+          "sameState": 0,
+          "purity": 0,
+          "sameFamilyOtherState": 5,
+          "top": [
+            {
+              "state": "future",
+              "family": "geo.lap_swim",
+              "sim": 0.7342,
+              "text": "I'll swim twenty laps tomorrow"
+            },
+            {
+              "state": "shortCompleted",
+              "family": "geo.lap_swim",
+              "sim": 0.7292,
+              "text": "swam laps"
+            },
+            {
+              "state": "negated",
+              "family": "geo.lap_swim",
+              "sim": 0.5891,
+              "text": "I didn't swim at all today"
+            },
+            {
+              "state": "plan",
+              "family": "geo.lap_swim",
+              "sim": 0.5206,
+              "text": "Planning a swim block after midterms"
+            },
+            {
+              "state": "passive",
+              "family": "geo.lap_swim",
+              "sim": 0.4996,
+              "text": "Watched Olympic swimming highlights in bed"
+            }
+          ]
+        },
+        "future0": {
+          "queryState": "future",
+          "k": 5,
+          "sameState": 0,
+          "purity": 0,
+          "sameFamilyOtherState": 5,
+          "top": [
+            {
+              "state": "completed",
+              "family": "geo.lap_swim",
+              "sim": 0.7342,
+              "text": "Swam twenty laps this morning and timed the last one"
+            },
+            {
+              "state": "shortCompleted",
+              "family": "geo.lap_swim",
+              "sim": 0.6287,
+              "text": "swam laps"
+            },
+            {
+              "state": "negated",
+              "family": "geo.lap_swim",
+              "sim": 0.586,
+              "text": "I didn't swim at all today"
+            },
+            {
+              "state": "plan",
+              "family": "geo.lap_swim",
+              "sim": 0.5394,
+              "text": "Planning a swim block after midterms"
+            },
+            {
+              "state": "desire",
+              "family": "geo.lap_swim",
+              "sim": 0.5092,
+              "text": "I want to become a real swimmer"
+            }
+          ]
+        }
+      },
+      "nliTemplateProbe": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.7321,
+        "byGold": {
+          "completed": 5,
+          "negated": 13,
+          "future": 13,
+          "almost": 10,
+          "n": 56
+        }
+      },
+      "threeA": {
+        "tag": "b",
+        "l2": 0.03,
+        "lo": 0.42,
+        "hi": 0.58,
+        "internal": {
+          "fp": 0,
+          "fn": 0,
+          "mid": 20,
+          "ok": 4,
+          "n": 24
+        },
+        "trainCount": 487,
+        "probeDeltas": [
+          {
+            "id": "NP-GYM",
+            "pDone": 0.4107,
+            "dNeg": -0.0202,
+            "dFut": -0.0568,
+            "dAlm": -0.0124
+          },
+          {
+            "id": "NP-STUDY",
+            "pDone": 0.4836,
+            "dNeg": 0.0056,
+            "dFut": 0.0051,
+            "dAlm": -0.0091
+          },
+          {
+            "id": "NP-APPLY",
+            "pDone": 0.4434,
+            "dNeg": 0.0185,
+            "dFut": -0.006,
+            "dAlm": 0.0047
+          },
+          {
+            "id": "NP-COOK",
+            "pDone": 0.4481,
+            "dNeg": 0.0067,
+            "dFut": -0.0193,
+            "dAlm": -0.0099
+          },
+          {
+            "id": "NP-MED",
+            "pDone": 0.5073,
+            "dNeg": 0.0284,
+            "dFut": 0.0084,
+            "dAlm": 0.0004
+          },
+          {
+            "id": "NP-PRAY",
+            "pDone": 0.4733,
+            "dNeg": 0.01,
+            "dFut": 0.0051,
+            "dAlm": -0.016
+          },
+          {
+            "id": "NP-BUDGET",
+            "pDone": 0.3791,
+            "dNeg": 0.0061,
+            "dFut": -0.0331,
+            "dAlm": -0.0033
+          },
+          {
+            "id": "NP-SKIN",
+            "pDone": 0.4723,
+            "dNeg": 0.0067,
+            "dFut": -0.0093,
+            "dAlm": -0.0143
+          }
+        ],
+        "meanDNeg": 0.0077,
+        "meanDFut": -0.0132,
+        "meanDAlm": -0.0075
+      },
+      "aeClean": {
+        "tag": "b",
+        "l2": 0.03,
+        "lo": 0.45,
+        "hi": 0.58,
+        "internal": {
+          "fp": 0,
+          "fn": 0,
+          "mid": 19,
+          "ok": 5,
+          "n": 24
+        },
+        "trainCount": 294
+      },
+      "dirtyVsCleanTrainCounts": {
+        "dirty": 286,
+        "clean": 294
+      },
+      "matrix": {
+        "A-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 84,
+            "clarificationRate": 0.913,
+            "correctImmediate": 0.0761,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 1,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 62,
+            "clarificationRate": 0.8611,
+            "correctImmediate": 0.125,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 33,
+            "clarificationRate": 0.8919,
+            "correctImmediate": 0.1081,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 16,
+            "clarificationRate": 0.6667,
+            "correctImmediate": 0.3333,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 21,
+            "clarificationRate": 0.9545,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 58,
+            "clarificationRate": 0.8286,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.8286,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 19,
+            "clarificationRate": 0.7037,
+            "correctImmediate": 0.2222,
+            "uncertainGoldAskRate": 0.3333,
+            "uncertainN": 3,
+            "tp": 0,
+            "gamingCredit": 0
+          }
+        },
+        "B-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 89,
+            "clarificationRate": 0.9674,
+            "correctImmediate": 0.0326,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 68,
+            "clarificationRate": 0.9444,
+            "correctImmediate": 0.0556,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 32,
+            "clarificationRate": 0.8649,
+            "correctImmediate": 0.1351,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 19,
+            "clarificationRate": 0.7917,
+            "correctImmediate": 0.2083,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 2,
+            "ask": 20,
+            "clarificationRate": 0.9091,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 66,
+            "clarificationRate": 0.9429,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.9429,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 22,
+            "clarificationRate": 0.8148,
+            "correctImmediate": 0.1111,
+            "uncertainGoldAskRate": 0.3333,
+            "uncertainN": 3,
+            "tp": 0,
+            "gamingCredit": 0
+          }
+        },
+        "C-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 79,
+            "clarificationRate": 0.8587,
+            "correctImmediate": 0.1413,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 2,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 65,
+            "clarificationRate": 0.9028,
+            "correctImmediate": 0.0972,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 31,
+            "clarificationRate": 0.8378,
+            "correctImmediate": 0.1351,
+            "uncertainGoldAskRate": 0.8,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 20,
+            "clarificationRate": 0.8333,
+            "correctImmediate": 0.1667,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 21,
+            "clarificationRate": 0.9545,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 58,
+            "clarificationRate": 0.8286,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.8286,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 23,
+            "clarificationRate": 0.8519,
+            "correctImmediate": 0.1481,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 3,
+            "tp": 0,
+            "gamingCredit": 0
+          }
+        }
+      },
+      "svImmediate": {
+        "A-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "B-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "C-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        }
+      },
+      "negFails": {
+        "A-P0": [],
+        "B-P0": [],
+        "C-P0": []
+      }
+    },
+    "mpnet": {
+      "spec": {
+        "id": "mpnet",
+        "runtimeModelId": "Xenova/all-mpnet-base-v2",
+        "sourceModelId": "sentence-transformers/all-mpnet-base-v2",
+        "family": "MPNet",
+        "license": "Apache-2.0",
+        "pooling": "mean",
+        "normalize": true,
+        "prefix": null,
+        "expectedDim": 768,
+        "approxParamsM": 109,
+        "approxQuantizedOnnxMb": 110,
+        "approxFp32OnnxMb": 420,
+        "transformersJs": true,
+        "notes": "Production Action Evidence encoder. Larger than MiniLM; current two-encoder cost driver.",
+        "docs": [
+          "https://huggingface.co/Xenova/all-mpnet-base-v2",
+          "https://huggingface.co/sentence-transformers/all-mpnet-base-v2"
+        ],
+        "whySelected": "Required production AE baseline and 768-d capacity probe.",
+        "load": {
+          "spec": {
+            "id": "mpnet",
+            "runtimeModelId": "Xenova/all-mpnet-base-v2",
+            "sourceModelId": "sentence-transformers/all-mpnet-base-v2",
+            "family": "MPNet",
+            "license": "Apache-2.0",
+            "pooling": "mean",
+            "normalize": true,
+            "prefix": null,
+            "expectedDim": 768,
+            "approxParamsM": 109,
+            "approxQuantizedOnnxMb": 110,
+            "approxFp32OnnxMb": 420,
+            "transformersJs": true,
+            "notes": "Production Action Evidence encoder. Larger than MiniLM; current two-encoder cost driver.",
+            "docs": [
+              "https://huggingface.co/Xenova/all-mpnet-base-v2",
+              "https://huggingface.co/sentence-transformers/all-mpnet-base-v2"
+            ],
+            "whySelected": "Required production AE baseline and 768-d capacity probe."
+          },
+          "quantized": true,
+          "quantization": "int8-onnx",
+          "coldLoadMs": 396
+        },
+        "warmMsPerEmbedMacNode": 10.35,
+        "embedAllMs": 0,
+        "uniqueTexts": 1116
+      },
+      "geometry": [
+        {
+          "id": "geo.lap_swim",
+          "domain": "Physical Prowess",
+          "sims": {
+            "completed_vs_negated": 0.5656,
+            "completed_vs_future": 0.6251,
+            "completed_vs_almost": 0.4881,
+            "completed_vs_plan": 0.4603,
+            "completed_vs_desire": 0.3916,
+            "completed_vs_passive": 0.4483,
+            "completed_vs_purchase": 0.2546,
+            "completed_vs_shortCompleted": 0.5842,
+            "short_vs_completed": 0.5842,
+            "short_vs_future": 0.4711,
+            "paraphrase_completed_short": 0.5842
+          },
+          "margins": {
+            "completed_minus_negated": 0.4344,
+            "completed_minus_future": 0.3749,
+            "completed_minus_almost": 0.5119
+          }
+        },
+        {
+          "id": "geo.orgo_mechanism",
+          "domain": "Academics",
+          "sims": {
+            "completed_vs_negated": 0.3427,
+            "completed_vs_future": 0.3058,
+            "completed_vs_almost": 0.3217,
+            "completed_vs_plan": 0.0882,
+            "completed_vs_desire": 0.3719,
+            "completed_vs_passive": 0.0969,
+            "completed_vs_purchase": 0.205,
+            "completed_vs_shortCompleted": 0.4148,
+            "short_vs_completed": 0.4148,
+            "short_vs_future": 0.5385,
+            "paraphrase_completed_short": 0.4148
+          },
+          "margins": {
+            "completed_minus_negated": 0.6573,
+            "completed_minus_future": 0.6942,
+            "completed_minus_almost": 0.6783
+          }
+        },
+        {
+          "id": "geo.cold_email",
+          "domain": "Career",
+          "sims": {
+            "completed_vs_negated": 0.1979,
+            "completed_vs_future": 0.3567,
+            "completed_vs_almost": 0.2613,
+            "completed_vs_plan": 0.0842,
+            "completed_vs_desire": 0.1272,
+            "completed_vs_passive": 0.4076,
+            "completed_vs_purchase": 0.0441,
+            "completed_vs_shortCompleted": 0.5429,
+            "short_vs_completed": 0.5429,
+            "short_vs_future": 0.758,
+            "paraphrase_completed_short": 0.5429
+          },
+          "margins": {
+            "completed_minus_negated": 0.8021,
+            "completed_minus_future": 0.6433,
+            "completed_minus_almost": 0.7387
+          }
+        },
+        {
+          "id": "geo.spice_blend",
+          "domain": "Nutrition & Cooking",
+          "sims": {
+            "completed_vs_negated": 0.3852,
+            "completed_vs_future": 0.6708,
+            "completed_vs_almost": 0.6247,
+            "completed_vs_plan": 0.271,
+            "completed_vs_desire": 0.3539,
+            "completed_vs_passive": 0.2015,
+            "completed_vs_purchase": 0.3781,
+            "completed_vs_shortCompleted": 0.718,
+            "short_vs_completed": 0.718,
+            "short_vs_future": 0.6239,
+            "paraphrase_completed_short": 0.718
+          },
+          "margins": {
+            "completed_minus_negated": 0.6148,
+            "completed_minus_future": 0.3292,
+            "completed_minus_almost": 0.3753
+          }
+        },
+        {
+          "id": "geo.floss_bridge",
+          "domain": "Appearance & Self-Care",
+          "sims": {
+            "completed_vs_negated": 0.468,
+            "completed_vs_future": 0.4618,
+            "completed_vs_almost": 0.5173,
+            "completed_vs_plan": 0.3074,
+            "completed_vs_desire": 0.3113,
+            "completed_vs_passive": 0.3355,
+            "completed_vs_purchase": 0.477,
+            "completed_vs_shortCompleted": 0.6,
+            "short_vs_completed": 0.6,
+            "short_vs_future": 0.4782,
+            "paraphrase_completed_short": 0.6
+          },
+          "margins": {
+            "completed_minus_negated": 0.532,
+            "completed_minus_future": 0.5382,
+            "completed_minus_almost": 0.4827
+          }
+        },
+        {
+          "id": "geo.psalm_copy",
+          "domain": "Spirituality",
+          "sims": {
+            "completed_vs_negated": 0.2937,
+            "completed_vs_future": 0.4835,
+            "completed_vs_almost": 0.2108,
+            "completed_vs_plan": 0.2108,
+            "completed_vs_desire": 0.1187,
+            "completed_vs_passive": 0.3517,
+            "completed_vs_purchase": 0.4044,
+            "completed_vs_shortCompleted": 0.6561,
+            "short_vs_completed": 0.6561,
+            "short_vs_future": 0.7466,
+            "paraphrase_completed_short": 0.6561
+          },
+          "margins": {
+            "completed_minus_negated": 0.7063,
+            "completed_minus_future": 0.5165,
+            "completed_minus_almost": 0.7892
+          }
+        }
+      ],
+      "geoSummary": {
+        "meanCompletedVsNegated": 0.3755,
+        "meanCompletedVsFuture": 0.484,
+        "meanCompletedVsAlmost": 0.404,
+        "meanCompletedVsPlan": 0.237,
+        "meanCompletedVsPurchase": 0.2939,
+        "meanCompletedVsPassive": 0.3069,
+        "meanParaphrase": 0.586
+      },
+      "retrievalSummary": {
+        "completedMeanPurity": 0.0667,
+        "futureMeanPurity": 0.3,
+        "negatedMeanPurity": 0.2667
+      },
+      "retrievalSample": {
+        "completed0": {
+          "queryState": "completed",
+          "k": 5,
+          "sameState": 0,
+          "purity": 0,
+          "sameFamilyOtherState": 5,
+          "top": [
+            {
+              "state": "future",
+              "family": "geo.lap_swim",
+              "sim": 0.6251,
+              "text": "I'll swim twenty laps tomorrow"
+            },
+            {
+              "state": "shortCompleted",
+              "family": "geo.lap_swim",
+              "sim": 0.5842,
+              "text": "swam laps"
+            },
+            {
+              "state": "negated",
+              "family": "geo.lap_swim",
+              "sim": 0.5656,
+              "text": "I didn't swim at all today"
+            },
+            {
+              "state": "almost",
+              "family": "geo.lap_swim",
+              "sim": 0.4881,
+              "text": "I almost made it to the pool and turned around"
+            },
+            {
+              "state": "plan",
+              "family": "geo.lap_swim",
+              "sim": 0.4603,
+              "text": "Planning a swim block after midterms"
+            }
+          ]
+        },
+        "future0": {
+          "queryState": "future",
+          "k": 5,
+          "sameState": 3,
+          "purity": 0.6,
+          "sameFamilyOtherState": 2,
+          "top": [
+            {
+              "state": "completed",
+              "family": "geo.lap_swim",
+              "sim": 0.6251,
+              "text": "Swam twenty laps this morning and timed the last one"
+            },
+            {
+              "state": "future",
+              "family": "NP-GYM",
+              "sim": 0.517,
+              "text": "I'll go to the gym tomorrow"
+            },
+            {
+              "state": "future",
+              "family": "NP-COOK",
+              "sim": 0.5054,
+              "text": "I'll cook dinner tomorrow"
+            },
+            {
+              "state": "future",
+              "family": "NP-PRAY",
+              "sim": 0.4995,
+              "text": "I'll pray tomorrow"
+            },
+            {
+              "state": "negated",
+              "family": "geo.lap_swim",
+              "sim": 0.4884,
+              "text": "I didn't swim at all today"
+            }
+          ]
+        }
+      },
+      "nliTemplateProbe": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.8036,
+        "byGold": {
+          "completed": 8,
+          "negated": 11,
+          "future": 14,
+          "almost": 12,
+          "n": 56
+        }
+      },
+      "threeA": {
+        "tag": "b",
+        "l2": 0.03,
+        "lo": 0.4,
+        "hi": 0.55,
+        "internal": {
+          "fp": 0,
+          "fn": 0,
+          "mid": 20,
+          "ok": 4,
+          "n": 24
+        },
+        "trainCount": 487,
+        "probeDeltas": [
+          {
+            "id": "NP-GYM",
+            "pDone": 0.3829,
+            "dNeg": -0.0215,
+            "dFut": -0.0549,
+            "dAlm": -0.015
+          },
+          {
+            "id": "NP-STUDY",
+            "pDone": 0.4893,
+            "dNeg": 0.0074,
+            "dFut": 0.0253,
+            "dAlm": 0.0124
+          },
+          {
+            "id": "NP-APPLY",
+            "pDone": 0.412,
+            "dNeg": 0.0129,
+            "dFut": -0.021,
+            "dAlm": -0.0291
+          },
+          {
+            "id": "NP-COOK",
+            "pDone": 0.431,
+            "dNeg": -0.0168,
+            "dFut": -0.0414,
+            "dAlm": -0.0211
+          },
+          {
+            "id": "NP-MED",
+            "pDone": 0.4561,
+            "dNeg": -0.0008,
+            "dFut": -0.0356,
+            "dAlm": -0.0053
+          },
+          {
+            "id": "NP-PRAY",
+            "pDone": 0.4552,
+            "dNeg": -0.0001,
+            "dFut": -0.0161,
+            "dAlm": 0.0045
+          },
+          {
+            "id": "NP-BUDGET",
+            "pDone": 0.4014,
+            "dNeg": -0.0033,
+            "dFut": -0.0123,
+            "dAlm": 0.0043
+          },
+          {
+            "id": "NP-SKIN",
+            "pDone": 0.4411,
+            "dNeg": -0.0114,
+            "dFut": -0.0476,
+            "dAlm": -0.0264
+          }
+        ],
+        "meanDNeg": -0.0042,
+        "meanDFut": -0.0255,
+        "meanDAlm": -0.0095
+      },
+      "aeClean": {
+        "tag": "a",
+        "l2": 0.01,
+        "lo": 0.42,
+        "hi": 0.65,
+        "internal": {
+          "fp": 0,
+          "fn": 1,
+          "mid": 16,
+          "ok": 7,
+          "n": 24
+        },
+        "trainCount": 294
+      },
+      "dirtyVsCleanTrainCounts": {
+        "dirty": 286,
+        "clean": 294
+      },
+      "matrix": {
+        "A-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 77,
+            "clarificationRate": 0.837,
+            "correctImmediate": 0.1522,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 7,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 62,
+            "clarificationRate": 0.8611,
+            "correctImmediate": 0.125,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 32,
+            "clarificationRate": 0.8649,
+            "correctImmediate": 0.1081,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 15,
+            "clarificationRate": 0.625,
+            "correctImmediate": 0.375,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 21,
+            "clarificationRate": 0.9545,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 58,
+            "clarificationRate": 0.8286,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.8286,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 18,
+            "clarificationRate": 0.6667,
+            "correctImmediate": 0.2593,
+            "uncertainGoldAskRate": 0.3333,
+            "uncertainN": 3,
+            "tp": 2,
+            "gamingCredit": 0
+          }
+        },
+        "B-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 84,
+            "clarificationRate": 0.913,
+            "correctImmediate": 0.087,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 6,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 64,
+            "clarificationRate": 0.8889,
+            "correctImmediate": 0.0972,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 32,
+            "clarificationRate": 0.8649,
+            "correctImmediate": 0.1351,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 19,
+            "clarificationRate": 0.7917,
+            "correctImmediate": 0.2083,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 21,
+            "clarificationRate": 0.9545,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 63,
+            "clarificationRate": 0.9,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.9,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 19,
+            "clarificationRate": 0.7037,
+            "correctImmediate": 0.2222,
+            "uncertainGoldAskRate": 0.3333,
+            "uncertainN": 3,
+            "tp": 2,
+            "gamingCredit": 0
+          }
+        },
+        "C-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 66,
+            "clarificationRate": 0.7174,
+            "correctImmediate": 0.2826,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 9,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 64,
+            "clarificationRate": 0.8889,
+            "correctImmediate": 0.0972,
+            "uncertainGoldAskRate": 0.875,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 28,
+            "clarificationRate": 0.7568,
+            "correctImmediate": 0.1622,
+            "uncertainGoldAskRate": 0.6,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 18,
+            "clarificationRate": 0.75,
+            "correctImmediate": 0.25,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 22,
+            "clarificationRate": 1,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 65,
+            "clarificationRate": 0.9286,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.9286,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 23,
+            "clarificationRate": 0.8519,
+            "correctImmediate": 0.1481,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 3,
+            "tp": 2,
+            "gamingCredit": 0
+          }
+        }
+      },
+      "svImmediate": {
+        "A-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "B-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "C-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        }
+      },
+      "negFails": {
+        "A-P0": [],
+        "B-P0": [],
+        "C-P0": []
+      }
+    },
+    "gte-small": {
+      "spec": {
+        "id": "gte-small",
+        "runtimeModelId": "Xenova/gte-small",
+        "sourceModelId": "thenlper/gte-small",
+        "family": "GTE",
+        "license": "MIT",
+        "pooling": "mean",
+        "normalize": true,
+        "prefix": null,
+        "expectedDim": 384,
+        "approxParamsM": 33,
+        "approxQuantizedOnnxMb": 33,
+        "approxFp32OnnxMb": 130,
+        "transformersJs": true,
+        "notes": "Alibaba GTE-small. Mean pool. No required prefix. English, 512 tokens. Comparable size to MiniLM with a more recent contrastive objective.",
+        "docs": [
+          "https://huggingface.co/Xenova/gte-small",
+          "https://huggingface.co/thenlper/gte-small"
+        ],
+        "whySelected": "Modern sentence embedding, Transformers.js ONNX, MiniLM-like size, no instruction prefix (safer for classification probing).",
+        "load": {
+          "spec": {
+            "id": "gte-small",
+            "runtimeModelId": "Xenova/gte-small",
+            "sourceModelId": "thenlper/gte-small",
+            "family": "GTE",
+            "license": "MIT",
+            "pooling": "mean",
+            "normalize": true,
+            "prefix": null,
+            "expectedDim": 384,
+            "approxParamsM": 33,
+            "approxQuantizedOnnxMb": 33,
+            "approxFp32OnnxMb": 130,
+            "transformersJs": true,
+            "notes": "Alibaba GTE-small. Mean pool. No required prefix. English, 512 tokens. Comparable size to MiniLM with a more recent contrastive objective.",
+            "docs": [
+              "https://huggingface.co/Xenova/gte-small",
+              "https://huggingface.co/thenlper/gte-small"
+            ],
+            "whySelected": "Modern sentence embedding, Transformers.js ONNX, MiniLM-like size, no instruction prefix (safer for classification probing)."
+          },
+          "quantized": true,
+          "quantization": "int8-onnx",
+          "coldLoadMs": 2310
+        },
+        "warmMsPerEmbedMacNode": 2.75,
+        "embedAllMs": 6718,
+        "uniqueTexts": 1116
+      },
+      "geometry": [
+        {
+          "id": "geo.lap_swim",
+          "domain": "Physical Prowess",
+          "sims": {
+            "completed_vs_negated": 0.8554,
+            "completed_vs_future": 0.9263,
+            "completed_vs_almost": 0.8456,
+            "completed_vs_plan": 0.8285,
+            "completed_vs_desire": 0.8295,
+            "completed_vs_passive": 0.8648,
+            "completed_vs_purchase": 0.7738,
+            "completed_vs_shortCompleted": 0.9166,
+            "short_vs_completed": 0.9166,
+            "short_vs_future": 0.8895,
+            "paraphrase_completed_short": 0.9166
+          },
+          "margins": {
+            "completed_minus_negated": 0.1446,
+            "completed_minus_future": 0.0737,
+            "completed_minus_almost": 0.1544
+          }
+        },
+        {
+          "id": "geo.orgo_mechanism",
+          "domain": "Academics",
+          "sims": {
+            "completed_vs_negated": 0.7677,
+            "completed_vs_future": 0.8063,
+            "completed_vs_almost": 0.7697,
+            "completed_vs_plan": 0.7561,
+            "completed_vs_desire": 0.813,
+            "completed_vs_passive": 0.7776,
+            "completed_vs_purchase": 0.7389,
+            "completed_vs_shortCompleted": 0.8173,
+            "short_vs_completed": 0.8173,
+            "short_vs_future": 0.9081,
+            "paraphrase_completed_short": 0.8173
+          },
+          "margins": {
+            "completed_minus_negated": 0.2323,
+            "completed_minus_future": 0.1937,
+            "completed_minus_almost": 0.2303
+          }
+        },
+        {
+          "id": "geo.cold_email",
+          "domain": "Career",
+          "sims": {
+            "completed_vs_negated": 0.7673,
+            "completed_vs_future": 0.8215,
+            "completed_vs_almost": 0.8036,
+            "completed_vs_plan": 0.7395,
+            "completed_vs_desire": 0.7448,
+            "completed_vs_passive": 0.8336,
+            "completed_vs_purchase": 0.7426,
+            "completed_vs_shortCompleted": 0.8852,
+            "short_vs_completed": 0.8852,
+            "short_vs_future": 0.9206,
+            "paraphrase_completed_short": 0.8852
+          },
+          "margins": {
+            "completed_minus_negated": 0.2327,
+            "completed_minus_future": 0.1785,
+            "completed_minus_almost": 0.1964
+          }
+        },
+        {
+          "id": "geo.spice_blend",
+          "domain": "Nutrition & Cooking",
+          "sims": {
+            "completed_vs_negated": 0.8063,
+            "completed_vs_future": 0.8758,
+            "completed_vs_almost": 0.9045,
+            "completed_vs_plan": 0.8054,
+            "completed_vs_desire": 0.8311,
+            "completed_vs_passive": 0.8288,
+            "completed_vs_purchase": 0.8356,
+            "completed_vs_shortCompleted": 0.9337,
+            "short_vs_completed": 0.9337,
+            "short_vs_future": 0.864,
+            "paraphrase_completed_short": 0.9337
+          },
+          "margins": {
+            "completed_minus_negated": 0.1937,
+            "completed_minus_future": 0.1242,
+            "completed_minus_almost": 0.0955
+          }
+        },
+        {
+          "id": "geo.floss_bridge",
+          "domain": "Appearance & Self-Care",
+          "sims": {
+            "completed_vs_negated": 0.8651,
+            "completed_vs_future": 0.8517,
+            "completed_vs_almost": 0.8586,
+            "completed_vs_plan": 0.7999,
+            "completed_vs_desire": 0.8111,
+            "completed_vs_passive": 0.8073,
+            "completed_vs_purchase": 0.8586,
+            "completed_vs_shortCompleted": 0.9605,
+            "short_vs_completed": 0.9605,
+            "short_vs_future": 0.877,
+            "paraphrase_completed_short": 0.9605
+          },
+          "margins": {
+            "completed_minus_negated": 0.1349,
+            "completed_minus_future": 0.1483,
+            "completed_minus_almost": 0.1414
+          }
+        },
+        {
+          "id": "geo.psalm_copy",
+          "domain": "Spirituality",
+          "sims": {
+            "completed_vs_negated": 0.7865,
+            "completed_vs_future": 0.9206,
+            "completed_vs_almost": 0.7846,
+            "completed_vs_plan": 0.7992,
+            "completed_vs_desire": 0.7842,
+            "completed_vs_passive": 0.8188,
+            "completed_vs_purchase": 0.8414,
+            "completed_vs_shortCompleted": 0.9574,
+            "short_vs_completed": 0.9574,
+            "short_vs_future": 0.9496,
+            "paraphrase_completed_short": 0.9574
+          },
+          "margins": {
+            "completed_minus_negated": 0.2135,
+            "completed_minus_future": 0.0794,
+            "completed_minus_almost": 0.2154
+          }
+        }
+      ],
+      "geoSummary": {
+        "meanCompletedVsNegated": 0.8081,
+        "meanCompletedVsFuture": 0.867,
+        "meanCompletedVsAlmost": 0.8278,
+        "meanCompletedVsPlan": 0.7881,
+        "meanCompletedVsPurchase": 0.7985,
+        "meanCompletedVsPassive": 0.8218,
+        "meanParaphrase": 0.9118
+      },
+      "retrievalSummary": {
+        "completedMeanPurity": 0.1333,
+        "futureMeanPurity": 0.4,
+        "negatedMeanPurity": 0.5
+      },
+      "retrievalSample": {
+        "completed0": {
+          "queryState": "completed",
+          "k": 5,
+          "sameState": 0,
+          "purity": 0,
+          "sameFamilyOtherState": 5,
+          "top": [
+            {
+              "state": "future",
+              "family": "geo.lap_swim",
+              "sim": 0.9263,
+              "text": "I'll swim twenty laps tomorrow"
+            },
+            {
+              "state": "shortCompleted",
+              "family": "geo.lap_swim",
+              "sim": 0.9166,
+              "text": "swam laps"
+            },
+            {
+              "state": "passive",
+              "family": "geo.lap_swim",
+              "sim": 0.8648,
+              "text": "Watched Olympic swimming highlights in bed"
+            },
+            {
+              "state": "negated",
+              "family": "geo.lap_swim",
+              "sim": 0.8554,
+              "text": "I didn't swim at all today"
+            },
+            {
+              "state": "almost",
+              "family": "geo.lap_swim",
+              "sim": 0.8456,
+              "text": "I almost made it to the pool and turned around"
+            }
+          ]
+        },
+        "future0": {
+          "queryState": "future",
+          "k": 5,
+          "sameState": 2,
+          "purity": 0.4,
+          "sameFamilyOtherState": 3,
+          "top": [
+            {
+              "state": "completed",
+              "family": "geo.lap_swim",
+              "sim": 0.9263,
+              "text": "Swam twenty laps this morning and timed the last one"
+            },
+            {
+              "state": "shortCompleted",
+              "family": "geo.lap_swim",
+              "sim": 0.8895,
+              "text": "swam laps"
+            },
+            {
+              "state": "future",
+              "family": "NP-GYM",
+              "sim": 0.8807,
+              "text": "I'll go to the gym tomorrow"
+            },
+            {
+              "state": "future",
+              "family": "NP-MED",
+              "sim": 0.8763,
+              "text": "I'll meditate tomorrow"
+            },
+            {
+              "state": "desire",
+              "family": "geo.lap_swim",
+              "sim": 0.8643,
+              "text": "I want to become a real swimmer"
+            }
+          ]
+        }
+      },
+      "nliTemplateProbe": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.8929,
+        "byGold": {
+          "completed": 11,
+          "negated": 14,
+          "future": 14,
+          "almost": 11,
+          "n": 56
+        }
+      },
+      "threeA": {
+        "tag": "a",
+        "l2": 0.01,
+        "lo": 0.45,
+        "hi": 0.55,
+        "internal": {
+          "fp": 0,
+          "fn": 0,
+          "mid": 15,
+          "ok": 9,
+          "n": 24
+        },
+        "trainCount": 487,
+        "probeDeltas": [
+          {
+            "id": "NP-GYM",
+            "pDone": 0.4527,
+            "dNeg": 0.025,
+            "dFut": 0.0116,
+            "dAlm": 0.0123
+          },
+          {
+            "id": "NP-STUDY",
+            "pDone": 0.5028,
+            "dNeg": 0.0282,
+            "dFut": 0.0201,
+            "dAlm": -0.0101
+          },
+          {
+            "id": "NP-APPLY",
+            "pDone": 0.4658,
+            "dNeg": 0.0275,
+            "dFut": 0.0021,
+            "dAlm": 0.0002
+          },
+          {
+            "id": "NP-COOK",
+            "pDone": 0.4935,
+            "dNeg": 0.0272,
+            "dFut": 0.0097,
+            "dAlm": 0.0099
+          },
+          {
+            "id": "NP-MED",
+            "pDone": 0.5002,
+            "dNeg": 0.0444,
+            "dFut": 0.0338,
+            "dAlm": 0.0152
+          },
+          {
+            "id": "NP-PRAY",
+            "pDone": 0.4729,
+            "dNeg": 0.0079,
+            "dFut": 0.0129,
+            "dAlm": 0.0034
+          },
+          {
+            "id": "NP-BUDGET",
+            "pDone": 0.4234,
+            "dNeg": 0.0145,
+            "dFut": 0.0045,
+            "dAlm": 0.0104
+          },
+          {
+            "id": "NP-SKIN",
+            "pDone": 0.485,
+            "dNeg": 0.0292,
+            "dFut": 0.0174,
+            "dAlm": -0.0012
+          }
+        ],
+        "meanDNeg": 0.0255,
+        "meanDFut": 0.014,
+        "meanDAlm": 0.005
+      },
+      "aeClean": {
+        "tag": "a",
+        "l2": 0.01,
+        "lo": 0.5,
+        "hi": 0.62,
+        "internal": {
+          "fp": 0,
+          "fn": 1,
+          "mid": 17,
+          "ok": 6,
+          "n": 24
+        },
+        "trainCount": 294
+      },
+      "dirtyVsCleanTrainCounts": {
+        "dirty": 286,
+        "clean": 294
+      },
+      "matrix": {
+        "A-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 75,
+            "clarificationRate": 0.8152,
+            "correctImmediate": 0.1739,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 3,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 60,
+            "clarificationRate": 0.8333,
+            "correctImmediate": 0.1528,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 33,
+            "clarificationRate": 0.8919,
+            "correctImmediate": 0.1081,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 15,
+            "clarificationRate": 0.625,
+            "correctImmediate": 0.375,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 2,
+            "ask": 20,
+            "clarificationRate": 0.9091,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 58,
+            "clarificationRate": 0.8286,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.8286,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 16,
+            "clarificationRate": 0.5926,
+            "correctImmediate": 0.3333,
+            "uncertainGoldAskRate": 0.3333,
+            "uncertainN": 3,
+            "tp": 1,
+            "gamingCredit": 0
+          }
+        },
+        "B-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 80,
+            "clarificationRate": 0.8696,
+            "correctImmediate": 0.1196,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 8,
+            "ask": 53,
+            "clarificationRate": 0.7361,
+            "correctImmediate": 0.125,
+            "uncertainGoldAskRate": 0.75,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 2,
+            "ask": 29,
+            "clarificationRate": 0.7838,
+            "correctImmediate": 0.1351,
+            "uncertainGoldAskRate": 0.8,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 12,
+            "clarificationRate": 0.5,
+            "correctImmediate": 0.5,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 2,
+            "ask": 20,
+            "clarificationRate": 0.9091,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 65,
+            "clarificationRate": 0.9286,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.9286,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 17,
+            "clarificationRate": 0.6296,
+            "correctImmediate": 0.2593,
+            "uncertainGoldAskRate": 0,
+            "uncertainN": 3,
+            "tp": 0,
+            "gamingCredit": 0
+          }
+        },
+        "C-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 54,
+            "clarificationRate": 0.587,
+            "correctImmediate": 0.413,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 4,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 59,
+            "clarificationRate": 0.8194,
+            "correctImmediate": 0.1667,
+            "uncertainGoldAskRate": 0.875,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 25,
+            "clarificationRate": 0.6757,
+            "correctImmediate": 0.2703,
+            "uncertainGoldAskRate": 0.6,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 14,
+            "clarificationRate": 0.5833,
+            "correctImmediate": 0.4167,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 3,
+            "ask": 19,
+            "clarificationRate": 0.8636,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 57,
+            "clarificationRate": 0.8143,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.8143,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 18,
+            "clarificationRate": 0.6667,
+            "correctImmediate": 0.3333,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 3,
+            "tp": 1,
+            "gamingCredit": 0
+          }
+        }
+      },
+      "svImmediate": {
+        "A-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "B-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "C-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        }
+      },
+      "negFails": {
+        "A-P0": [],
+        "B-P0": [],
+        "C-P0": []
+      }
+    },
+    "e5-small-v2": {
+      "spec": {
+        "id": "e5-small-v2",
+        "runtimeModelId": "Xenova/e5-small-v2",
+        "sourceModelId": "intfloat/e5-small-v2",
+        "family": "E5",
+        "license": "MIT",
+        "pooling": "mean",
+        "normalize": true,
+        "prefix": "query: ",
+        "expectedDim": 384,
+        "approxParamsM": 33,
+        "approxQuantizedOnnxMb": 33,
+        "approxFp32OnnxMb": 130,
+        "transformersJs": true,
+        "notes": "E5-small-v2. Model card requires query:/passage: prefixes. For symmetric/classification features the authors specify \"query: \". Applied here for all Stage 4 embeds.",
+        "docs": [
+          "https://huggingface.co/Xenova/e5-small-v2",
+          "https://huggingface.co/intfloat/e5-small-v2"
+        ],
+        "whySelected": "Weakly supervised contrastive embeddings with documented linear-probe usage; tests whether prefix-conditioned E5 separates action state better than MiniLM.",
+        "load": {
+          "spec": {
+            "id": "e5-small-v2",
+            "runtimeModelId": "Xenova/e5-small-v2",
+            "sourceModelId": "intfloat/e5-small-v2",
+            "family": "E5",
+            "license": "MIT",
+            "pooling": "mean",
+            "normalize": true,
+            "prefix": "query: ",
+            "expectedDim": 384,
+            "approxParamsM": 33,
+            "approxQuantizedOnnxMb": 33,
+            "approxFp32OnnxMb": 130,
+            "transformersJs": true,
+            "notes": "E5-small-v2. Model card requires query:/passage: prefixes. For symmetric/classification features the authors specify \"query: \". Applied here for all Stage 4 embeds.",
+            "docs": [
+              "https://huggingface.co/Xenova/e5-small-v2",
+              "https://huggingface.co/intfloat/e5-small-v2"
+            ],
+            "whySelected": "Weakly supervised contrastive embeddings with documented linear-probe usage; tests whether prefix-conditioned E5 separates action state better than MiniLM."
+          },
+          "quantized": true,
+          "quantization": "int8-onnx",
+          "coldLoadMs": 1996
+        },
+        "warmMsPerEmbedMacNode": 7.05,
+        "embedAllMs": 9693,
+        "uniqueTexts": 1116
+      },
+      "geometry": [
+        {
+          "id": "geo.lap_swim",
+          "domain": "Physical Prowess",
+          "sims": {
+            "completed_vs_negated": 0.857,
+            "completed_vs_future": 0.9393,
+            "completed_vs_almost": 0.835,
+            "completed_vs_plan": 0.8327,
+            "completed_vs_desire": 0.8287,
+            "completed_vs_passive": 0.8335,
+            "completed_vs_purchase": 0.8045,
+            "completed_vs_shortCompleted": 0.8656,
+            "short_vs_completed": 0.8656,
+            "short_vs_future": 0.8424,
+            "paraphrase_completed_short": 0.8656
+          },
+          "margins": {
+            "completed_minus_negated": 0.143,
+            "completed_minus_future": 0.0607,
+            "completed_minus_almost": 0.165
+          }
+        },
+        {
+          "id": "geo.orgo_mechanism",
+          "domain": "Academics",
+          "sims": {
+            "completed_vs_negated": 0.8042,
+            "completed_vs_future": 0.8452,
+            "completed_vs_almost": 0.8239,
+            "completed_vs_plan": 0.7816,
+            "completed_vs_desire": 0.8308,
+            "completed_vs_passive": 0.7973,
+            "completed_vs_purchase": 0.8066,
+            "completed_vs_shortCompleted": 0.8751,
+            "short_vs_completed": 0.8751,
+            "short_vs_future": 0.8768,
+            "paraphrase_completed_short": 0.8751
+          },
+          "margins": {
+            "completed_minus_negated": 0.1958,
+            "completed_minus_future": 0.1548,
+            "completed_minus_almost": 0.1761
+          }
+        },
+        {
+          "id": "geo.cold_email",
+          "domain": "Career",
+          "sims": {
+            "completed_vs_negated": 0.7586,
+            "completed_vs_future": 0.8462,
+            "completed_vs_almost": 0.8454,
+            "completed_vs_plan": 0.7782,
+            "completed_vs_desire": 0.8062,
+            "completed_vs_passive": 0.8334,
+            "completed_vs_purchase": 0.7935,
+            "completed_vs_shortCompleted": 0.8985,
+            "short_vs_completed": 0.8985,
+            "short_vs_future": 0.9097,
+            "paraphrase_completed_short": 0.8985
+          },
+          "margins": {
+            "completed_minus_negated": 0.2414,
+            "completed_minus_future": 0.1538,
+            "completed_minus_almost": 0.1546
+          }
+        },
+        {
+          "id": "geo.spice_blend",
+          "domain": "Nutrition & Cooking",
+          "sims": {
+            "completed_vs_negated": 0.793,
+            "completed_vs_future": 0.8843,
+            "completed_vs_almost": 0.8752,
+            "completed_vs_plan": 0.8152,
+            "completed_vs_desire": 0.8116,
+            "completed_vs_passive": 0.8241,
+            "completed_vs_purchase": 0.8661,
+            "completed_vs_shortCompleted": 0.912,
+            "short_vs_completed": 0.912,
+            "short_vs_future": 0.8669,
+            "paraphrase_completed_short": 0.912
+          },
+          "margins": {
+            "completed_minus_negated": 0.207,
+            "completed_minus_future": 0.1157,
+            "completed_minus_almost": 0.1248
+          }
+        },
+        {
+          "id": "geo.floss_bridge",
+          "domain": "Appearance & Self-Care",
+          "sims": {
+            "completed_vs_negated": 0.829,
+            "completed_vs_future": 0.8445,
+            "completed_vs_almost": 0.8402,
+            "completed_vs_plan": 0.7875,
+            "completed_vs_desire": 0.7995,
+            "completed_vs_passive": 0.8014,
+            "completed_vs_purchase": 0.8481,
+            "completed_vs_shortCompleted": 0.9388,
+            "short_vs_completed": 0.9388,
+            "short_vs_future": 0.851,
+            "paraphrase_completed_short": 0.9388
+          },
+          "margins": {
+            "completed_minus_negated": 0.171,
+            "completed_minus_future": 0.1555,
+            "completed_minus_almost": 0.1598
+          }
+        },
+        {
+          "id": "geo.psalm_copy",
+          "domain": "Spirituality",
+          "sims": {
+            "completed_vs_negated": 0.7917,
+            "completed_vs_future": 0.9127,
+            "completed_vs_almost": 0.8042,
+            "completed_vs_plan": 0.7986,
+            "completed_vs_desire": 0.7842,
+            "completed_vs_passive": 0.8385,
+            "completed_vs_purchase": 0.8513,
+            "completed_vs_shortCompleted": 0.9232,
+            "short_vs_completed": 0.9232,
+            "short_vs_future": 0.9178,
+            "paraphrase_completed_short": 0.9232
+          },
+          "margins": {
+            "completed_minus_negated": 0.2083,
+            "completed_minus_future": 0.0873,
+            "completed_minus_almost": 0.1958
+          }
+        }
+      ],
+      "geoSummary": {
+        "meanCompletedVsNegated": 0.8056,
+        "meanCompletedVsFuture": 0.8787,
+        "meanCompletedVsAlmost": 0.8373,
+        "meanCompletedVsPlan": 0.799,
+        "meanCompletedVsPurchase": 0.8283,
+        "meanCompletedVsPassive": 0.8214,
+        "meanParaphrase": 0.9022
+      },
+      "retrievalSummary": {
+        "completedMeanPurity": 0.1,
+        "futureMeanPurity": 0.7,
+        "negatedMeanPurity": 0.9667
+      },
+      "retrievalSample": {
+        "completed0": {
+          "queryState": "completed",
+          "k": 5,
+          "sameState": 0,
+          "purity": 0,
+          "sameFamilyOtherState": 4,
+          "top": [
+            {
+              "state": "future",
+              "family": "geo.lap_swim",
+              "sim": 0.9393,
+              "text": "I'll swim twenty laps tomorrow"
+            },
+            {
+              "state": "shortCompleted",
+              "family": "geo.lap_swim",
+              "sim": 0.8656,
+              "text": "swam laps"
+            },
+            {
+              "state": "negated",
+              "family": "geo.lap_swim",
+              "sim": 0.857,
+              "text": "I didn't swim at all today"
+            },
+            {
+              "state": "future",
+              "family": "NP-MED",
+              "sim": 0.8371,
+              "text": "I'll meditate tomorrow"
+            },
+            {
+              "state": "almost",
+              "family": "geo.lap_swim",
+              "sim": 0.835,
+              "text": "I almost made it to the pool and turned around"
+            }
+          ]
+        },
+        "future0": {
+          "queryState": "future",
+          "k": 5,
+          "sameState": 4,
+          "purity": 0.8,
+          "sameFamilyOtherState": 1,
+          "top": [
+            {
+              "state": "completed",
+              "family": "geo.lap_swim",
+              "sim": 0.9393,
+              "text": "Swam twenty laps this morning and timed the last one"
+            },
+            {
+              "state": "future",
+              "family": "NP-MED",
+              "sim": 0.888,
+              "text": "I'll meditate tomorrow"
+            },
+            {
+              "state": "future",
+              "family": "geo.floss_bridge",
+              "sim": 0.8737,
+              "text": "I'll floss tomorrow for sure"
+            },
+            {
+              "state": "future",
+              "family": "NP-GYM",
+              "sim": 0.8701,
+              "text": "I'll go to the gym tomorrow"
+            },
+            {
+              "state": "future",
+              "family": "NP-STUDY",
+              "sim": 0.866,
+              "text": "I'll study calculus tomorrow"
+            }
+          ]
+        }
+      },
+      "nliTemplateProbe": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.9107,
+        "byGold": {
+          "completed": 9,
+          "negated": 14,
+          "future": 14,
+          "almost": 14,
+          "n": 56
+        }
+      },
+      "threeA": {
+        "tag": "a",
+        "l2": 0.01,
+        "lo": 0.45,
+        "hi": 0.55,
+        "internal": {
+          "fp": 0,
+          "fn": 0,
+          "mid": 17,
+          "ok": 7,
+          "n": 24
+        },
+        "trainCount": 487,
+        "probeDeltas": [
+          {
+            "id": "NP-GYM",
+            "pDone": 0.3961,
+            "dNeg": 0.0151,
+            "dFut": -0.0129,
+            "dAlm": -0.0017
+          },
+          {
+            "id": "NP-STUDY",
+            "pDone": 0.4615,
+            "dNeg": 0.0392,
+            "dFut": -0.0014,
+            "dAlm": -0.0067
+          },
+          {
+            "id": "NP-APPLY",
+            "pDone": 0.4467,
+            "dNeg": 0.042,
+            "dFut": 0.0018,
+            "dAlm": -0.005
+          },
+          {
+            "id": "NP-COOK",
+            "pDone": 0.4431,
+            "dNeg": 0.0404,
+            "dFut": -0.0105,
+            "dAlm": 0.0045
+          },
+          {
+            "id": "NP-MED",
+            "pDone": 0.4718,
+            "dNeg": 0.0788,
+            "dFut": 0.0425,
+            "dAlm": 0.0282
+          },
+          {
+            "id": "NP-PRAY",
+            "pDone": 0.4524,
+            "dNeg": 0.0489,
+            "dFut": 0.0122,
+            "dAlm": 0.0206
+          },
+          {
+            "id": "NP-BUDGET",
+            "pDone": 0.3923,
+            "dNeg": 0.0305,
+            "dFut": 0.0037,
+            "dAlm": 0.0095
+          },
+          {
+            "id": "NP-SKIN",
+            "pDone": 0.4602,
+            "dNeg": 0.0538,
+            "dFut": 0.0074,
+            "dAlm": 0.008
+          }
+        ],
+        "meanDNeg": 0.0436,
+        "meanDFut": 0.0054,
+        "meanDAlm": 0.0072
+      },
+      "aeClean": {
+        "tag": "a",
+        "l2": 0.01,
+        "lo": 0.5,
+        "hi": 0.62,
+        "internal": {
+          "fp": 0,
+          "fn": 0,
+          "mid": 16,
+          "ok": 8,
+          "n": 24
+        },
+        "trainCount": 294
+      },
+      "dirtyVsCleanTrainCounts": {
+        "dirty": 286,
+        "clean": 294
+      },
+      "matrix": {
+        "A-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 74,
+            "clarificationRate": 0.8043,
+            "correctImmediate": 0.1848,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 2,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 3,
+            "ask": 58,
+            "clarificationRate": 0.8056,
+            "correctImmediate": 0.1528,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 32,
+            "clarificationRate": 0.8649,
+            "correctImmediate": 0.1081,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 14,
+            "clarificationRate": 0.5833,
+            "correctImmediate": 0.4167,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 4,
+            "ask": 18,
+            "clarificationRate": 0.8182,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 56,
+            "clarificationRate": 0.8,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.8,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 18,
+            "clarificationRate": 0.6667,
+            "correctImmediate": 0.2593,
+            "uncertainGoldAskRate": 0.3333,
+            "uncertainN": 3,
+            "tp": 1,
+            "gamingCredit": 0
+          }
+        },
+        "B-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 83,
+            "clarificationRate": 0.9022,
+            "correctImmediate": 0.087,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 9,
+            "ask": 47,
+            "clarificationRate": 0.6528,
+            "correctImmediate": 0.1806,
+            "uncertainGoldAskRate": 0.625,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 5,
+            "ask": 15,
+            "clarificationRate": 0.4054,
+            "correctImmediate": 0.3514,
+            "uncertainGoldAskRate": 0.2,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 10,
+            "clarificationRate": 0.4167,
+            "correctImmediate": 0.5833,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 6,
+            "ask": 16,
+            "clarificationRate": 0.7273,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 32,
+            "clarificationRate": 0.4571,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.4571,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 17,
+            "clarificationRate": 0.6296,
+            "correctImmediate": 0.2593,
+            "uncertainGoldAskRate": 0,
+            "uncertainN": 3,
+            "tp": 0,
+            "gamingCredit": 0
+          }
+        },
+        "C-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 51,
+            "clarificationRate": 0.5543,
+            "correctImmediate": 0.4348,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 4,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 4,
+            "ask": 50,
+            "clarificationRate": 0.6944,
+            "correctImmediate": 0.2083,
+            "uncertainGoldAskRate": 0.625,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 3,
+            "ask": 19,
+            "clarificationRate": 0.5135,
+            "correctImmediate": 0.3514,
+            "uncertainGoldAskRate": 0.6,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 10,
+            "clarificationRate": 0.4167,
+            "correctImmediate": 0.5833,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 4,
+            "ask": 18,
+            "clarificationRate": 0.8182,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 42,
+            "clarificationRate": 0.6,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.6,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 19,
+            "clarificationRate": 0.7037,
+            "correctImmediate": 0.2593,
+            "uncertainGoldAskRate": 0.6667,
+            "uncertainN": 3,
+            "tp": 1,
+            "gamingCredit": 0
+          }
+        }
+      },
+      "svImmediate": {
+        "A-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "B-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "C-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        }
+      },
+      "negFails": {
+        "A-P0": [],
+        "B-P0": [],
+        "C-P0": []
+      }
+    },
+    "minilm-l12": {
+      "spec": {
+        "id": "minilm-l12",
+        "runtimeModelId": "Xenova/all-MiniLM-L12-v2",
+        "sourceModelId": "sentence-transformers/all-MiniLM-L12-v2",
+        "family": "MiniLM",
+        "license": "Apache-2.0",
+        "pooling": "mean",
+        "normalize": true,
+        "prefix": null,
+        "expectedDim": 384,
+        "approxParamsM": 33.4,
+        "approxQuantizedOnnxMb": 33,
+        "approxFp32OnnxMb": 130,
+        "transformersJs": true,
+        "notes": "Deeper MiniLM, same 384-d space. Isolates capacity vs L6 without changing family/objective much.",
+        "docs": [
+          "https://huggingface.co/Xenova/all-MiniLM-L12-v2",
+          "https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2"
+        ],
+        "whySelected": "Controlled capacity step within the production MiniLM family; still browser-plausible.",
+        "load": {
+          "spec": {
+            "id": "minilm-l12",
+            "runtimeModelId": "Xenova/all-MiniLM-L12-v2",
+            "sourceModelId": "sentence-transformers/all-MiniLM-L12-v2",
+            "family": "MiniLM",
+            "license": "Apache-2.0",
+            "pooling": "mean",
+            "normalize": true,
+            "prefix": null,
+            "expectedDim": 384,
+            "approxParamsM": 33.4,
+            "approxQuantizedOnnxMb": 33,
+            "approxFp32OnnxMb": 130,
+            "transformersJs": true,
+            "notes": "Deeper MiniLM, same 384-d space. Isolates capacity vs L6 without changing family/objective much.",
+            "docs": [
+              "https://huggingface.co/Xenova/all-MiniLM-L12-v2",
+              "https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2"
+            ],
+            "whySelected": "Controlled capacity step within the production MiniLM family; still browser-plausible."
+          },
+          "quantized": true,
+          "quantization": "int8-onnx",
+          "coldLoadMs": 2327
+        },
+        "warmMsPerEmbedMacNode": 2.7,
+        "embedAllMs": 8087,
+        "uniqueTexts": 1116
+      },
+      "geometry": [
+        {
+          "id": "geo.lap_swim",
+          "domain": "Physical Prowess",
+          "sims": {
+            "completed_vs_negated": 0.5236,
+            "completed_vs_future": 0.7405,
+            "completed_vs_almost": 0.4469,
+            "completed_vs_plan": 0.4514,
+            "completed_vs_desire": 0.4138,
+            "completed_vs_passive": 0.4047,
+            "completed_vs_purchase": 0.2347,
+            "completed_vs_shortCompleted": 0.6704,
+            "short_vs_completed": 0.6704,
+            "short_vs_future": 0.6569,
+            "paraphrase_completed_short": 0.6704
+          },
+          "margins": {
+            "completed_minus_negated": 0.4764,
+            "completed_minus_future": 0.2595,
+            "completed_minus_almost": 0.5531
+          }
+        },
+        {
+          "id": "geo.orgo_mechanism",
+          "domain": "Academics",
+          "sims": {
+            "completed_vs_negated": 0.205,
+            "completed_vs_future": 0.3838,
+            "completed_vs_almost": 0.1192,
+            "completed_vs_plan": -0.001,
+            "completed_vs_desire": 0.3253,
+            "completed_vs_passive": 0.1167,
+            "completed_vs_purchase": 0.1883,
+            "completed_vs_shortCompleted": 0.3364,
+            "short_vs_completed": 0.3364,
+            "short_vs_future": 0.5634,
+            "paraphrase_completed_short": 0.3364
+          },
+          "margins": {
+            "completed_minus_negated": 0.795,
+            "completed_minus_future": 0.6162,
+            "completed_minus_almost": 0.8808
+          }
+        },
+        {
+          "id": "geo.cold_email",
+          "domain": "Career",
+          "sims": {
+            "completed_vs_negated": 0.2395,
+            "completed_vs_future": 0.2513,
+            "completed_vs_almost": 0.1108,
+            "completed_vs_plan": 0.0177,
+            "completed_vs_desire": 0.0569,
+            "completed_vs_passive": 0.3156,
+            "completed_vs_purchase": -0.0022,
+            "completed_vs_shortCompleted": 0.5529,
+            "short_vs_completed": 0.5529,
+            "short_vs_future": 0.7574,
+            "paraphrase_completed_short": 0.5529
+          },
+          "margins": {
+            "completed_minus_negated": 0.7605,
+            "completed_minus_future": 0.7487,
+            "completed_minus_almost": 0.8892
+          }
+        },
+        {
+          "id": "geo.spice_blend",
+          "domain": "Nutrition & Cooking",
+          "sims": {
+            "completed_vs_negated": 0.3743,
+            "completed_vs_future": 0.5948,
+            "completed_vs_almost": 0.6645,
+            "completed_vs_plan": 0.1558,
+            "completed_vs_desire": 0.2819,
+            "completed_vs_passive": 0.2029,
+            "completed_vs_purchase": 0.3066,
+            "completed_vs_shortCompleted": 0.6655,
+            "short_vs_completed": 0.6655,
+            "short_vs_future": 0.5366,
+            "paraphrase_completed_short": 0.6655
+          },
+          "margins": {
+            "completed_minus_negated": 0.6257,
+            "completed_minus_future": 0.4052,
+            "completed_minus_almost": 0.3355
+          }
+        },
+        {
+          "id": "geo.floss_bridge",
+          "domain": "Appearance & Self-Care",
+          "sims": {
+            "completed_vs_negated": 0.5962,
+            "completed_vs_future": 0.5356,
+            "completed_vs_almost": 0.5758,
+            "completed_vs_plan": 0.3688,
+            "completed_vs_desire": 0.4093,
+            "completed_vs_passive": 0.4277,
+            "completed_vs_purchase": 0.5016,
+            "completed_vs_shortCompleted": 0.7878,
+            "short_vs_completed": 0.7878,
+            "short_vs_future": 0.5223,
+            "paraphrase_completed_short": 0.7878
+          },
+          "margins": {
+            "completed_minus_negated": 0.4038,
+            "completed_minus_future": 0.4644,
+            "completed_minus_almost": 0.4242
+          }
+        },
+        {
+          "id": "geo.psalm_copy",
+          "domain": "Spirituality",
+          "sims": {
+            "completed_vs_negated": 0.2093,
+            "completed_vs_future": 0.7555,
+            "completed_vs_almost": 0.0882,
+            "completed_vs_plan": 0.2068,
+            "completed_vs_desire": 0.1331,
+            "completed_vs_passive": 0.3306,
+            "completed_vs_purchase": 0.3692,
+            "completed_vs_shortCompleted": 0.8142,
+            "short_vs_completed": 0.8142,
+            "short_vs_future": 0.8818,
+            "paraphrase_completed_short": 0.8142
+          },
+          "margins": {
+            "completed_minus_negated": 0.7907,
+            "completed_minus_future": 0.2445,
+            "completed_minus_almost": 0.9118
+          }
+        }
+      ],
+      "geoSummary": {
+        "meanCompletedVsNegated": 0.358,
+        "meanCompletedVsFuture": 0.5436,
+        "meanCompletedVsAlmost": 0.3342,
+        "meanCompletedVsPlan": 0.1999,
+        "meanCompletedVsPurchase": 0.2664,
+        "meanCompletedVsPassive": 0.2997,
+        "meanParaphrase": 0.6379
+      },
+      "retrievalSummary": {
+        "completedMeanPurity": 0.0667,
+        "futureMeanPurity": 0.2,
+        "negatedMeanPurity": 0.2667
+      },
+      "retrievalSample": {
+        "completed0": {
+          "queryState": "completed",
+          "k": 5,
+          "sameState": 0,
+          "purity": 0,
+          "sameFamilyOtherState": 5,
+          "top": [
+            {
+              "state": "future",
+              "family": "geo.lap_swim",
+              "sim": 0.7405,
+              "text": "I'll swim twenty laps tomorrow"
+            },
+            {
+              "state": "shortCompleted",
+              "family": "geo.lap_swim",
+              "sim": 0.6704,
+              "text": "swam laps"
+            },
+            {
+              "state": "negated",
+              "family": "geo.lap_swim",
+              "sim": 0.5236,
+              "text": "I didn't swim at all today"
+            },
+            {
+              "state": "plan",
+              "family": "geo.lap_swim",
+              "sim": 0.4514,
+              "text": "Planning a swim block after midterms"
+            },
+            {
+              "state": "almost",
+              "family": "geo.lap_swim",
+              "sim": 0.4469,
+              "text": "I almost made it to the pool and turned around"
+            }
+          ]
+        },
+        "future0": {
+          "queryState": "future",
+          "k": 5,
+          "sameState": 0,
+          "purity": 0,
+          "sameFamilyOtherState": 5,
+          "top": [
+            {
+              "state": "completed",
+              "family": "geo.lap_swim",
+              "sim": 0.7405,
+              "text": "Swam twenty laps this morning and timed the last one"
+            },
+            {
+              "state": "shortCompleted",
+              "family": "geo.lap_swim",
+              "sim": 0.6569,
+              "text": "swam laps"
+            },
+            {
+              "state": "negated",
+              "family": "geo.lap_swim",
+              "sim": 0.5959,
+              "text": "I didn't swim at all today"
+            },
+            {
+              "state": "desire",
+              "family": "geo.lap_swim",
+              "sim": 0.5632,
+              "text": "I want to become a real swimmer"
+            },
+            {
+              "state": "plan",
+              "family": "geo.lap_swim",
+              "sim": 0.5631,
+              "text": "Planning a swim block after midterms"
+            }
+          ]
+        }
+      },
+      "nliTemplateProbe": {
+        "note": "Argmax cosine to four frozen hypothesis strings. Not a trained NLI model.",
+        "accuracy": 0.9107,
+        "byGold": {
+          "completed": 10,
+          "negated": 13,
+          "future": 14,
+          "almost": 14,
+          "n": 56
+        }
+      },
+      "threeA": {
+        "tag": "b",
+        "l2": 0.03,
+        "lo": 0.4,
+        "hi": 0.6,
+        "internal": {
+          "fp": 0,
+          "fn": 0,
+          "mid": 21,
+          "ok": 3,
+          "n": 24
+        },
+        "trainCount": 487,
+        "probeDeltas": [
+          {
+            "id": "NP-GYM",
+            "pDone": 0.3822,
+            "dNeg": -0.0349,
+            "dFut": -0.0841,
+            "dAlm": -0.0416
+          },
+          {
+            "id": "NP-STUDY",
+            "pDone": 0.4773,
+            "dNeg": 0.0058,
+            "dFut": -0.0222,
+            "dAlm": -0.0104
+          },
+          {
+            "id": "NP-APPLY",
+            "pDone": 0.4666,
+            "dNeg": 0.0225,
+            "dFut": -0.0131,
+            "dAlm": 0.008
+          },
+          {
+            "id": "NP-COOK",
+            "pDone": 0.4603,
+            "dNeg": -0.0054,
+            "dFut": -0.0364,
+            "dAlm": -0.0082
+          },
+          {
+            "id": "NP-MED",
+            "pDone": 0.5294,
+            "dNeg": 0.0622,
+            "dFut": 0.046,
+            "dAlm": -0.0118
+          },
+          {
+            "id": "NP-PRAY",
+            "pDone": 0.4525,
+            "dNeg": -0.0063,
+            "dFut": -0.0336,
+            "dAlm": -0.0166
+          },
+          {
+            "id": "NP-BUDGET",
+            "pDone": 0.4073,
+            "dNeg": 0.0088,
+            "dFut": -0.0242,
+            "dAlm": -0.0029
+          },
+          {
+            "id": "NP-SKIN",
+            "pDone": 0.4908,
+            "dNeg": 0.0179,
+            "dFut": -0.019,
+            "dAlm": -0.0136
+          }
+        ],
+        "meanDNeg": 0.0088,
+        "meanDFut": -0.0233,
+        "meanDAlm": -0.0121
+      },
+      "aeClean": {
+        "tag": "a",
+        "l2": 0.01,
+        "lo": 0.42,
+        "hi": 0.65,
+        "internal": {
+          "fp": 0,
+          "fn": 0,
+          "mid": 19,
+          "ok": 5,
+          "n": 24
+        },
+        "trainCount": 294
+      },
+      "dirtyVsCleanTrainCounts": {
+        "dirty": 286,
+        "clean": 294
+      },
+      "matrix": {
+        "A-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 85,
+            "clarificationRate": 0.9239,
+            "correctImmediate": 0.0652,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 1,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 63,
+            "clarificationRate": 0.875,
+            "correctImmediate": 0.1111,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 33,
+            "clarificationRate": 0.8919,
+            "correctImmediate": 0.1081,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 17,
+            "clarificationRate": 0.7083,
+            "correctImmediate": 0.2917,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 21,
+            "clarificationRate": 0.9545,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 59,
+            "clarificationRate": 0.8429,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.8429,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 20,
+            "clarificationRate": 0.7407,
+            "correctImmediate": 0.1852,
+            "uncertainGoldAskRate": 0.3333,
+            "uncertainN": 3,
+            "tp": 0,
+            "gamingCredit": 0
+          }
+        },
+        "B-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 86,
+            "clarificationRate": 0.9348,
+            "correctImmediate": 0.0652,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 66,
+            "clarificationRate": 0.9167,
+            "correctImmediate": 0.0694,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 30,
+            "clarificationRate": 0.8108,
+            "correctImmediate": 0.1622,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 19,
+            "clarificationRate": 0.7917,
+            "correctImmediate": 0.2083,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 1,
+            "ask": 21,
+            "clarificationRate": 0.9545,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 63,
+            "clarificationRate": 0.9,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 0.9,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 24,
+            "clarificationRate": 0.8889,
+            "correctImmediate": 0.0741,
+            "uncertainGoldAskRate": 0.6667,
+            "uncertainN": 3,
+            "tp": 0,
+            "gamingCredit": 0
+          }
+        },
+        "C-P0": {
+          "val": {
+            "n": 92,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 83,
+            "clarificationRate": 0.9022,
+            "correctImmediate": 0.0978,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 1,
+            "gamingCredit": 0
+          },
+          "v1": {
+            "n": 72,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 67,
+            "clarificationRate": 0.9306,
+            "correctImmediate": 0.0694,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 8,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "stress": {
+            "n": 37,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 31,
+            "clarificationRate": 0.8378,
+            "correctImmediate": 0.1351,
+            "uncertainGoldAskRate": 0.8,
+            "uncertainN": 5,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "fc": {
+            "n": 24,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 21,
+            "clarificationRate": 0.875,
+            "correctImmediate": 0.125,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "sv": {
+            "n": 22,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 22,
+            "clarificationRate": 1,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": null,
+            "uncertainN": 0,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "aux": {
+            "n": 70,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 70,
+            "clarificationRate": 1,
+            "correctImmediate": 0,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 70,
+            "tp": 0,
+            "gamingCredit": 0
+          },
+          "holdout": {
+            "n": 27,
+            "creditFP": 0,
+            "rejectFN": 0,
+            "ask": 24,
+            "clarificationRate": 0.8889,
+            "correctImmediate": 0.1111,
+            "uncertainGoldAskRate": 1,
+            "uncertainN": 3,
+            "tp": 0,
+            "gamingCredit": 0
+          }
+        }
+      },
+      "svImmediate": {
+        "A-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "B-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        },
+        "C-P0": {
+          "credit": 0,
+          "n": 22,
+          "rate": 0
+        }
+      },
+      "negFails": {
+        "A-P0": [],
+        "B-P0": [],
+        "C-P0": []
+      }
+    }
+  }
+}
