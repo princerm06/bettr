@@ -2061,10 +2061,6 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
   }
 
   async function blockObviousCategoryMismatch(text: string) {
-    const selectedLabel =
-      selectedCategories.length === 1
-        ? categoryFor(selectedCategories[0]).short
-        : 'the selected categories';
     try {
       const verdict = await evaluateObviousCategoryMismatch({
         text,
@@ -2073,7 +2069,10 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
       });
       if (!verdict.mismatch) return false;
       setCategoryMismatchNotice(
-        categoryMismatchMessage(selectedLabel, categoryFor(verdict.alternativeKey).short)
+        categoryMismatchMessage(
+          categoryFor(verdict.selectedKey).short,
+          categoryFor(verdict.alternativeKey).short
+        )
       );
       setGateNotice('category_mismatch');
       return true;
@@ -2405,7 +2404,11 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
         )}
         {gateNotice === 'technical' && (
           <div className="composerGateNotice">
-            <span>{COMPOSER_GATE_COPY.technical}</span>
+            <span>
+              {awaitingClarification
+                ? COMPOSER_GATE_COPY.clarificationUnavailable
+                : COMPOSER_GATE_COPY.technical}
+            </span>
           </div>
         )}
         {gateNotice === 'scoring_conflict' && (
@@ -2418,7 +2421,7 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
             <span>{COMPOSER_GATE_COPY.uncertainRejected}</span>
           </div>
         )}
-        {awaitingClarification && (gateNotice === 'uncertain' || gateNotice === 'clarification_needed') && (
+        {awaitingClarification && (gateNotice === 'uncertain' || gateNotice === 'clarification_needed' || gateNotice === 'technical') && (
           <div className="composerClarification">
             <strong>{COMPOSER_GATE_COPY.uncertainHeading}</strong>
             <span>{COMPOSER_GATE_COPY.uncertainBody}</span>
@@ -2450,7 +2453,7 @@ function CustomComposer({ initialCategory, existing, logs, priorities, onClose, 
           <Send size={17}/>
           {evaluating
             ? (modelReady ? COMPOSER_GATE_COPY.checking : COMPOSER_GATE_COPY.gettingReady)
-            : awaitingClarification && (gateNotice === 'uncertain' || gateNotice === 'clarification_needed')
+            : awaitingClarification && (gateNotice === 'uncertain' || gateNotice === 'clarification_needed' || gateNotice === 'technical')
               ? COMPOSER_GATE_COPY.recheck
               : isEdit
                 ? 'Save changes'

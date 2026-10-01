@@ -30,6 +30,7 @@ import {
 import {
   evaluateComposerSubmission,
   evaluateDevelopmentalAction,
+  setClarificationJudgeForTests,
   setDevelopmentalActionEvaluatorForTests,
   type DevelopmentalGateResult,
 } from '../../lib/evaluation/developmentalGate';
@@ -47,6 +48,7 @@ import {
 } from '../../lib/evaluation/trustedQuickActivities';
 import {
   CATEGORY_SUGGESTION_MIN_SIMILARITY,
+  suggestCategoriesHybrid,
 } from '../../lib/evaluation/categorySemanticSuggestions';
 import {
   detectObviousCategoryMismatch,
@@ -71,6 +73,15 @@ const SLAYED_PRODUCTION_DETAILS =
 
 function persistCalled(decision: ReturnType<typeof decideCustomComposerSubmit>, points: number) {
   return canPersistComposerResult(decision, points);
+}
+
+/** Composer returns before onSave when the mismatch guard blocks. */
+function categoriesCreditedAfterMismatchGuard(
+  selected: CategorySuggestionScore['key'][],
+  verdict: ReturnType<typeof detectObviousCategoryMismatch>
+) {
+  if (verdict.mismatch) return [];
+  return selected;
 }
 
 /** Frozen P1: 3A.2 / pDev run only after CONFIDENT_ACTION_POSITIVE. */
@@ -731,6 +742,73 @@ function mainSync() {
     false
   );
 
+  // A supported selected category must not shield an unsupported one.
+  const calculusShield = detectObviousCategoryMismatch(
+    [
+      { key: 'physical', similarity: 0.1288, keyword: false, rankScore: 0.1288 },
+      { key: 'academics', similarity: 0.3542, keyword: true, rankScore: 0.3942 },
+    ],
+    ['physical', 'academics']
+  );
+  assert.equal(calculusShield.mismatch, true);
+  if (calculusShield.mismatch) {
+    assert.equal(calculusShield.selectedKey, 'physical');
+    assert.equal(calculusShield.alternativeKey, 'academics');
+    assert.deepEqual(categoriesCreditedAfterMismatchGuard(['physical', 'academics'], calculusShield), []);
+  }
+
+  const runShield = detectObviousCategoryMismatch(
+    [
+      { key: 'academics', similarity: 0.0595, keyword: false, rankScore: 0.0595 },
+      { key: 'physical', similarity: 0.2553, keyword: true, rankScore: 0.2953 },
+    ],
+    ['academics', 'physical']
+  );
+  assert.equal(runShield.mismatch, true);
+  if (runShield.mismatch) {
+    assert.equal(runShield.selectedKey, 'academics');
+    assert.equal(runShield.alternativeKey, 'physical');
+  }
+
+  const internshipShield = detectObviousCategoryMismatch(
+    [
+      { key: 'fashion', similarity: 0.0601, keyword: false, rankScore: 0.0601 },
+      { key: 'career', similarity: 0.4143, keyword: true, rankScore: 0.4543 },
+    ],
+    ['fashion', 'career']
+  );
+  assert.equal(internshipShield.mismatch, true);
+  if (internshipShield.mismatch) {
+    assert.equal(internshipShield.selectedKey, 'fashion');
+    assert.equal(internshipShield.alternativeKey, 'career');
+  }
+
+  const guitarShield = detectObviousCategoryMismatch(
+    [
+      { key: 'nutrition', similarity: 0.0499, keyword: false, rankScore: 0.0499 },
+      { key: 'mind', similarity: 0.4561, keyword: true, rankScore: 0.4961 },
+    ],
+    ['nutrition', 'mind']
+  );
+  assert.equal(guitarShield.mismatch, true);
+  if (guitarShield.mismatch) {
+    assert.equal(guitarShield.selectedKey, 'nutrition');
+    assert.equal(guitarShield.alternativeKey, 'mind');
+  }
+
+  const mealPrepControl = detectObviousCategoryMismatch(
+    [
+      { key: 'nutrition', similarity: 0.5071, keyword: true, rankScore: 0.5471 },
+      { key: 'finance', similarity: 0.3066, keyword: true, rankScore: 0.3466 },
+    ],
+    ['nutrition', 'finance']
+  );
+  assert.equal(mealPrepControl.mismatch, false);
+  assert.deepEqual(
+    categoriesCreditedAfterMismatchGuard(['nutrition', 'finance'], mealPrepControl),
+    ['nutrition', 'finance']
+  );
+
   const originalEdit = { points: 6, category: 'physical' };
   const rejectedEdit = applyEditIfAccepted({
     original: originalEdit,
@@ -1098,14 +1176,24 @@ async function mainAsync() {
   assert.equal(deniedUi.awaitingClarification, false);
   assert.equal(deniedUi.gateNotice, 'non');
 
+  const judgeCalls: Array<{ originalLog: string; clarification: string }> = [];
+  setClarificationJudgeForTests(async (input) => {
+    judgeCalls.push(input);
+    assert.equal(input.originalLog.includes('Original action:'), false);
+    return 'COMPLETED_DEVELOPMENTAL';
+  });
   const allowedClarification = await evaluateComposerSubmission({
     activity: 'Ran 5k',
     details: '',
     clarificationPass: true,
     clarificationText: "I didn't just run, I also lifted.",
   });
-  assert.notEqual(allowedClarification.status, 'TECHNICAL_FAILURE');
-  assertTwoAxisEvaluatorRan(allowedClarification);
+  assert.equal(allowedClarification.status, 'DEVELOPMENTAL');
+  assert.equal(allowedClarification.reason, 'CLARIFICATION_JUDGE');
+  assert.equal(allowedClarification.pDev, null);
+  assert.equal(judgeCalls.length, 1);
+  assert.equal(judgeCalls[0].originalLog, 'Ran 5k');
+  assert.equal(judgeCalls[0].clarification, "I didn't just run, I also lifted.");
 
   const contrastiveDelay = "I didn't run until later, then I completed the 5k.";
   assert.equal(clarificationIsTrivial(contrastiveDelay), false);
@@ -1125,6 +1213,7 @@ async function mainAsync() {
   assert.equal(trivialStuffUi.persist, false);
   assert.equal(trivialStuffUi.awaitingClarification, false);
   assert.equal(trivialStuffUi.gateNotice, 'uncertain_rejected');
+  assert.equal(judgeCalls.length, 1);
 
   const usefulClarification = await evaluateComposerSubmission({
     activity: 'Ran 5k',
@@ -1132,8 +1221,24 @@ async function mainAsync() {
     clarificationPass: true,
     clarificationText: 'Improved my pace while training for a race',
   });
-  assert.notEqual(usefulClarification.status, 'TECHNICAL_FAILURE');
-  assertTwoAxisEvaluatorRan(usefulClarification);
+  assert.equal(usefulClarification.status, 'DEVELOPMENTAL');
+  assert.equal(usefulClarification.reason, 'CLARIFICATION_JUDGE');
+  setClarificationJudgeForTests(null);
+  const unresolvedWithoutJudge = await evaluateComposerSubmission({
+    activity: 'Ran 5k',
+    details: '',
+    clarificationPass: true,
+    clarificationText: 'Improved my pace while training for a race',
+  });
+  assert.equal(unresolvedWithoutJudge.status, 'TECHNICAL_FAILURE');
+  assert.notEqual(unresolvedWithoutJudge.status, 'DEVELOPMENTAL');
+  const unavailableUi = applyComposerGateDecisionToUi({
+    clarificationPass: true,
+    status: unresolvedWithoutJudge.status,
+  });
+  assert.equal(unavailableUi.persist, false);
+  assert.equal(unavailableUi.awaitingClarification, true);
+  assert.equal(unavailableUi.gateNotice, 'technical');
 
   await loadMiniLm();
   const fashionMismatch = await evaluateObviousCategoryMismatch({
@@ -1173,6 +1278,113 @@ async function mainAsync() {
     embedMany: embedTexts,
   });
   assert.equal(choppedAppearance.mismatch, false);
+
+  const mixedAfterSuggestion = [
+    {
+      id: 'A',
+      activity: 'Studied for my calculus exam',
+      initial: ['physical'] as const,
+      suggestion: 'academics' as const,
+      unsupported: 'physical' as const,
+    },
+    {
+      id: 'B',
+      activity: 'Ran 5 miles this morning',
+      initial: ['academics'] as const,
+      suggestion: 'physical' as const,
+      unsupported: 'academics' as const,
+    },
+    {
+      id: 'C',
+      activity: 'Submitted three internship applications',
+      initial: ['fashion'] as const,
+      suggestion: 'career' as const,
+      unsupported: 'fashion' as const,
+    },
+    {
+      id: 'D',
+      activity: 'Practiced guitar for an hour',
+      initial: ['nutrition'] as const,
+      suggestion: 'mind' as const,
+      unsupported: 'nutrition' as const,
+    },
+  ];
+
+  for (const row of mixedAfterSuggestion) {
+    const suggestions = await suggestCategoriesHybrid({
+      activity: row.activity,
+      details: '',
+      selected: [...row.initial],
+      embedMany: embedTexts,
+    });
+    assert.ok(suggestions.includes(row.suggestion), row.id);
+    const selected = [...row.initial, row.suggestion];
+    const verdict = await evaluateObviousCategoryMismatch({
+      text: composeSemanticLogText(row.activity, ''),
+      selected,
+      embedMany: embedTexts,
+    });
+    assert.equal(verdict.mismatch, true, row.id);
+    if (verdict.mismatch) {
+      assert.equal(verdict.selectedKey, row.unsupported, row.id);
+      assert.equal(verdict.alternativeKey, row.suggestion, row.id);
+    }
+    assert.deepEqual(categoriesCreditedAfterMismatchGuard(selected, verdict), [], row.id);
+
+    const lunaText = composeSemanticLogText(
+      row.activity,
+      persistDetailsAfterGate({
+        details: '',
+        clarificationPass: true,
+        clarificationText: row.activity,
+      })
+    );
+    const lunaVerdict = await evaluateObviousCategoryMismatch({
+      text: lunaText,
+      selected,
+      embedMany: embedTexts,
+    });
+    assert.equal(lunaVerdict.mismatch, true, `${row.id} luna`);
+    if (lunaVerdict.mismatch) {
+      assert.equal(lunaVerdict.selectedKey, row.unsupported, `${row.id} luna`);
+      assert.equal(lunaVerdict.alternativeKey, row.suggestion, `${row.id} luna`);
+    }
+    assert.deepEqual(
+      categoriesCreditedAfterMismatchGuard(selected, lunaVerdict),
+      [],
+      `${row.id} luna`
+    );
+  }
+
+  const mealSelected = ['nutrition', 'finance'] as const;
+  const mealText = 'Meal prepped to save money';
+  const mealFirstPass = await evaluateObviousCategoryMismatch({
+    text: composeSemanticLogText(mealText, ''),
+    selected: [...mealSelected],
+    embedMany: embedTexts,
+  });
+  assert.equal(mealFirstPass.mismatch, false);
+  assert.deepEqual(
+    categoriesCreditedAfterMismatchGuard([...mealSelected], mealFirstPass),
+    [...mealSelected]
+  );
+  const mealLuna = await evaluateObviousCategoryMismatch({
+    text: composeSemanticLogText(
+      mealText,
+      persistDetailsAfterGate({
+        details: '',
+        clarificationPass: true,
+        clarificationText: mealText,
+      })
+    ),
+    selected: [...mealSelected],
+    embedMany: embedTexts,
+  });
+  assert.equal(mealLuna.mismatch, false);
+  assert.deepEqual(
+    categoriesCreditedAfterMismatchGuard([...mealSelected], mealLuna),
+    [...mealSelected]
+  );
 }
 
 async function main() {

@@ -100,7 +100,7 @@ export function applyComposerGateDecisionToUi(input: {
   if (decision.kind === 'reject') {
     return {
       persist: false,
-      awaitingClarification: false,
+      awaitingClarification: input.clarificationPass && !decision.closeClarification,
       gateNotice: decision.notice,
     };
   }

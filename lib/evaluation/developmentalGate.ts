@@ -2,6 +2,8 @@
  * Phase 1 production gate orchestration:
  * deterministic INVALID → structural first-pass → MPNet Action Evidence
  * → frozen Candidate 3A.2 when action-positive → P1 policy.
+ * Substantive clarification is resolved by the server-side judge, not by
+ * rescoring a composed template with these probes.
  *
  * p_dev / p_action are internal only — never pass them to XP or UI.
  */
@@ -24,12 +26,20 @@ import {
   type TwoAxisPolicyOutcome,
 } from './twoAxisProductPolicy';
 import {
-  composeClarificationSemanticText,
   composeSemanticLogText,
   isComposerSemanticInputInvalid,
 } from './customComposerSemantic';
+import {
+  judgeSubstantiveClarification,
+  setClarificationJudgeForTests,
+} from './clarificationJudgeClient';
 
-export type DevelopmentalGateReason = TwoAxisPolicyOutcome | 'STRUCTURAL_FIRST_PASS';
+export type DevelopmentalGateReason =
+  | TwoAxisPolicyOutcome
+  | 'STRUCTURAL_FIRST_PASS'
+  | 'CLARIFICATION_JUDGE';
+
+export { setClarificationJudgeForTests };
 
 export type DevelopmentalGateResult = {
   status: DevelopmentalGateStatus;
@@ -191,18 +201,19 @@ export async function evaluateComposerSubmission(options: {
     if (clarificationExplicitlyDeniesAction(clarification)) {
       return { status: 'NON_DEVELOPMENTAL', pDev: null };
     }
+    if (!clarification.trim()) {
+      return { status: 'UNCERTAIN', pDev: null };
+    }
+    return judgeSubstantiveClarification({
+      originalLog: originalText,
+      clarification: clarification.trim(),
+    });
   }
   const originalText = composeSemanticLogText(options.activity, options.details);
-  if (
-    !options.clarificationPass &&
-    needsFirstPassClarification(options.activity, options.details)
-  ) {
+  if (needsFirstPassClarification(options.activity, options.details)) {
     return { status: 'UNCERTAIN', pDev: null, reason: 'STRUCTURAL_FIRST_PASS' };
   }
-  const textToEvaluate = options.clarificationPass
-    ? composeClarificationSemanticText(originalText, options.clarificationText || '')
-    : originalText;
-  return evaluateDevelopmentalAction(textToEvaluate);
+  return evaluateDevelopmentalAction(originalText);
 }
 
 export function mapKnownProbability(pDev: number) {

@@ -33,7 +33,8 @@ function bestRow(rows: CategorySuggestionScore[]) {
 /**
  * A selected category is independently supported when its own evidence clears
  * the selected floor or keyword signals back it. A stronger alternative alone
- * must not reject that selection.
+ * must not reject that selection. A supported sibling must not shield an
+ * unsupported selected category.
  */
 export function isIndependentlySupportedSelectedCategory(
   row: CategorySuggestionScore
@@ -49,13 +50,31 @@ export function detectObviousCategoryMismatch(
 
   const selectedSet = new Set(selected);
   const selectedRows = scores.filter((row) => selectedSet.has(row.key));
-  const alternativeRows = scores.filter((row) => !selectedSet.has(row.key));
-  if (!selectedRows.length || !alternativeRows.length) return { mismatch: false };
+  if (!selectedRows.length) return { mismatch: false };
 
-  // Independently supported selection stands even if another area scores higher.
-  if (selectedRows.some(isIndependentlySupportedSelectedCategory)) {
-    return { mismatch: false };
+  const supportedRows = selectedRows.filter(isIndependentlySupportedSelectedCategory);
+  const unsupportedRows = selectedRows.filter(
+    (row) => !isIndependentlySupportedSelectedCategory(row)
+  );
+
+  if (unsupportedRows.length === 0) return { mismatch: false };
+
+  if (supportedRows.length > 0) {
+    const unsupportedKey =
+      selected.find((key) => unsupportedRows.some((row) => row.key === key)) ??
+      unsupportedRows[0].key;
+    const supportedKey =
+      selected.find((key) => supportedRows.some((row) => row.key === key)) ??
+      bestRow(supportedRows).key;
+    return {
+      mismatch: true,
+      selectedKey: unsupportedKey,
+      alternativeKey: supportedKey,
+    };
   }
+
+  const alternativeRows = scores.filter((row) => !selectedSet.has(row.key));
+  if (!alternativeRows.length) return { mismatch: false };
 
   const bestSelected = bestRow(selectedRows);
   const bestAlternative = bestRow(alternativeRows);

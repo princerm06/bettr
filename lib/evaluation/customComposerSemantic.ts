@@ -24,6 +24,9 @@ export function composeClarificationSemanticText(
   return `Original action:\n${originalSemanticText}\n\nAdditional context:\n${clarification.trim()}`;
 }
 
+export const CLARIFICATION_UNAVAILABLE_COPY =
+  "Bettr couldn't check that clarification right now. Try again.";
+
 export const COMPOSER_GATE_COPY = {
   invalid: 'Describe what you did so Bettr can understand the action.',
   non: "This doesn't appear to count toward your progress.",
@@ -33,6 +36,7 @@ export const COMPOSER_GATE_COPY = {
   uncertainRejected:
     "Bettr still can't confidently determine how this counts toward your progress. Try making the action more specific.",
   technical: "Bettr couldn't check this action right now. Try again.",
+  clarificationUnavailable: CLARIFICATION_UNAVAILABLE_COPY,
   scoringConflict: "Bettr couldn't award progress for this entry. Try again.",
   checking: 'Checking your action…',
   gettingReady: 'Bettr is getting ready…',
